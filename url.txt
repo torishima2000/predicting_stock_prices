@@ -1,0 +1,5 @@
+東証上場銘柄一覧をまとめたファイル
+日本語
+https://www.jpx.co.jp/markets/statistics-equities/misc/01.html
+英語
+https://www.jpx.co.jp/english/markets/statistics-equities/misc/01.html

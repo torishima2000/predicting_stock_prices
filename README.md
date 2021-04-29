@@ -7,7 +7,8 @@ yfinanceを用いたデータ整形
 
 モジュール一覧:
 
-   make_historical_date(security_code, directory_name = "HistoricalDate", file_name = None)
+make_historical_date(security_code, directory_name = "HistoricalDate", file_name = None)
+   
     """価格のヒストリカルデータを取得し、csvファイルに記憶する
     Args:
         security_code (string): 銘柄コード

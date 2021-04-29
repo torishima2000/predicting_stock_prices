@@ -7,14 +7,12 @@ yfinanceを用いたデータ整形
 
 モジュール一覧:
 
-stock_prices_to_csv(security_code, directory_name = os.path.join("HistoricalDate", "StockPriceValues"), file_name = None)
+stock_prices_to_csv(security_code, file_name = None)
    
     価格のヒストリカルデータを取得し、csvファイルに記憶する
+    保存先は .\HistoricalDate\StockPrices
     Args:
         security_code (string): 銘柄コード
-        directory_name (:obj: string , optional):
-            csvファイルを作成するディレクトリへの相対パス
-            デフォルトでは、"HistoricalDate\StockPriceValues"
         file_name (:obj: string , optional): 
             保存するcsvファイルの名前
             デフォルトでは銘柄コードが使用される

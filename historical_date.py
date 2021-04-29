@@ -5,7 +5,7 @@ import os
 import pandas as pd
 import yfinance as yf
 
-# 証券コードを指定
+# 銘柄コードを指定
 Security_code = "7203"
 
 # ティッカーシンボルを作成

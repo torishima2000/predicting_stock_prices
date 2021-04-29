@@ -5,14 +5,14 @@ import os
 import pandas as pd
 import yfinance as yf
 
-def make_historical_date(security_code, directory_name = "HistoricalDate", file_name = None):
+def stock_prices_to_csv(security_code, directory_name = os.path.join("HistoricalDate", "StockPriceValues"), file_name = None):
     """価格のヒストリカルデータを取得し、csvファイルに記憶する
 
     Args:
         security_code (string): 銘柄コード
         directory_name (:obj: string , optional):
             csvファイルを作成するディレクトリへの相対パス
-            デフォルトでは、"HistoricalDate"
+            デフォルトでは、"HistoricalDate\StockPriceValues"
         file_name (:obj: string , optional): 
             保存するcsvファイルの名前
             デフォルトでは銘柄コードが使用される

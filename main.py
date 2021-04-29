@@ -6,4 +6,4 @@ import my_modules as mine
 Security_code = "7203"
 
 # 価格のヒストリカルデータを取得する
-mine.make_historical_date("7203")
+mine.stock_prices_to_csv("7203")

@@ -108,7 +108,7 @@ def cash_flow_statement_to_csv(security_code, file_name = None):
     path = os.path.join(settings.directory_names["cash_flow_statement"], file_name)
     cashflow.to_csv(path, sep = ",")
 
-def topix500_to_csv(file_name = "TOPIX500"):
+def topix500_to_csv(file_name = None):
     """TOPIX500構成銘柄の取得
 
     Args:
@@ -135,4 +135,8 @@ def topix500_to_csv(file_name = "TOPIX500"):
     issues.insert(3, "Name (Japanese)", name_japanese)
 
     # データの保存
-    issues.to_csv(os.path.join(settings.directory_names["TSE_listed_Issues"], file_name + ".csv"), sep = ",")
+    if file_name:
+        file_name = file_name + ".csv"
+    else:
+        file_name = settings.file_names["TOPIX500"] + ".csv"
+    issues.to_csv(os.path.join(settings.directory_names["TSE_listed_Issues"], file_name), sep = ",")

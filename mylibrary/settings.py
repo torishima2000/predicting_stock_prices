@@ -22,5 +22,7 @@ file_names = {
     # 東証上場銘柄一覧(日本語)
     "TSE_listed_Issues_JP":"data_j.xls",
     # 東証上場銘柄一覧(英語)
-    "TSE_listed_Issues_EN":"data_e.xls"
+    "TSE_listed_Issues_EN":"data_e.xls",
+    # TOPIX500構成銘柄一覧
+    "TOPIX500":"TOPIX500"
 }

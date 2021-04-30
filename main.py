@@ -18,3 +18,7 @@ Security_code = "7203"
 
 # TOPIX500構成銘柄をcsvファイルに保存
 # mine.topix500_to_csv()
+
+# TOPIX500構成銘柄の証券コードを取得
+topix500_codes = mine.codelist_topix500()
+print(topix500_codes)

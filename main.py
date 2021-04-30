@@ -15,3 +15,6 @@ Security_code = "7203"
 
 # キャッシュ・フロー計算書をcsvファイルに保存
 # mine.cash_flow_statement_to_csv("7203")
+
+# TOPIX500構成銘柄をcsvファイルに保存
+# mine.topix500_to_csv()

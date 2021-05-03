@@ -2,7 +2,7 @@
 import mylibrary as mine
 
 # 銘柄コードを指定
-Security_code = "7203"
+# Security_code = "7203.T"
 
 # 価格のヒストリカルデータを取得し、csvファイルに保存
 # mine.stock_prices_to_csv(Security_code)
@@ -25,6 +25,11 @@ Security_code = "7203"
 # TOPIX500構成銘柄の証券コードを取得
 topix500_codes = mine.codelist_topix500()
 
+
+# 実行済み
+# for s in topix500_codes:
+#     mine.stock_prices_to_csv(str(s))
+# mine.stock_prices_to_csv("^N225")
+
+
 # main
-for s in topix500_codes:
-    mine.stock_prices_to_csv(str(s))

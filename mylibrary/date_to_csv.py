@@ -19,7 +19,7 @@ def stock_prices_to_csv(security_code):
         security_code (string): 銘柄コード
     """
     # ティッカーシンボルを作成
-    ticker = yf.Ticker("{}.T".format(security_code))
+    ticker = yf.Ticker(security_code)
 
     # 価格データをDateFrameオブジェクトで取得
     hist = ticker.history(period="max")
@@ -37,7 +37,7 @@ def pl_to_csv(security_code):
         security_code (string): 銘柄コード
     """
     # ティッカーシンボルを作成
-    ticker = yf.Ticker("{}.T".format(security_code))
+    ticker = yf.Ticker(security_code)
 
     # 損益計算書をDateFrameオブジェクトで取得
     financials = ticker.financials
@@ -55,7 +55,7 @@ def balance_sheet_to_csv(security_code):
         security_code (string): 銘柄コード
     """
     # ティッカーシンボルを作成
-    ticker = yf.Ticker("{}.T".format(security_code))
+    ticker = yf.Ticker(security_code)
 
     # 貸借対照表をDateFrameオブジェクトで取得
     balance_sheet = ticker.balance_sheet
@@ -73,7 +73,7 @@ def cash_flow_statement_to_csv(security_code):
         security_code (string): 銘柄コード
     """
     # ティッカーシンボルを作成
-    ticker = yf.Ticker("{}.T".format(security_code))
+    ticker = yf.Ticker(security_code)
 
     # キャッシュ・フロー計算書をDateFrameオブジェクトで取得
     cashflow = ticker.cashflow
@@ -91,7 +91,7 @@ def sammary_to_csv(security_code):
         security_code (string): 銘柄コード
     """
     # ティッカーシンボルを作成
-    ticker = yf.Ticker("{}.T".format(security_code))
+    ticker = yf.Ticker(security_code)
 
     # 銘柄のサマリーをDateFrameオブジェクトで取得
     info = ticker.info

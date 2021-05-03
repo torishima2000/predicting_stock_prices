@@ -1,0 +1,8 @@
+{
+    "stock_prices": "Dates\\HistoricalDate\\StockPrices", 
+    "Profit_and_Loss_Statement": "Dates\\HistoricalDate\\ProfitAndLossStatement", 
+    "balance_sheet": "Dates\\HistoricalDate\\BalanceSheet", 
+    "cash_flow_statement": "Dates\\HistoricalDate\\CashFlowStatement", 
+    "sammary": "Dates\\Sammary", 
+    "TSE_listed_Issues": "Dates\\List_of_TSE-listedIssues\\202103"
+}

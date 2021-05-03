@@ -40,7 +40,7 @@ def pl_to_csv(security_code):
     ticker = yf.Ticker(security_code)
 
     # 損益計算書をDateFrameオブジェクトで取得
-    financials = ticker.financials
+    financials = ticker.financials.T
 
     # データをcsvファイルで保存する
     os.makedirs(path_name["Profit_and_Loss_Statement"], exist_ok = True)
@@ -58,7 +58,7 @@ def balance_sheet_to_csv(security_code):
     ticker = yf.Ticker(security_code)
 
     # 貸借対照表をDateFrameオブジェクトで取得
-    balance_sheet = ticker.balance_sheet
+    balance_sheet = ticker.balance_sheet.T
 
     # データをcsvファイルで保存する
     os.makedirs(path_name["balance_sheet"], exist_ok = True)
@@ -76,7 +76,7 @@ def cash_flow_statement_to_csv(security_code):
     ticker = yf.Ticker(security_code)
 
     # キャッシュ・フロー計算書をDateFrameオブジェクトで取得
-    cashflow = ticker.cashflow
+    cashflow = ticker.cashflow.T
 
     # データをcsvファイルで保存する
     os.makedirs(path_name["cash_flow_statement"], exist_ok = True)

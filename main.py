@@ -1,8 +1,13 @@
 # モジュールのインポート
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# 自作モジュールのインポート
 import mylibrary as mine
 
 # 銘柄コードを指定
-# Security_code = "7203.T"
+Security_code = "7203.T"
 
 # 価格のヒストリカルデータを取得し、csvファイルに保存
 # mine.stock_prices_to_csv(Security_code)
@@ -28,7 +33,7 @@ topix500_codes = mine.codelist_topix500()
 
 # 実行済み
 # for s in topix500_codes:
-#     mine.stock_prices_to_csv(str(s))
+#     mine.stock_prices_to_csv(str(s) + ".T")
 # mine.stock_prices_to_csv("^N225")
 
 

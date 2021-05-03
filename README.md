@@ -16,3 +16,24 @@ stock_prices_to_csv(security_code, file_name = None)
         file_name (:obj: string , optional): 
             保存するcsvファイルの名前
             デフォルトでは銘柄コードが使用される
+
+
+設定ファイルにあるパスとファイル名一覧
+# 株価のヒストリカルデータ
+"stock_prices":os.path.join("Dates", "HistoricalDate", "StockPrices"), 
+# 損益計算書
+"Profit_and_Loss_Statement":os.path.join("Dates", "HistoricalDate", "ProfitAndLossStatement"),
+# 貸借対照表
+"balance_sheet":os.path.join("Dates", "HistoricalDate", "BalanceSheet"),
+# キャッシュフロー計算書
+"cash_flow_statement":os.path.join("Dates", "HistoricalDate", "CashFlowStatement"),
+# サマリー
+"sammary":os.path.join("Dates", "Sammary"),
+# 東証上場銘柄一覧
+"TSE_listed_Issues":os.path.join("Dates", "List_of_TSE-listedIssues", "202103"),
+# 東証上場銘柄一覧(日本語)
+"TSE_listed_Issues_JP":"data_j.xls",
+# 東証上場銘柄一覧(英語)
+"TSE_listed_Issues_EN":"data_e.xls",
+# TOPIX500構成銘柄一覧
+"TOPIX500":"TOPIX500"

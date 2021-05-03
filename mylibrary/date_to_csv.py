@@ -6,8 +6,10 @@ import json
 import pandas as pd
 import yfinance as yf
 
-# 設定ファイルのインポート
-from . import settings
+# 設定ファイルの読み込み
+path_name = {}
+with open("mylibrary\path.json", "r") as f:
+    path_name = json.load(f)
 
 def stock_prices_to_csv(security_code):
     """価格のヒストリカルデータを取得し、csvファイルに記憶する
@@ -23,9 +25,9 @@ def stock_prices_to_csv(security_code):
     hist = ticker.history(period="max")
 
     # データをcsvファイルで保存する
-    os.makedirs(settings.directory_names["stock_prices"], exist_ok = True)
-    path = os.path.join(settings.directory_names["stock_prices"], security_code + ".csv")
-    hist.to_csv(path, sep = ",")
+    os.makedirs(path_name["stock_prices"], exist_ok = True)
+    file_name = os.path.join(path_name["stock_prices"], security_code + ".csv")
+    hist.to_csv(file_name, sep = ",")
 
 def pl_to_csv(security_code):
     """過去3年分の損益計算書を取得し、csvファイルに記憶する
@@ -41,9 +43,9 @@ def pl_to_csv(security_code):
     financials = ticker.financials
 
     # データをcsvファイルで保存する
-    os.makedirs(settings.directory_names["Profit_and_Loss_Statement"], exist_ok = True)
-    path = os.path.join(settings.directory_names["Profit_and_Loss_Statement"], security_code + ".csv")
-    financials.to_csv(path, sep = ",")
+    os.makedirs(path_name["Profit_and_Loss_Statement"], exist_ok = True)
+    file_name = os.path.join(path_name["Profit_and_Loss_Statement"], security_code + ".csv")
+    financials.to_csv(file_name, sep = ",")
 
 def balance_sheet_to_csv(security_code):
     """過去3年分の貸借対照表を取得し、csvファイルに記憶する
@@ -59,9 +61,9 @@ def balance_sheet_to_csv(security_code):
     balance_sheet = ticker.balance_sheet
 
     # データをcsvファイルで保存する
-    os.makedirs(settings.directory_names["balance_sheet"], exist_ok = True)
-    path = os.path.join(settings.directory_names["balance_sheet"], security_code + ".csv")
-    balance_sheet.to_csv(path, sep = ",")
+    os.makedirs(path_name["balance_sheet"], exist_ok = True)
+    file_name = os.path.join(path_name["balance_sheet"], security_code + ".csv")
+    balance_sheet.to_csv(file_name, sep = ",")
 
 def cash_flow_statement_to_csv(security_code):
     """過去3年分のキャッシュ・フロー計算書を取得し、csvファイルに記憶する
@@ -77,9 +79,9 @@ def cash_flow_statement_to_csv(security_code):
     cashflow = ticker.cashflow
 
     # データをcsvファイルで保存する
-    os.makedirs(settings.directory_names["cash_flow_statement"], exist_ok = True)
-    path = os.path.join(settings.directory_names["cash_flow_statement"], security_code + ".csv")
-    cashflow.to_csv(path, sep = ",")
+    os.makedirs(path_name["cash_flow_statement"], exist_ok = True)
+    file_name = os.path.join(path_name["cash_flow_statement"], security_code + ".csv")
+    cashflow.to_csv(file_name, sep = ",")
 
 def sammary_to_csv(security_code):
     """銘柄のサマリーを取得し、jsonファイルに記憶する
@@ -95,9 +97,9 @@ def sammary_to_csv(security_code):
     info = ticker.info
     
     # データをjsonファイルで保存する
-    os.makedirs(settings.directory_names["sammary"], exist_ok = True)
-    path = os.path.join(settings.directory_names["sammary"], security_code + ".json")
-    with open(path, "w") as f:
+    os.makedirs(path_name["sammary"], exist_ok = True)
+    file_name = os.path.join(path_name["sammary"], security_code + ".json")
+    with open(file_name, "w") as f:
         json.dump(info, f)
 
 def topix500_to_csv():
@@ -105,12 +107,12 @@ def topix500_to_csv():
     保存先は \Dates\List_of_TSE-listedIssues\[取得したリストの更新年月日]
     """
     # 東証上場銘柄一覧を取得
-    path_to_jp = os.path.join(settings.directory_names["TSE_listed_Issues"],
-                              settings.file_names["TSE_listed_Issues_JP"])
-    path_to_en = os.path.join(settings.directory_names["TSE_listed_Issues"],
-                              settings.file_names["TSE_listed_Issues_EN"])
-    issues_jp = pd.read_excel(path_to_jp)
-    issues_en = pd.read_excel(path_to_en)
+    path_name_to_jp = os.path.join(path_name["TSE_listed_Issues"],
+                              path_name["TSE_listed_Issues_JP"])
+    path_name_to_en = os.path.join(path_name["TSE_listed_Issues"],
+                              path_name["TSE_listed_Issues_EN"])
+    issues_jp = pd.read_excel(path_name_to_jp)
+    issues_en = pd.read_excel(path_name_to_en)
 
     # データの形成
     # TOPIX500構成銘柄の行だけ摘出
@@ -123,5 +125,5 @@ def topix500_to_csv():
     issues.insert(3, "Name (Japanese)", name_japanese)
 
     # データの保存
-    file_name = settings.file_names["TOPIX500"] + ".csv"
-    issues.to_csv(os.path.join(settings.directory_names["TSE_listed_Issues"], file_name), sep = ",")
+    file_name = path_name["TOPIX500"] + ".csv"
+    issues.to_csv(os.path.join(path_name["TSE_listed_Issues"], file_name), sep = ",")

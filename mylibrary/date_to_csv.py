@@ -2,21 +2,19 @@
 
 # モジュールのインポート
 import os
+import json
 import pandas as pd
 import yfinance as yf
 
 # 設定ファイルのインポート
 from . import settings
 
-def stock_prices_to_csv(security_code, file_name = None):
+def stock_prices_to_csv(security_code):
     """価格のヒストリカルデータを取得し、csvファイルに記憶する
-    保存先は .\HistoricalDate\StockPrices
+    保存先は \Dates\HistoricalDate\StockPrices
 
     Args:
         security_code (string): 銘柄コード
-        file_name (:obj: string , optional): 
-            保存するcsvファイルの名前
-            デフォルトでは銘柄コードが使用される
     """
     # ティッカーシンボルを作成
     ticker = yf.Ticker("{}.T".format(security_code))
@@ -26,22 +24,15 @@ def stock_prices_to_csv(security_code, file_name = None):
 
     # データをcsvファイルで保存する
     os.makedirs(settings.directory_names["stock_prices"], exist_ok = True)
-    if file_name:
-        file_name = file_name + ".csv"
-    else:
-        file_name = security_code + ".csv"
-    path = os.path.join(settings.directory_names["stock_prices"], file_name)
+    path = os.path.join(settings.directory_names["stock_prices"], security_code + ".csv")
     hist.to_csv(path, sep = ",")
 
-def pl_to_csv(security_code, file_name = None):
+def pl_to_csv(security_code):
     """過去3年分の損益計算書を取得し、csvファイルに記憶する
-    保存先は .\HistoricalDate\Profit_and_Loss_Statement
+    保存先は \Dates\HistoricalDate\Profit_and_Loss_Statement
 
     Args:
         security_code (string): 銘柄コード
-        file_name (:obj: string , optional): 
-            保存するcsvファイルの名前
-            デフォルトでは銘柄コードが使用される
     """
     # ティッカーシンボルを作成
     ticker = yf.Ticker("{}.T".format(security_code))
@@ -51,22 +42,15 @@ def pl_to_csv(security_code, file_name = None):
 
     # データをcsvファイルで保存する
     os.makedirs(settings.directory_names["Profit_and_Loss_Statement"], exist_ok = True)
-    if file_name:
-        file_name = fine_name + ".csv"
-    else:
-        file_name = security_code + ".csv"
-    path = os.path.join(settings.directory_names["Profit_and_Loss_Statement"], file_name)
+    path = os.path.join(settings.directory_names["Profit_and_Loss_Statement"], security_code + ".csv")
     financials.to_csv(path, sep = ",")
 
-def balance_sheet_to_csv(security_code, file_name = None):
+def balance_sheet_to_csv(security_code):
     """過去3年分の貸借対照表を取得し、csvファイルに記憶する
-    保存先は .\HistoricalDate\BalanceSheet
+    保存先は \Dates\HistoricalDate\BalanceSheet
 
     Args:
         security_code (string): 銘柄コード
-        file_name (:obj: string , optional): 
-            保存するcsvファイルの名前
-            デフォルトでは銘柄コードが使用される
     """
     # ティッカーシンボルを作成
     ticker = yf.Ticker("{}.T".format(security_code))
@@ -76,22 +60,15 @@ def balance_sheet_to_csv(security_code, file_name = None):
 
     # データをcsvファイルで保存する
     os.makedirs(settings.directory_names["balance_sheet"], exist_ok = True)
-    if file_name:
-        file_name = fine_name + ".csv"
-    else:
-        file_name = security_code + ".csv"
-    path = os.path.join(settings.directory_names["balance_sheet"], file_name)
+    path = os.path.join(settings.directory_names["balance_sheet"], security_code + ".csv")
     balance_sheet.to_csv(path, sep = ",")
 
-def cash_flow_statement_to_csv(security_code, file_name = None):
+def cash_flow_statement_to_csv(security_code):
     """過去3年分のキャッシュ・フロー計算書を取得し、csvファイルに記憶する
-    保存先は .\HistoricalDate\CashFlowStatement
+    保存先は \Dates\HistoricalDate\CashFlowStatement
 
     Args:
         security_code (string): 銘柄コード
-        file_name (string , optional): 
-            保存するcsvファイルの名前
-            デフォルトでは銘柄コードが使用される
     """
     # ティッカーシンボルを作成
     ticker = yf.Ticker("{}.T".format(security_code))
@@ -101,20 +78,31 @@ def cash_flow_statement_to_csv(security_code, file_name = None):
 
     # データをcsvファイルで保存する
     os.makedirs(settings.directory_names["cash_flow_statement"], exist_ok = True)
-    if file_name:
-        file_name = fine_name + ".csv"
-    else:
-        file_name = security_code + ".csv"
-    path = os.path.join(settings.directory_names["cash_flow_statement"], file_name)
+    path = os.path.join(settings.directory_names["cash_flow_statement"], security_code + ".csv")
     cashflow.to_csv(path, sep = ",")
 
-def topix500_to_csv(file_name = None):
-    """TOPIX500構成銘柄の取得
+def sammary_to_csv(security_code):
+    """銘柄のサマリーを取得し、jsonファイルに記憶する
+    保存先は \Dates\Sammary
 
     Args:
-        file_name (str, optional): 
-            保存するcsvファイル名.
-            デフォルトは "TOPIX500".
+        security_code (string): 銘柄コード
+    """
+    # ティッカーシンボルを作成
+    ticker = yf.Ticker("{}.T".format(security_code))
+
+    # 銘柄のサマリーをDateFrameオブジェクトで取得
+    info = ticker.info
+    
+    # データをjsonファイルで保存する
+    os.makedirs(settings.directory_names["sammary"], exist_ok = True)
+    path = os.path.join(settings.directory_names["sammary"], security_code + ".json")
+    with open(path, "w") as f:
+        json.dump(info, f)
+
+def topix500_to_csv():
+    """TOPIX500構成銘柄の取得
+    保存先は \Dates\List_of_TSE-listedIssues\[取得したリストの更新年月日]
     """
     # 東証上場銘柄一覧を取得
     path_to_jp = os.path.join(settings.directory_names["TSE_listed_Issues"],
@@ -135,8 +123,5 @@ def topix500_to_csv(file_name = None):
     issues.insert(3, "Name (Japanese)", name_japanese)
 
     # データの保存
-    if file_name:
-        file_name = file_name + ".csv"
-    else:
-        file_name = settings.file_names["TOPIX500"] + ".csv"
+    file_name = settings.file_names["TOPIX500"] + ".csv"
     issues.to_csv(os.path.join(settings.directory_names["TSE_listed_Issues"], file_name), sep = ",")

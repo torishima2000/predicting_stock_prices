@@ -28,3 +28,25 @@ closes = pd.DataFrame(closes).T
 closes.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
 # 欠損データの補完
 closes = closes.ffill()
+
+# 当期純利益データフレームの作成
+# 当期純利益
+earnings = []
+
+# 当期純利益をリストとして記憶
+dummy = mine.get_pl(str(topix500_codes[0]) + ".T")["Net Income"]
+dummy[:] = np.nan
+for s in topix500_codes:
+    df = mine.get_pl(str(s) + ".T")
+    try:
+        earnings.append(df["Net Income"])
+    except:
+        earnings.append(dummy)
+earnings.append(dummy)
+
+# 終値のリストをDateFrame化
+earnings = pd.DataFrame(earnings).T
+# カラム名の指定
+earnings.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
+# データのソート
+earnings = earnings.sort_index()

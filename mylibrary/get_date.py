@@ -21,7 +21,7 @@ def get_stock_prices(security_code):
     """
     # 価格のヒストリカルデータをcsvファイルから取得
     path = os.path.join(path_name["stock_prices"], security_code + ".csv")
-    stock_prices = pd.read_csv(path)
+    stock_prices = pd.read_csv(path, index_col = 0)
     return stock_prices
 
 def get_pl(security_code):
@@ -35,7 +35,7 @@ def get_pl(security_code):
     """
     # 損益計算書をcsvファイルから取得
     path = os.path.join(path_name["Profit_and_Loss_Statement"], security_code + ".csv")
-    profit_and_loss_statement = pd.read_csv(path)
+    profit_and_loss_statement = pd.read_csv(path, index_col = 0)
     return profit_and_loss_statement
 
 def get_balance_sheet(security_code):
@@ -49,7 +49,7 @@ def get_balance_sheet(security_code):
     """
     # 貸借対照表をcsvファイルから取得
     path = os.path.join(path_name["balance_sheet"], security_code + ".csv")
-    balance_sheet = pd.read_csv(path)
+    balance_sheet = pd.read_csv(path, index_col = 0)
     return balance_sheet
 
 def get_cash_flow_statement(security_code):
@@ -63,7 +63,7 @@ def get_cash_flow_statement(security_code):
     """
     # キャッシュ・フロー計算書をcsvファイルから取得
     path = os.path.join(path_name["cash_flow_statement"], security_code + ".csv")
-    cash_flow_statement = pd.read_csv(path)
+    cash_flow_statement = pd.read_csv(path, index_col = 0)
     return cash_flow_statement
 
 def get_codelist_topix500():

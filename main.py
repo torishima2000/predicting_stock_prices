@@ -8,8 +8,10 @@ import mylibrary as mine
 
 # main
 
+
 # TOPIX500構成銘柄の証券コードを取得
 topix500_codes = mine.get_codelist_topix500()
+
 
 # 終値データフレームの作成
 # 終値
@@ -29,6 +31,7 @@ closes.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
 # 欠損データの補完
 closes = closes.ffill()
 
+
 # 当期純利益データフレームの作成
 # 当期純利益
 earnings = []
@@ -44,9 +47,32 @@ for s in topix500_codes:
         earnings.append(dummy)
 earnings.append(dummy)
 
-# 終値のリストをDateFrame化
+# 当期純利益のリストをDateFrame化
 earnings = pd.DataFrame(earnings).T
 # カラム名の指定
 earnings.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
 # データのソート
 earnings = earnings.sort_index()
+
+
+# 自己資本データフレームの作成
+# 自己資本
+equity = []
+
+# 自己資本をリストとして記憶
+dummy = mine.get_balance_sheet(str(topix500_codes[0]) + ".T")["Total Stockholder Equity"]
+dummy[:] = np.nan
+for s in topix500_codes:
+    df = mine.get_balance_sheet(str(s) + ".T")
+    try:
+        equity.append(df["Total Stockholder Equity"])
+    except:
+        equity.append(dummy)
+equity.append(dummy)
+
+# 自己資本のリストをDateFrame化
+equity = pd.DataFrame(equity).T
+# カラム名の指定
+equity.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
+# データのソート
+equity = earnings.sort_index()

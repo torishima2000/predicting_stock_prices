@@ -10,7 +10,63 @@ path_name = {}
 with open("mylibrary\path.json", "r") as f:
     path_name = json.load(f)
 
-def codelist_topix500():
+def get_stock_prices(security_code):
+    """価格のヒストリカルデータを取得
+
+    Args:
+        security_code (string): 銘柄コード
+
+    Returns:
+        [DateFrame]: 価格のヒストリカルデータ
+    """
+    # 価格のヒストリカルデータをcsvファイルから取得
+    path = os.path.join(path_name["stock_prices"], security_code + ".csv")
+    stock_prices = pd.read_csv(path)
+    return stock_prices
+
+def get_pl(security_code):
+    """過去3年分の損益計算書を取得
+
+    Args:
+        security_code (string): 銘柄コード
+
+    Returns:
+        [DateFrame]: 過去3年分の損益計算書
+    """
+    # 損益計算書をcsvファイルから取得
+    path = os.path.join(path_name["Profit_and_Loss_Statement"], security_code + ".csv")
+    profit_and_loss_statement = pd.read_csv(path)
+    return profit_and_loss_statement
+
+def get_balance_sheet(security_code):
+    """過去3年分の貸借対照表を取得
+
+    Args:
+        security_code (string): 銘柄コード
+
+    Returns:
+        [DateFrame]: 過去3年分の貸借対照表
+    """
+    # 貸借対照表をcsvファイルから取得
+    path = os.path.join(path_name["balance_sheet"], security_code + ".csv")
+    balance_sheet = pd.read_csv(path)
+    return balance_sheet
+
+def get_cash_flow_statement(security_code):
+    """過去3年分のキャッシュ・フロー計算書を取得
+
+    Args:
+        security_code (string): 銘柄コード
+
+    Returns:
+        [DateFrame]: 過去3年分のキャッシュ・フロー計算書
+    """
+    # キャッシュ・フロー計算書をcsvファイルから取得
+    path = os.path.join(path_name["cash_flow_statement"], security_code + ".csv")
+    cash_flow_statement = pd.read_csv(path)
+    return cash_flow_statement
+
+def get_codelist_topix500():
     """TOPIX500構成銘柄の証券コードリストを取得
 
     Returns:

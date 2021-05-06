@@ -28,13 +28,16 @@ Security_code = "7203.T"
 # mine.topix500_to_csv()
 
 # TOPIX500構成銘柄の証券コードを取得
-topix500_codes = mine.codelist_topix500()
+topix500_codes = mine.get_codelist_topix500()
 
 
 # 実行済み
 # for s in topix500_codes:
 #     mine.stock_prices_to_csv(str(s) + ".T")
 # mine.stock_prices_to_csv("^N225")
-
+# for s in topix500_codes:
+#     mine.pl_to_csv(str(s) + ".T")
 
 # main
+for s in topix500_codes[270:]:
+    mine.stock_prices_to_csv(str(s) + ".T")

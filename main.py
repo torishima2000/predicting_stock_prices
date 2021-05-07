@@ -166,6 +166,20 @@ df = pd.concat([stack_monthly_rt, stack_per_df, stack_roe_df], axis = 1)
 df.columns = ["rt", "per", "roe"]
 
 # 異常値の除去
-df["rt"][df.rt > 1.0] = np.nan
+df[df.rt > 1.0] = np.nan
 
 
+# 割安でクオリティが高い銘柄を抽出
+value_df = df[(df.per < 10) & (df.roe > 0.1)]
+
+# ヒストグラムの描画
+plt.hist(value_df["rt"])
+plt.show()
+
+# 累積リターンを作成
+balance = value_df.groupby(level = 0).mean().cumsum()
+
+# バランスカーブの描画
+plt.clf()
+plt.plot(balance["rt"])
+plt.show()

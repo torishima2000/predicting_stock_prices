@@ -1,4 +1,5 @@
 # モジュールのインポート
+import datetime
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -6,8 +7,8 @@ import matplotlib.pyplot as plt
 # 自作モジュールのインポート
 import mylibrary as mylib
 
-# main
 
+# main
 
 # TOPIX500構成銘柄の証券コードを取得
 topix500_codes = mylib.get_codelist_topix500()
@@ -30,7 +31,8 @@ closes = pd.DataFrame(closes).T
 closes.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
 # 欠損データの補完
 closes = closes.ffill()
-
+# インデックスのオブジェクト型をObjectからdatetime64[ns]に変換
+closes.index = pd.to_datetime(closes.index)
 
 # 当期純利益データフレームの作成
 # 当期純利益
@@ -53,6 +55,8 @@ earnings = pd.DataFrame(earnings).T
 earnings.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
 # データのソート
 earnings = earnings.sort_index()
+# インデックスのオブジェクト型をObjectからdatetime64[ns]に変換
+earnings.index = pd.to_datetime(earnings.index)
 
 
 # 自己資本データフレームの作成
@@ -76,6 +80,9 @@ equity = pd.DataFrame(equity).T
 equity.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
 # データのソート
 equity = equity.sort_index()
+# インデックスのオブジェクト型をObjectからdatetime64[ns]に変換
+equity.index = pd.to_datetime(equity.index)
+
 
 # 発行株数データフレームの作成
 # 発行株数
@@ -108,4 +115,57 @@ roe = roe.ffill()
 eps = eps.drop(["^N225"], axis = 1)
 roe = roe.drop(["^N225"], axis = 1)
 
-print(roe)
+
+# 終値データフレームの整形, および月次リターンデータフレームの作成
+# 月カラムの作成
+closes["month"] = closes.index.month
+# 月末フラグカラムの作成
+closes["end_of_month"] = closes.month.diff().shift(-1)
+# 月末のデータのみを抽出
+closes = closes[closes.end_of_month != 0]
+
+# 月次リターン(今月の株価と来月の株価の差分)の作成(ラグあり)
+monthly_rt = closes.pct_change().shift(-1)
+# マーケットリターンの控除
+monthly_rt = monthly_rt.sub(monthly_rt["^N225"], axis = 0)
+
+# 2017年4月以降のデータのみ抽出
+closes = closes[closes.index > datetime.datetime(2017, 4, 1)]
+monthly_rt = monthly_rt[monthly_rt.index > datetime.datetime(2017, 4, 1)]
+
+# 不要なカラムの削除
+closes = closes.drop(["^N225", "month", "end_of_month"], axis = 1)
+monthly_rt = monthly_rt.drop(["^N225", "month", "end_of_month"], axis = 1)
+
+
+# PER, ROEデータフレームの作成(月次リターンと同次元)
+# EPSデータフレーム(月次リターンと同次元)
+eps_df = pd.DataFrame(index = monthly_rt.index, columns = monthly_rt.columns)
+# ROEデータフレーム(月次リターンと同次元)
+roe_df = pd.DataFrame(index = monthly_rt.index, columns = monthly_rt.columns)
+
+# 値の代入
+for i in range(len(eps_df)):
+    eps_df.iloc[i] = eps[eps.index < eps_df.index[i]].iloc[-1]
+for i in range(len(roe_df)):
+    roe_df.iloc[i] = roe[roe.index < roe_df.index[i]].iloc[-1]
+
+# PERデータフレーム(月次リターンと同次元)
+per_df = closes / eps_df
+
+
+# データの結合
+# 各データを一次元にスタック
+stack_monthly_rt = monthly_rt.stack()
+stack_per_df = per_df.stack()
+stack_roe_df = roe_df.stack()
+
+# データの結合
+df = pd.concat([stack_monthly_rt, stack_per_df, stack_roe_df], axis = 1)
+# カラム名の設定
+df.columns = ["rt", "per", "roe"]
+
+# 異常値の除去
+df["rt"][df.rt > 1.0] = np.nan
+
+

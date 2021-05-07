@@ -31,6 +31,8 @@ closes = pd.DataFrame(closes).T
 closes.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
 # 欠損データの補完
 closes = closes.ffill()
+# データのソート
+closes = closes.sort_index()
 # インデックスのオブジェクト型をObjectからdatetime64[ns]に変換
 closes.index = pd.to_datetime(closes.index)
 
@@ -173,7 +175,11 @@ df[df.rt > 1.0] = np.nan
 value_df = df[(df.per < 10) & (df.roe > 0.1)]
 
 # ヒストグラムの描画
-plt.hist(value_df["rt"])
+plt.hist(value_df["rt"], bins = 22, ec = "black")
+plt.grid(True)
+plt.xlim(-0.4, 0.4)
+plt.xlabel("monthly return")
+plt.ylabel("number of trades")
 plt.show()
 
 # 累積リターンを作成
@@ -182,4 +188,7 @@ balance = value_df.groupby(level = 0).mean().cumsum()
 # バランスカーブの描画
 plt.clf()
 plt.plot(balance["rt"])
+plt.grid(True)
+plt.xlabel("date")
+plt.ylabel("cumulative return")
 plt.show()

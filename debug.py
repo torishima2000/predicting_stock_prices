@@ -42,9 +42,3 @@ topix500_codes = mine.get_codelist_topix500()
 #     mine.cash_flow_statement_to_csv(str(s) + ".T")
 # for s in topix500_codes:
 #     mine.sammary_to_csv(str(s) + ".T")
-
-
-import yfinance as yf
-ticker = yf.Ticker("7203.T")
-hist = ticker.history(period="max")
-print(hist.index)

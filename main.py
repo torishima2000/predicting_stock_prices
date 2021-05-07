@@ -75,7 +75,7 @@ equity = pd.DataFrame(equity).T
 # カラム名の指定
 equity.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
 # データのソート
-equity = earnings.sort_index()
+equity = equity.sort_index()
 
 # 発行株数データフレームの作成
 # 発行株数
@@ -94,4 +94,18 @@ shares = pd.Series(shares)
 # インデックス名の指定
 shares.index = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
 
-print(shares)
+
+# EPS(一株当たり利益), ROE(自己資本利益率)のデータフレームの作成
+# EPS(一株当たり利益)
+eps = earnings / shares.values
+# ROE(自己資本利益率)
+roe = earnings / equity
+
+# 欠損データ
+eps = eps.ffill()
+roe = roe.ffill()
+
+eps = eps.drop(["^N225"], axis = 1)
+roe = roe.drop(["^N225"], axis = 1)
+
+print(roe)

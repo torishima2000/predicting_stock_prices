@@ -66,6 +66,21 @@ def get_cash_flow_statement(security_code):
     cash_flow_statement = pd.read_csv(path, index_col = 0)
     return cash_flow_statement
 
+def get_sammary(security_code):
+    """銘柄のサマリーを取得
+
+    Args:
+        security_code (string): 銘柄コード
+
+    Returns:
+        [Dictionary]: 銘柄のサマリー
+    """
+    sammary = {}
+    path = os.path.join(path_name["sammary"], security_code + ".json")
+    with open(path, "r") as f:
+        sammary = json.load(f)
+    return sammary
+
 def get_codelist_topix500():
     """TOPIX500構成銘柄の証券コードリストを取得
 

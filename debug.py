@@ -38,6 +38,8 @@ topix500_codes = mine.get_codelist_topix500()
 #     mine.pl_to_csv(str(s) + ".T")
 # for s in topix500_codes:
 #     mine.balance_sheet_to_csv(str(s) + ".T")
+# for s in topix500_codes:
+#     mine.cash_flow_statement_to_csv(str(s) + ".T")
 
-for s in topix500_codes[8:]:
-    mine.cash_flow_statement_to_csv(str(s) + ".T")
+for s in topix500_codes:
+    mine.sammary_to_csv(str(s) + ".T")

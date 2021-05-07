@@ -4,13 +4,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # 自作モジュールのインポート
-import mylibrary as mine
+import mylibrary as mylib
 
 # main
 
 
 # TOPIX500構成銘柄の証券コードを取得
-topix500_codes = mine.get_codelist_topix500()
+topix500_codes = mylib.get_codelist_topix500()
 
 
 # 終値データフレームの作成
@@ -18,10 +18,10 @@ topix500_codes = mine.get_codelist_topix500()
 closes = []
 # 終値をリストとして記憶
 for s in topix500_codes:
-    df = mine.get_stock_prices(str(s) + ".T")
+    df = mylib.get_stock_prices(str(s) + ".T")
     closes.append(df.Close)
 
-df = mine.get_stock_prices("^N225")
+df = mylib.get_stock_prices("^N225")
 closes.append(df.Close)
 
 # 終値のリストをDateFrame化
@@ -37,10 +37,10 @@ closes = closes.ffill()
 earnings = []
 
 # 当期純利益をリストとして記憶
-dummy = mine.get_pl(str(topix500_codes[0]) + ".T")["Net Income"]
+dummy = mylib.get_pl(str(topix500_codes[0]) + ".T")["Net Income"]
 dummy[:] = np.nan
 for s in topix500_codes:
-    df = mine.get_pl(str(s) + ".T")
+    df = mylib.get_pl(str(s) + ".T")
     try:
         earnings.append(df["Net Income"])
     except:
@@ -60,10 +60,10 @@ earnings = earnings.sort_index()
 equity = []
 
 # 自己資本をリストとして記憶
-dummy = mine.get_balance_sheet(str(topix500_codes[0]) + ".T")["Total Stockholder Equity"]
+dummy = mylib.get_balance_sheet(str(topix500_codes[0]) + ".T")["Total Stockholder Equity"]
 dummy[:] = np.nan
 for s in topix500_codes:
-    df = mine.get_balance_sheet(str(s) + ".T")
+    df = mylib.get_balance_sheet(str(s) + ".T")
     try:
         equity.append(df["Total Stockholder Equity"])
     except:
@@ -76,3 +76,22 @@ equity = pd.DataFrame(equity).T
 equity.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
 # データのソート
 equity = earnings.sort_index()
+
+# 発行株数データフレームの作成
+# 発行株数
+shares = []
+
+for s in topix500_codes:
+    df = mylib.get_sammary(str(s) + ".T")
+    try:
+        shares.append(df["sharesOutstanding"])
+    except:
+        shares.append(np.nan)
+shares.append(np.nan)
+
+# 発行株数のリストをSeries化
+shares = pd.Series(shares)
+# インデックス名の指定
+shares.index = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
+
+print(shares)

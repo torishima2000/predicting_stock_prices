@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 # 自作モジュールのインポート
 import mylibrary as mylib
 
-
 # main
 
 # TOPIX500構成銘柄の証券コードを取得
@@ -29,12 +28,13 @@ closes.append(df.Close)
 closes = pd.DataFrame(closes).T
 # カラム名の指定
 closes.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
-# 欠損データの補完
-closes = closes.ffill()
-# データのソート
-closes = closes.sort_index()
 # インデックスのオブジェクト型をObjectからdatetime64[ns]に変換
 closes.index = pd.to_datetime(closes.index)
+# データのソート
+closes = closes.sort_index()
+# 欠損データの補完
+closes = closes.ffill()
+
 
 # 当期純利益データフレームの作成
 # 当期純利益
@@ -55,10 +55,10 @@ earnings.append(dummy)
 earnings = pd.DataFrame(earnings).T
 # カラム名の指定
 earnings.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
-# データのソート
-earnings = earnings.sort_index()
 # インデックスのオブジェクト型をObjectからdatetime64[ns]に変換
 earnings.index = pd.to_datetime(earnings.index)
+# データのソート
+earnings = earnings.sort_index()
 
 
 # 自己資本データフレームの作成
@@ -80,10 +80,10 @@ equity.append(dummy)
 equity = pd.DataFrame(equity).T
 # カラム名の指定
 equity.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
-# データのソート
-equity = equity.sort_index()
 # インデックスのオブジェクト型をObjectからdatetime64[ns]に変換
 equity.index = pd.to_datetime(equity.index)
+# データのソート
+equity = equity.sort_index()
 
 
 # 発行株数データフレームの作成

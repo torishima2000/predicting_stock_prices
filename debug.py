@@ -45,4 +45,3 @@ topix500_codes = mylib.get_codelist_topix500()
 # for s in topix500_codes:
 #     mylib.sammary_to_csv(str(s) + ".T")
 
-mylib.stock_prices_to_csv(str(s) + ".T")

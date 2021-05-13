@@ -34,7 +34,7 @@ closes.index = pd.to_datetime(closes.index)
 closes = closes.sort_index()
 # 欠損データの補完
 closes = closes.ffill()
-
+# データ範囲の指定
 closes = closes.query('Date <= "2020-11-10"')
 
 

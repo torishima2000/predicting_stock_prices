@@ -10,3 +10,10 @@ import matplotlib.pyplot as plt
 
 data = pd.read_csv("topix500.csv")
 print(data)
+
+
+# ティッカーの設定
+stocks = [str(s)+".T" for s in data.code]
+stocks.append("^N225")
+tickers = yf.Tickers(" ".join(stocks))
+

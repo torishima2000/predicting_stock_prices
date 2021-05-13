@@ -17,3 +17,10 @@ stocks = [str(s)+".T" for s in data.code]
 stocks.append("^N225")
 tickers = yf.Tickers(" ".join(stocks))
 
+
+# 終値データフレームの作成
+closes   = [] # 終値
+
+for i in range(len(tickers.tickers)):
+    closes.append(tickers.tickers[stocks[i]].history(period="max").Close)
+

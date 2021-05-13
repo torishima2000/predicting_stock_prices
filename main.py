@@ -35,8 +35,7 @@ closes = closes.sort_index()
 # 欠損データの補完
 closes = closes.ffill()
 # データ範囲の指定
-closes = closes.query('Date <= "2020-11-10"')
-
+closes = closes[closes.index <= "2020-9-30"]
 
 # 当期純利益データフレームの作成
 # 当期純利益
@@ -61,6 +60,8 @@ earnings.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
 earnings.index = pd.to_datetime(earnings.index)
 # データのソート
 earnings = earnings.sort_index()
+# データ範囲の指定
+earnings = earnings[earnings.index <= "2020-9-30"]
 
 
 # 自己資本データフレームの作成
@@ -86,6 +87,8 @@ equity.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
 equity.index = pd.to_datetime(equity.index)
 # データのソート
 equity = equity.sort_index()
+# データ範囲の指定
+equity = equity[equity.index <= "2020-9-30"]
 
 
 # 発行株数データフレームの作成

@@ -35,6 +35,8 @@ closes = closes.sort_index()
 # 欠損データの補完
 closes = closes.ffill()
 
+closes = closes.query('Date <= "2020-11-10"')
+
 
 # 当期純利益データフレームの作成
 # 当期純利益
@@ -189,6 +191,7 @@ balance = value_df.groupby(level = 0).mean().cumsum()
 plt.clf()
 plt.plot(balance["rt"])
 plt.grid(True)
+plt.ylim(-0.15, 0.15)
 plt.xlabel("date")
 plt.ylabel("cumulative return")
 plt.show()

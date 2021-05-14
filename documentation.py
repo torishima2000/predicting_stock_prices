@@ -22,5 +22,12 @@ tickers = yf.Tickers(" ".join(stocks))
 closes   = [] # 終値
 
 for i in range(len(tickers.tickers)):
-    closes.append(tickers.tickers[stocks[i]].history(period="max").Close)
+    closes.append(tickers.tickers[i].history(period="max").Close)
 
+closes = pd.DataFrame(closes).T   # DataFrame化
+closes.columns = stocks           # カラム名の設定
+closes = closes.ffill()           # 欠損データの補完
+
+closes = closes.query('Date <= "2020-11-10"')   # データ範囲の指定
+
+print(closes)

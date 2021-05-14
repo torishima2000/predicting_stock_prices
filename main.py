@@ -37,6 +37,8 @@ closes = closes.ffill()
 # データ範囲の指定
 closes = closes[closes.index <= "2020-9-30"]
 
+print(closes)
+
 # 当期純利益データフレームの作成
 # 当期純利益
 earnings = []

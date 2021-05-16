@@ -35,7 +35,7 @@ closes = closes.sort_index()
 # 欠損データの補完
 closes = closes.ffill()
 # データ範囲の指定
-closes = closes[closes.index <= "2020-9-30"]
+# closes = closes[closes.index <= "2020-11-10"]
 
 print(closes)
 
@@ -63,7 +63,7 @@ earnings.index = pd.to_datetime(earnings.index)
 # データのソート
 earnings = earnings.sort_index()
 # データ範囲の指定
-earnings = earnings[earnings.index <= "2020-9-30"]
+# earnings = earnings[earnings.index <= "2020-9-30"]
 
 
 # 自己資本データフレームの作成
@@ -90,7 +90,7 @@ equity.index = pd.to_datetime(equity.index)
 # データのソート
 equity = equity.sort_index()
 # データ範囲の指定
-equity = equity[equity.index <= "2020-9-30"]
+# equity = equity[equity.index <= "2020-9-30"]
 
 
 # 発行株数データフレームの作成

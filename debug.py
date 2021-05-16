@@ -15,7 +15,7 @@ Security_code = "7203.T"
 # mine.stock_prices_to_csv(Security_code)
 
 # 損益計算書をcsvファイルに保存
-# mine.pl_to_csv(Security_code)
+# mylib.pl_to_csv(Security_code)
 
 # 貸借対照表をcsvファイルに保存
 # mine.balance_sheet_to_csv(Security_code)
@@ -42,8 +42,8 @@ topix500_codes = mylib.get_codelist_topix500()
 #     mylib.balance_sheet_to_csv(str(s) + ".T")
 # for s in topix500_codes:
 #     mylib.cash_flow_statement_to_csv(str(s) + ".T")
-# for s in topix500_codes:
-#     mylib.sammary_to_csv(str(s) + ".T")
+for s in topix500_codes[150:]:
+    mylib.sammary_to_csv(str(s) + ".T")
 
 #for s in topix500_codes:
 #    print(s)

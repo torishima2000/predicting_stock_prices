@@ -14,7 +14,6 @@ data = pd.read_csv("topix500.csv")
 stocks = [str(s)+".T" for s in data.code]
 stocks.append("^N225")
 tickers = yf.Tickers(" ".join(stocks))
-print(tickers)
 
 closes   = [] # 終値
 

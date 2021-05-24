@@ -1,0 +1,11 @@
+{
+    "stock_prices": "Dates\\HistoricalDate\\StockPrices", 
+    "Profit_and_Loss_Statement": "Dates\\HistoricalDate\\ProfitAndLossStatement", 
+    "balance_sheet": "Dates\\HistoricalDate\\BalanceSheet", 
+    "cash_flow_statement": "Dates\\HistoricalDate\\CashFlowStatement", 
+    "sammary": "Dates\\Sammary", 
+    "TSE_listed_Issues": "Dates\\List_of_TSE-listedIssues\\202103",
+    "TSE_listed_Issues_JP":"data_j.xls",
+    "TSE_listed_Issues_EN":"data_e.xls",
+    "TOPIX500":"TOPIX500"
+}

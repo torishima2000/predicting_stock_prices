@@ -42,8 +42,8 @@ topix500_codes = mylib.get_codelist_topix500()
 #     mylib.balance_sheet_to_csv(str(s) + ".T")
 # for s in topix500_codes:
 #     mylib.cash_flow_statement_to_csv(str(s) + ".T")
-for s in topix500_codes[150:]:
-    mylib.sammary_to_csv(str(s) + ".T")
+# for s in topix500_codes[150:]:
+#     mylib.sammary_to_csv(str(s) + ".T")
 
 #for s in topix500_codes:
 #    print(s)

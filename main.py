@@ -28,8 +28,6 @@ closes.append(df.Close)
 closes = pd.DataFrame(closes).T
 # カラム名の指定
 closes.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
-# インデックスのオブジェクト型をObjectからdatetime64[ns]に変換
-closes.index = pd.to_datetime(closes.index)
 # データのソート
 closes = closes.sort_index()
 # 欠損データの補完
@@ -58,8 +56,6 @@ earnings.append(dummy)
 earnings = pd.DataFrame(earnings).T
 # カラム名の指定
 earnings.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
-# インデックスのオブジェクト型をObjectからdatetime64[ns]に変換
-earnings.index = pd.to_datetime(earnings.index)
 # データのソート
 earnings = earnings.sort_index()
 # データ範囲の指定
@@ -85,8 +81,6 @@ equity.append(dummy)
 equity = pd.DataFrame(equity).T
 # カラム名の指定
 equity.columns = [str(s) + ".T" for s in topix500_codes] + ["^N225"]
-# インデックスのオブジェクト型をObjectからdatetime64[ns]に変換
-equity.index = pd.to_datetime(equity.index)
 # データのソート
 equity = equity.sort_index()
 # データ範囲の指定

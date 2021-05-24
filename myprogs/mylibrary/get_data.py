@@ -22,8 +22,7 @@ def get_stock_prices(security_code):
     # 価格のヒストリカルデータをcsvファイルから取得
     path = os.path.join(path_name["stock_prices"], security_code + ".csv")
     stock_prices = pd.read_csv(path, index_col = 0)
-
-    # 
+    stock_prices.index = pd.to_datetime(stock_prices.index)
     return stock_prices
 
 def get_pl(security_code):

@@ -1,1 +1,0 @@
-ticker = yf.Ticker("7203.T")

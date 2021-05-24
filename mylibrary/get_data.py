@@ -22,8 +22,7 @@ def get_stock_prices(security_code):
     # 価格のヒストリカルデータをcsvファイルから取得
     path = os.path.join(path_name["stock_prices"], security_code + ".csv")
     stock_prices = pd.read_csv(path, index_col = 0)
-
-    # 
+    stock_prices.index = pd.to_datetime(stock_prices.index)
     return stock_prices
 
 def get_pl(security_code):
@@ -38,6 +37,7 @@ def get_pl(security_code):
     # 損益計算書をcsvファイルから取得
     path = os.path.join(path_name["Profit_and_Loss_Statement"], security_code + ".csv")
     profit_and_loss_statement = pd.read_csv(path, index_col = 0)
+    profit_and_loss_statement.index = pd.to_datetime(profit_and_loss_statement.index)
     return profit_and_loss_statement
 
 def get_balance_sheet(security_code):
@@ -52,6 +52,7 @@ def get_balance_sheet(security_code):
     # 貸借対照表をcsvファイルから取得
     path = os.path.join(path_name["balance_sheet"], security_code + ".csv")
     balance_sheet = pd.read_csv(path, index_col = 0)
+    balance_sheet.index = pd.to_datetime(balance_sheet.index)
     return balance_sheet
 
 def get_cash_flow_statement(security_code):
@@ -66,6 +67,7 @@ def get_cash_flow_statement(security_code):
     # キャッシュ・フロー計算書をcsvファイルから取得
     path = os.path.join(path_name["cash_flow_statement"], security_code + ".csv")
     cash_flow_statement = pd.read_csv(path, index_col = 0)
+    cash_flow_statement.index = pd.to_datetime(cash_flow_statement.index)
     return cash_flow_statement
 
 def get_sammary(security_code):

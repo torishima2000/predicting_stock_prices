@@ -6,5 +6,5 @@ import yfinance as yf
 
 ticker = yf.Ticker("7203.T")
 hist = ticker.history(period="max")
-hist = hist = hist[hist.index <= "2020-11-10"]
+hist = hist = hist[hist.index <= "2020-11-09"]
 print(hist)

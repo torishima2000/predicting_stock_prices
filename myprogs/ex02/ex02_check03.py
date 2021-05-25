@@ -4,7 +4,7 @@
 # 自作モジュールのインポート
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 import mylibrary as mylib
 
 # 損益計算書
@@ -28,4 +28,4 @@ import numpy as np
 my_financials = my_financials.fillna(np.nan)
 financials = financials.fillna(np.nan)
 
-print(my_financials.columns.dtype == financials.columns.dtype)
+print(my_financials.equals(financials))

@@ -4,7 +4,7 @@
 # 自作モジュールのインポート
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 import mylibrary as mylib
 
 # 複数銘柄の取得
@@ -29,5 +29,4 @@ for i in range(len(tickers.tickers)):
 
 
 # 取得したDataFrameオブジェクトの比較
-my_hists[0] = my_hists[0].astype(hists[0].dtypes)
 print(my_hists[0].equals(hists[0]))

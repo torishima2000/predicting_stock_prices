@@ -4,7 +4,7 @@
 # 自作モジュールのインポート
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 import mylibrary as mylib
 
 # 損益計算書
@@ -21,11 +21,4 @@ financials = ticker.financials
 
 
 # 取得したDataFrameオブジェクトの比較
-import pandas as pd
-import numpy as np
-
-# 欠損値の補完
-my_financials = my_financials.fillna(np.nan)
-financials = financials.fillna(np.nan)
-
 print(my_financials.equals(financials))

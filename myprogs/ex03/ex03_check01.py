@@ -4,7 +4,7 @@
 # 自作モジュールのインポート
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 import mylibrary as mylib
 
 # 貸借対照表（バランスシート）
@@ -21,4 +21,4 @@ balance_sheet = ticker.balance_sheet
 
 
 # 取得したDataFrameオブジェクトの比較
-print(my_balance_sheet.columns.dtype == balance_sheet.columns.dtype)
+print(my_balance_sheet.equals(balance_sheet))

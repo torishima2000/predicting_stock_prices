@@ -1,10 +1,10 @@
-# 取得データの比較2
+# 取得データの比較3
 
 # 自作プログラム
 # 自作モジュールのインポート
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 import mylibrary as mylib
 
 # 価格のヒストリカルデータ
@@ -21,7 +21,11 @@ hist = ticker.history(period="max")
 
 
 # 取得したDataFrameオブジェクトの比較
-import pandas as pd
+print("1999-05-17 Open")
+print(my_hist.loc["1999-05-17", "Open"])
+print(hist.loc["1999-05-17", "Open"])
+print("")
 
-pd.set_option('display.max_rows', None)
-print(my_hist == hist)
+print("1999-05-18 Low")
+print(my_hist.loc["1999-05-18", "Low"])
+print(hist.loc["1999-05-18", "Low"])

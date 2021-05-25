@@ -5,4 +5,4 @@ import mylibrary as mylib
 Security_code = "7203.T"
 mylib.pl_to_csv(Security_code)
 financials = mylib.get_pl(Security_code)
-print(financials)
+print(financials.T)

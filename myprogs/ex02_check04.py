@@ -28,4 +28,4 @@ import numpy as np
 my_financials = my_financials.fillna(np.nan)
 financials = financials.fillna(np.nan)
 
-print(my_financials.index.dtype == financials.index.dtype)
+print(my_financials.columns.dtype == financials.columns.dtype)

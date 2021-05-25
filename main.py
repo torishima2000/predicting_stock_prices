@@ -1,5 +1,5 @@
 # モジュールのインポート
-# import datetime 多分コメントアウトしていい
+import datetime
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt

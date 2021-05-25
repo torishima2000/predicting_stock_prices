@@ -18,10 +18,4 @@ financials = ticker.financials
 
 
 # 取得したDataFrameオブジェクトの比較
-import pandas as pd
-# 誤差の排除
-# error_correction = lambda x:round(x, 6)
-# my_financials = my_financials.applymap(error_correction)
-# financials = financials.applymap(error_correction)
-
-print(my_financials == financials)
+print(my_financials.T == financials)

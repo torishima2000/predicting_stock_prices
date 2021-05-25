@@ -19,9 +19,10 @@ financials = ticker.financials
 
 # 取得したDataFrameオブジェクトの比較
 import pandas as pd
-# 誤差の排除
-# error_correction = lambda x:round(x, 6)
-# my_financials = my_financials.applymap(error_correction)
-# financials = financials.applymap(error_correction)
+import numpy as np
+
+# 欠損値の保管
+my_financials = my_financials.fillna(np.NAN)
+financials = financials.fillna(np.NAN)
 
 print(my_financials.T.equals(financials))

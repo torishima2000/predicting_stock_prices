@@ -20,4 +20,5 @@ ticker = yf.Ticker("7203.T")
 cashflow = ticker.cashflow
 
 # 取得したDataFrameオブジェクトの比較
+print(my_cashflow.index.dtype == cashflow.index.dtype)
 print(my_cashflow.columns.dtype == cashflow.columns.dtype)

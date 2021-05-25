@@ -21,7 +21,7 @@ financials = ticker.financials
 import pandas as pd
 import numpy as np
 
-# 欠損値の保管
+# 欠損値の補完
 my_financials = my_financials.fillna(np.NAN)
 financials = financials.fillna(np.NAN)
 

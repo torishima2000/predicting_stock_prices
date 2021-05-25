@@ -7,21 +7,18 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import mylibrary as mylib
 
-# 価格のヒストリカルデータ
+# 損益計算書
 Security_code = "7203.T"
-mylib.stock_prices_to_csv(Security_code)
-my_hist = mylib.get_stock_prices(Security_code)
+mylib.pl_to_csv(Security_code)
+my_financials = mylib.get_pl(Security_code).T
 
 
 # サイトのプログラムのコピー
 import yfinance as yf
 
 ticker = yf.Ticker("7203.T")
-hist = ticker.history(period="max")
+financials = ticker.financials
 
 
 # 取得したDataFrameオブジェクトの比較
-import pandas as pd
-
-pd.set_option('display.max_rows', None)
-print(my_hist == hist)
+print(my_financials.equals(financials))

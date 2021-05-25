@@ -26,4 +26,4 @@ error_correction = lambda x:round(x, 6)
 my_hist = my_hist.applymap(error_correction)
 hist = hist.applymap(error_correction)
 
-print(my_hist.equals(hist))
+print(my_hist.index.dtype == hist.index.dtype)

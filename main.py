@@ -7,10 +7,22 @@ import matplotlib.pyplot as plt
 # 自作モジュールのインポート
 import mylibrary as mylib
 
-# main
 
 # TOPIX500構成銘柄の証券コードを取得
 topix500_codes = mylib.get_codelist_topix500()
+
+
+# データの取得
+# 既に取得しているデータ部分はコメントアウト済み
+# for s in topix500_codes:
+#     mylib.stock_prices_to_csv(str(s) + ".T")
+# mylib.stock_prices_to_csv("^N225")
+# for s in topix500_codes:
+#     mylib.pl_to_csv(str(s) + ".T")
+# for s in topix500_codes:
+#     mylib.balance_sheet_to_csv(str(s) + ".T")
+# for s in topix500_codes[150:]:
+#     mylib.sammary_to_csv(str(s) + ".T")
 
 
 # 終値データフレームの作成
@@ -35,7 +47,6 @@ closes = closes.ffill()
 # データ範囲の指定
 closes = closes[closes.index <= "2020-11-10"]
 
-print(closes)
 
 # 当期純利益データフレームの作成
 # 当期純利益

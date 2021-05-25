@@ -4,8 +4,8 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import mylibrary as mylib
 
-# 価格のヒストリカルデータ
+# 損益計算書
 Security_code = "7203.T"
-mylib.stock_prices_to_csv(Security_code)
-my_hist = mylib.get_stock_prices(Security_code)
-print(my_hist)
+mylib.pl_to_csv(Security_code)
+my_financials = mylib.get_pl(Security_code).T
+print(my_financials)

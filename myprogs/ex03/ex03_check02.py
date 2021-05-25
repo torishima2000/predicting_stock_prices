@@ -21,4 +21,5 @@ balance_sheet = ticker.balance_sheet
 
 
 # 取得したDataFrameオブジェクトの比較
+print(my_balance_sheet.index.dtype == balance_sheet.index.dtype)
 print(my_balance_sheet.columns.dtype == balance_sheet.columns.dtype)

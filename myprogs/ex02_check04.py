@@ -25,7 +25,7 @@ import pandas as pd
 import numpy as np
 
 # 欠損値の補完
-my_financials = my_financials.fillna(np.NAN)
-financials = financials.fillna(np.NAN)
+my_financials = my_financials.fillna(np.nan)
+financials = financials.fillna(np.nan)
 
 print(my_financials.index.dtype == financials.index.dtype)

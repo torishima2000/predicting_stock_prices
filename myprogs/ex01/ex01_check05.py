@@ -27,3 +27,4 @@ my_hist = my_hist.applymap(error_correction)
 hist = hist.applymap(error_correction)
 
 print(my_hist.index.dtype == hist.index.dtype)
+print(my_hist.columns.dtype == hist.columns.dtype)

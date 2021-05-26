@@ -72,8 +72,15 @@ closes = closes.applymap(error_correction)
 my_closes = my_closes.astype(closes.dtypes)
 
 # 欠損値の補完
-my_closes.fillna(0)
-closes.fillna(0)
+my_closes = my_closes.fillna(0)
+closes = closes.fillna(0)
+
+# 昨日までのデータ
+# my_closes = my_closes[my_closes.index < "2021-05-26"]
+# closes = closes[closes.index < "2021-05-26"]
 
 # 取得したDataFrameオブジェクトの比較
+print(my_closes == closes)
+print(my_closes)
+print(closes)
 print(my_closes.equals(closes))

@@ -15,9 +15,9 @@ import mylibrary as mylib
 topix500_codes = mylib.get_codelist_topix500()
 
 # データの取得
-for s in topix500_codes:
-    mylib.stock_prices_to_csv(str(s) + ".T")
-mylib.stock_prices_to_csv("^N225")
+# for s in topix500_codes:
+#     mylib.stock_prices_to_csv(str(s) + ".T")
+# mylib.stock_prices_to_csv("^N225")
 
 # 終値
 my_closes = []

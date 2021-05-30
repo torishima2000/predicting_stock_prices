@@ -15,9 +15,9 @@ import mylibrary as mylib
 topix500_codes = mylib.get_codelist_topix500()
 
 # データの取得
-# for s in topix500_codes:
-#     mylib.stock_prices_to_csv(str(s) + ".T")
-# mylib.stock_prices_to_csv("^N225")
+for s in topix500_codes:
+    mylib.stock_prices_to_csv(str(s) + ".T")
+mylib.stock_prices_to_csv("^N225")
 
 # 終値
 my_closes = []
@@ -79,6 +79,9 @@ closes = closes.fillna(0)
 my_closes = my_closes[my_closes.index < "2021-05-26"]
 closes = closes[closes.index < "2021-05-26"]
 
+my_closes = my_closes[my_closes.index > "2017-01-01"]
+closes = closes[closes.index > "2017-01-01"]
+
 # 取得したDataFrameオブジェクトの比較
 print("DataFrame of my_closes")
 print(my_closes)
@@ -88,13 +91,5 @@ print(closes)
 
 pd.set_option('display.max_rows', None)
 print("compare DataFrames")
-print(my_closes == closes)
+print((my_closes == closes).T)
 print(my_closes.equals(closes))
-
-print("DataFrame's index")
-print(my_closes.index)
-print(closes.index)
-
-print("DataFrame's columns")
-print(my_closes.columns)
-print(closes.columns)

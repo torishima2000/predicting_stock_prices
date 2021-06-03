@@ -1,4 +1,5 @@
-# topix500構成銘柄
+# TOPIX500構成銘柄
+# 2017/04/01 ~ 2021/03/31
 # PER(株価収益率)10倍以下, ROE(自己資本利益率)10%以上
 
 # モジュールのインポート
@@ -12,13 +13,12 @@ import matplotlib.pyplot as plt
 import mylibrary as mylib
 
 
+# ステータスの設定
 # 対象銘柄のリスト
-topix500_codes = mylib.get_codelist_topix500()
-
+tickers = mylib.get_codelist_topix500()
 # データ取得範囲
 begin_date = datetime.datetime(2017, 4, 1)
 end_date = datetime.datetime(2021, 3, 31)
-
 # 銘柄選定基準値
 per_reference_value = 10
 roe_reference_value = 0.1
@@ -26,22 +26,22 @@ roe_reference_value = 0.1
 
 # データの取得
 # 既に取得しているデータ部分はコメントアウト済み
-# for s in topix500_codes:
-#     mylib.stock_prices_to_csv(str(s) + ".T")
+# for ticker in tickers:
+#     mylib.stock_prices_to_csv(ticker)
 # mylib.stock_prices_to_csv("^N225")
-# for s in topix500_codes:
-#     mylib.pl_to_csv(str(s) + ".T")
-# for s in topix500_codes:
-#     mylib.balance_sheet_to_csv(str(s) + ".T")
-# for s in topix500_codes[150:]:
-#     mylib.sammary_to_csv(str(s) + ".T")
+# for ticker in tickers:
+#     mylib.pl_to_csv(ticker)
+# for ticker in tickers:
+#     mylib.balance_sheet_to_csv(ticker)
+# for ticker in tickers:
+#     mylib.sammary_to_csv(ticker)
 
 
 # 終値データフレームの作成
 # 終値
 closes = []
 # 終値をリストとして記憶
-for ticker in topix500_codes:
+for ticker in tickers:
     df = mylib.get_stock_prices(ticker)
     closes.append(df.Close)
 df = mylib.get_stock_prices("^N225")
@@ -50,7 +50,7 @@ closes.append(df.Close)
 # 終値のリストをDateFrame化
 closes = pd.DataFrame(closes).T
 # カラム名の指定
-closes.columns = [ticker for ticker in topix500_codes] + ["^N225"]
+closes.columns = [ticker for ticker in tickers] + ["^N225"]
 # データのソート
 closes = closes.sort_index()
 # 欠損データの補完
@@ -64,9 +64,9 @@ closes = closes[closes.index <= end_date]
 # 当期純利益
 earnings = []
 # 当期純利益をリストとして記憶
-dummy = mylib.get_pl(topix500_codes[0])["Net Income"]
+dummy = mylib.get_pl(tickers[0])["Net Income"]
 dummy[:] = np.nan
-for ticker in topix500_codes:
+for ticker in tickers:
     df = mylib.get_pl(ticker)
     try:
         earnings.append(df["Net Income"])
@@ -77,7 +77,7 @@ earnings.append(dummy)
 # 当期純利益のリストをDateFrame化
 earnings = pd.DataFrame(earnings).T
 # カラム名の指定
-earnings.columns = [ticker for ticker in topix500_codes] + ["^N225"]
+earnings.columns = [ticker for ticker in tickers] + ["^N225"]
 # データのソート
 earnings = earnings.sort_index()
 # データ範囲の指定
@@ -88,9 +88,9 @@ earnings = earnings[earnings.index <= end_date]
 # 自己資本
 equity = []
 # 自己資本をリストとして記憶
-dummy = mylib.get_balance_sheet(topix500_codes[0])["Total Stockholder Equity"]
+dummy = mylib.get_balance_sheet(tickers[0])["Total Stockholder Equity"]
 dummy[:] = np.nan
-for ticker in topix500_codes:
+for ticker in tickers:
     df = mylib.get_balance_sheet(ticker)
     try:
         equity.append(df["Total Stockholder Equity"])
@@ -101,7 +101,7 @@ equity.append(dummy)
 # 自己資本のリストをDateFrame化
 equity = pd.DataFrame(equity).T
 # カラム名の指定
-equity.columns = [ticker for ticker in topix500_codes] + ["^N225"]
+equity.columns = [ticker for ticker in tickers] + ["^N225"]
 # データのソート
 equity = equity.sort_index()
 # データ範囲の指定
@@ -112,7 +112,7 @@ equity = equity[equity.index <= end_date]
 # 発行株数
 shares = []
 # 発行株数をリストとして記憶
-for ticker in topix500_codes:
+for ticker in tickers:
     df = mylib.get_sammary(ticker)
     try:
         shares.append(df["sharesOutstanding"])
@@ -123,7 +123,7 @@ shares.append(np.nan)
 # 発行株数のリストをSeries化
 shares = pd.Series(shares)
 # インデックス名の指定
-shares.index = [ticker for ticker in topix500_codes] + ["^N225"]
+shares.index = [ticker for ticker in tickers] + ["^N225"]
 
 
 # EPS(一株当たり利益), ROE(自己資本利益率)のデータフレームの作成

@@ -36,7 +36,7 @@ import mylibrary as mylib
 # topix500_codes = mylib.get_codelist_topix500()
 
 # S&P500構成銘柄の証券コードを取得
-# sandp500_codes = mylib.get_codelist_sandp500()
+sandp500_codes = mylib.get_codelist_sandp500()
 
 # 実行済み
 # for s in topix500_codes:
@@ -50,3 +50,6 @@ import mylibrary as mylib
 #     mylib.cash_flow_statement_to_csv(str(s) + ".T")
 # for s in topix500_codes[150:]:
 #     mylib.sammary_to_csv(str(s) + ".T")
+
+bins = [(-0.5 + (i / 25.0)) for i in range(26)]
+print(bins)

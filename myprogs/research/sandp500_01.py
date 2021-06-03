@@ -16,22 +16,214 @@ import mylibrary as mylib
 # ステータスの設定
 # 対象銘柄のリスト
 tickers = mylib.get_codelist_sandp500()
+reference_ticker = "^GSPC"
 # データ取得範囲
-begin_date = datetime.datetime(2017, 4, 1)
-end_date = datetime.datetime(2021, 3, 31)
+begin = [2017, 4, 1]
+begin_date = datetime.datetime(*begin)
+end = [2021, 3, 31]
+end_date = datetime.datetime(*end)
 # 銘柄選定基準値
 per_reference_value = 10
 roe_reference_value = 0.1
+# グラフのタイトル
+graph_title1 = "Target: " + "S&P500" + "\n"
+graph_title1 += "Reference value: PER " + str(per_reference_value) + "times or less" + "\n"
+graph_title1 += "               : ROE over " + str(roe_reference_value) + "times" + "\n"
+graph_title1 += "Coverage period: "
+graph_title1 += str(begin[0]) + "/" + str(begin[1]) + "/" + str(begin[2]) + " ~ "
+graph_title1 += str(end[0]) + "/" + str(end[1]) + "/" + str(end[2])
 
 
 # データの取得
 # 既に取得しているデータ部分はコメントアウト済み
 # for ticker in tickers:
 #     mylib.stock_prices_to_csv(ticker)
-# mylib.stock_prices_to_csv("^GSPC")
+# mylib.stock_prices_to_csv(reference_ticker)
 # for ticker in tickers:
 #     mylib.pl_to_csv(ticker)
-for ticker in tickers:
-    mylib.balance_sheet_to_csv(ticker)
+# for ticker in tickers:
+#     mylib.balance_sheet_to_csv(ticker)
 # for ticker in tickers:
 #     mylib.sammary_to_csv(ticker)
+
+
+# 終値データフレームの作成
+# 終値
+closes = []
+# 終値をリストとして記憶
+for ticker in tickers:
+    df = mylib.get_stock_prices(ticker)
+    closes.append(df.Close)
+df = mylib.get_stock_prices(reference_ticker)
+closes.append(df.Close)
+
+# 終値のリストをDateFrame化
+closes = pd.DataFrame(closes).T
+# カラム名の指定
+closes.columns = [ticker for ticker in tickers] + [reference_ticker]
+# データのソート
+closes = closes.sort_index()
+# 欠損データの補完
+closes = closes.ffill()
+# データ範囲の指定
+closes = closes[closes.index >= begin_date]
+closes = closes[closes.index <= end_date]
+
+
+# 当期純利益データフレームの作成
+# 当期純利益
+earnings = []
+# 当期純利益をリストとして記憶
+dummy = mylib.get_pl(tickers[0])["Net Income"]
+dummy[:] = np.nan
+for ticker in tickers:
+    df = mylib.get_pl(ticker)
+    try:
+        earnings.append(df["Net Income"])
+    except:
+        earnings.append(dummy)
+earnings.append(dummy)
+
+# 当期純利益のリストをDateFrame化
+earnings = pd.DataFrame(earnings).T
+# カラム名の指定
+earnings.columns = [ticker for ticker in tickers] + [reference_ticker]
+# データのソート
+earnings = earnings.sort_index()
+# データ範囲の指定
+earnings = earnings[earnings.index <= end_date]
+
+
+# 自己資本データフレームの作成
+# 自己資本
+equity = []
+# 自己資本をリストとして記憶
+dummy = mylib.get_balance_sheet(tickers[0])["Total Stockholder Equity"]
+dummy[:] = np.nan
+for ticker in tickers:
+    df = mylib.get_balance_sheet(ticker)
+    try:
+        equity.append(df["Total Stockholder Equity"])
+    except:
+        equity.append(dummy)
+equity.append(dummy)
+
+# 自己資本のリストをDateFrame化
+equity = pd.DataFrame(equity).T
+# カラム名の指定
+equity.columns = [ticker for ticker in tickers] + [reference_ticker]
+# データのソート
+equity = equity.sort_index()
+# データ範囲の指定
+equity = equity[equity.index <= end_date]
+
+
+# 発行株数データフレームの作成
+# 発行株数
+shares = []
+# 発行株数をリストとして記憶
+for ticker in tickers:
+    df = mylib.get_sammary(ticker)
+    try:
+        shares.append(df["sharesOutstanding"])
+    except:
+        shares.append(np.nan)
+shares.append(np.nan)
+
+# 発行株数のリストをSeries化
+shares = pd.Series(shares)
+# インデックス名の指定
+shares.index = [ticker for ticker in tickers] + [reference_ticker]
+
+
+# EPS(一株当たり利益), ROE(自己資本利益率)のデータフレームの作成
+# EPS(一株当たり利益)
+eps = earnings / shares.values
+# ROE(自己資本利益率)
+roe = earnings / equity
+
+# 欠損データの補完
+eps = eps.ffill()
+roe = roe.ffill()
+
+# 日経平均株価のカラムの削除
+eps = eps.drop([reference_ticker], axis = 1)
+roe = roe.drop([reference_ticker], axis = 1)
+
+
+# 終値データフレームの整形, および月次リターンデータフレームの作成
+# 月カラムの作成
+closes["month"] = closes.index.month
+# 月末フラグカラムの作成
+closes["end_of_month"] = closes.month.diff().shift(-1)
+# 月末のデータのみを抽出
+closes = closes[closes.end_of_month != 0]
+
+# 月次リターン(今月の株価と来月の株価の差分)の作成(ラグあり)
+monthly_rt = closes.pct_change().shift(-1)
+# マーケットリターンの控除
+monthly_rt = monthly_rt.sub(monthly_rt[reference_ticker], axis = 0)
+
+
+# 不要なカラムの削除
+closes = closes.drop([reference_ticker, "month", "end_of_month"], axis = 1)
+monthly_rt = monthly_rt.drop([reference_ticker, "month", "end_of_month"], axis = 1)
+
+
+# PER, ROEデータフレームの作成(月次リターンと同次元)
+# EPSデータフレーム(月次リターンと同次元)
+eps_df = pd.DataFrame(index = monthly_rt.index, columns = monthly_rt.columns)
+# ROEデータフレーム(月次リターンと同次元)
+roe_df = pd.DataFrame(index = monthly_rt.index, columns = monthly_rt.columns)
+
+# 値の代入
+for i in range(len(eps_df)):
+    eps_df.iloc[i] = eps[eps.index < eps_df.index[i]].iloc[-1]
+for i in range(len(roe_df)):
+    roe_df.iloc[i] = roe[roe.index < roe_df.index[i]].iloc[-1]
+
+# PERデータフレーム(月次リターンと同次元)
+per_df = closes / eps_df
+
+
+# データの結合
+# 各データを一次元にスタック
+stack_monthly_rt = monthly_rt.stack()
+stack_per_df = per_df.stack()
+stack_roe_df = roe_df.stack()
+
+# データの結合
+df = pd.concat([stack_monthly_rt, stack_per_df, stack_roe_df], axis = 1)
+# カラム名の設定
+df.columns = ["rt", "per", "roe"]
+
+# 異常値の除去
+df[df.rt > 1.0] = np.nan
+
+
+# 割安でクオリティが高い銘柄を抽出
+value_df = df[(df.per < per_reference_value) & (df.roe > roe_reference_value)]
+
+# ヒストグラムの描画
+plt.figure(figsize=(10.24, 7.68))
+plt.hist(value_df["rt"], bins = [(-0.5 + (i / 25.0)) for i in range(26)], ec = "black")
+plt.grid(True)
+plt.title(graph_title1)
+plt.xlim(-0.5, 0.5)
+plt.xlabel("monthly return")
+plt.ylabel("number of trades")
+plt.show()
+
+# 累積リターンを作成
+balance = value_df.groupby(level = 0).mean().cumsum()
+
+# バランスカーブの描画
+plt.clf()
+plt.close()
+plt.figure(figsize=(10.24, 7.68))
+plt.plot(balance["rt"])
+plt.grid(True)
+plt.title(graph_title1)
+plt.xlabel("date")
+plt.ylabel("cumulative return")
+plt.show()

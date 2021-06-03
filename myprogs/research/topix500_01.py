@@ -16,19 +16,29 @@ import mylibrary as mylib
 # ステータスの設定
 # 対象銘柄のリスト
 tickers = mylib.get_codelist_topix500()
+reference_ticker = "^N225"
 # データ取得範囲
-begin_date = datetime.datetime(2017, 4, 1)
-end_date = datetime.datetime(2021, 3, 31)
+begin = [2017, 4, 1]
+begin_date = datetime.datetime(*begin)
+end = [2021, 3, 31]
+end_date = datetime.datetime(*end)
 # 銘柄選定基準値
 per_reference_value = 10
 roe_reference_value = 0.1
+# グラフのタイトル
+graph_title1 = "Target: " + "TOPIX500" + "\n"
+graph_title1 += "Reference value: PER " + str(per_reference_value) + "times or less" + "\n"
+graph_title1 += "               : ROE over " + str(roe_reference_value) + "times" + "\n"
+graph_title1 += "Coverage period: "
+graph_title1 += str(begin[0]) + "/" + str(begin[1]) + "/" + str(begin[2]) + " ~ "
+graph_title1 += str(end[0]) + "/" + str(end[1]) + "/" + str(end[2])
 
 
 # データの取得
 # 既に取得しているデータ部分はコメントアウト済み
 # for ticker in tickers:
 #     mylib.stock_prices_to_csv(ticker)
-# mylib.stock_prices_to_csv("^N225")
+# mylib.stock_prices_to_csv(reference_ticker)
 # for ticker in tickers:
 #     mylib.pl_to_csv(ticker)
 # for ticker in tickers:
@@ -44,13 +54,13 @@ closes = []
 for ticker in tickers:
     df = mylib.get_stock_prices(ticker)
     closes.append(df.Close)
-df = mylib.get_stock_prices("^N225")
+df = mylib.get_stock_prices(reference_ticker)
 closes.append(df.Close)
 
 # 終値のリストをDateFrame化
 closes = pd.DataFrame(closes).T
 # カラム名の指定
-closes.columns = [ticker for ticker in tickers] + ["^N225"]
+closes.columns = [ticker for ticker in tickers] + [reference_ticker]
 # データのソート
 closes = closes.sort_index()
 # 欠損データの補完
@@ -77,7 +87,7 @@ earnings.append(dummy)
 # 当期純利益のリストをDateFrame化
 earnings = pd.DataFrame(earnings).T
 # カラム名の指定
-earnings.columns = [ticker for ticker in tickers] + ["^N225"]
+earnings.columns = [ticker for ticker in tickers] + [reference_ticker]
 # データのソート
 earnings = earnings.sort_index()
 # データ範囲の指定
@@ -101,7 +111,7 @@ equity.append(dummy)
 # 自己資本のリストをDateFrame化
 equity = pd.DataFrame(equity).T
 # カラム名の指定
-equity.columns = [ticker for ticker in tickers] + ["^N225"]
+equity.columns = [ticker for ticker in tickers] + [reference_ticker]
 # データのソート
 equity = equity.sort_index()
 # データ範囲の指定
@@ -123,7 +133,7 @@ shares.append(np.nan)
 # 発行株数のリストをSeries化
 shares = pd.Series(shares)
 # インデックス名の指定
-shares.index = [ticker for ticker in tickers] + ["^N225"]
+shares.index = [ticker for ticker in tickers] + [reference_ticker]
 
 
 # EPS(一株当たり利益), ROE(自己資本利益率)のデータフレームの作成
@@ -137,8 +147,8 @@ eps = eps.ffill()
 roe = roe.ffill()
 
 # 日経平均株価のカラムの削除
-eps = eps.drop(["^N225"], axis = 1)
-roe = roe.drop(["^N225"], axis = 1)
+eps = eps.drop([reference_ticker], axis = 1)
+roe = roe.drop([reference_ticker], axis = 1)
 
 
 # 終値データフレームの整形, および月次リターンデータフレームの作成
@@ -152,12 +162,12 @@ closes = closes[closes.end_of_month != 0]
 # 月次リターン(今月の株価と来月の株価の差分)の作成(ラグあり)
 monthly_rt = closes.pct_change().shift(-1)
 # マーケットリターンの控除
-monthly_rt = monthly_rt.sub(monthly_rt["^N225"], axis = 0)
+monthly_rt = monthly_rt.sub(monthly_rt[reference_ticker], axis = 0)
 
 
 # 不要なカラムの削除
-closes = closes.drop(["^N225", "month", "end_of_month"], axis = 1)
-monthly_rt = monthly_rt.drop(["^N225", "month", "end_of_month"], axis = 1)
+closes = closes.drop([reference_ticker, "month", "end_of_month"], axis = 1)
+monthly_rt = monthly_rt.drop([reference_ticker, "month", "end_of_month"], axis = 1)
 
 
 # PER, ROEデータフレームの作成(月次リターンと同次元)
@@ -195,21 +205,26 @@ df[df.rt > 1.0] = np.nan
 value_df = df[(df.per < per_reference_value) & (df.roe > roe_reference_value)]
 
 # ヒストグラムの描画
-plt.hist(value_df["rt"], bins = [-0.4272727, -0.390909, -0.3545454, -0.3181818, -0.2818181, -0.2454545, -0.2090909, -0.1727272, -0.1363636, -0.1, -0.0636363, -0.0272727, 0.0090909, 0.0454545, 0.0818181, 0.1181818, 0.1545454, 0.190909, 0.2272727, 0.2636363, 0.3, 0.3363636, 0.3727272, 0.4090909], ec = "black")
+plt.figure(figsize=(10.24, 7.68))
+plt.hist(value_df["rt"], bins = [(-0.5 + (i / 25.0)) for i in range(26)], ec = "black")
 plt.grid(True)
-plt.xlim(-0.4, 0.4)
+plt.title(graph_title1)
+plt.xlim(-0.5, 0.5)
 plt.xlabel("monthly return")
 plt.ylabel("number of trades")
 plt.show()
+
 
 # 累積リターンを作成
 balance = value_df.groupby(level = 0).mean().cumsum()
 
 # バランスカーブの描画
 plt.clf()
+plt.close()
+plt.figure(figsize=(10.24, 7.68))
 plt.plot(balance["rt"])
 plt.grid(True)
-plt.ylim(-0.15, 0.15)
+plt.title(graph_title1)
 plt.xlabel("date")
 plt.ylabel("cumulative return")
 plt.show()

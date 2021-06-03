@@ -31,7 +31,7 @@ roe_reference_value = 0.1
 # mylib.stock_prices_to_csv("^GSPC")
 # for ticker in tickers:
 #     mylib.pl_to_csv(ticker)
-for ticker in tickers[330:]:
-    mylib.balance_sheet_to_csv(ticker)
 for ticker in tickers:
-    mylib.sammary_to_csv(ticker)
+    mylib.balance_sheet_to_csv(ticker)
+# for ticker in tickers:
+#     mylib.sammary_to_csv(ticker)

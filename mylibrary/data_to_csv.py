@@ -102,6 +102,33 @@ def sammary_to_csv(security_code):
     with open(file_name, "w") as f:
         json.dump(info, f)
 
+
+def topix100_to_csv():
+    """TOPIX100構成銘柄の取得
+    保存先は \Dates\List_of_TSE-listedIssues\[取得したリストの更新年月日]
+    """
+    # 東証上場銘柄一覧を取得
+    path_name_to_jp = os.path.join(path_name["TSE_listed_Issues"],
+                              path_name["TSE_listed_Issues_JP"])
+    path_name_to_en = os.path.join(path_name["TSE_listed_Issues"],
+                              path_name["TSE_listed_Issues_EN"])
+    issues_jp = pd.read_excel(path_name_to_jp)
+    issues_en = pd.read_excel(path_name_to_en)
+
+    # データの形成
+    # TOPIX100構成銘柄の行だけ摘出
+    issues = issues_en[(issues_en["Size (New Index Series)"] == "TOPIX Core30") |
+                       (issues_en["Size (New Index Series)"] == "TOPIX Large70")]
+    # 銘柄の日本語表記を取得
+    name_japanese = issues_jp["銘柄名"]
+    # 銘柄の日本語表記を挿入
+    issues.insert(3, "Name (Japanese)", name_japanese)
+
+    # データの保存
+    file_name = path_name["TOPIX100"] + ".csv"
+    issues.to_csv(os.path.join(path_name["TSE_listed_Issues"], file_name), sep = ",")
+
+
 def topix500_to_csv():
     """TOPIX500構成銘柄の取得
     保存先は \Dates\List_of_TSE-listedIssues\[取得したリストの更新年月日]

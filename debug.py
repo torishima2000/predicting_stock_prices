@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import mylibrary as mylib
 
 # 銘柄コードを指定
-Security_code = "7203.T"
+# Security_code = "7203.T"
 
 # 価格のヒストリカルデータを取得し、csvファイルに保存
 # mylib.stock_prices_to_csv(Security_code)
@@ -25,6 +25,9 @@ Security_code = "7203.T"
 
 # 銘柄のサマリーをcsvファイルに保存
 # mylib.sammary_to_csv(Security_code)
+
+# TOPIX100構成銘柄をcsvファイルに保存
+mylib.topix100_to_csv()
 
 # TOPIX500構成銘柄をcsvファイルに保存
 # mylib.topix500_to_csv()
@@ -44,6 +47,3 @@ topix500_codes = mylib.get_codelist_topix500()
 #     mylib.cash_flow_statement_to_csv(str(s) + ".T")
 # for s in topix500_codes[150:]:
 #     mylib.sammary_to_csv(str(s) + ".T")
-
-#for s in topix500_codes:
-#    print(s)

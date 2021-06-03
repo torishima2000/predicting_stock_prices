@@ -7,5 +7,6 @@
     "TSE_listed_Issues": "Dates\\List_of_TSE-listedIssues\\202103",
     "TSE_listed_Issues_JP":"data_j.xls",
     "TSE_listed_Issues_EN":"data_e.xls",
+    "TOPIX100":"TOPIX100",
     "TOPIX500":"TOPIX500"
 }

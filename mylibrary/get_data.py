@@ -85,6 +85,22 @@ def get_sammary(security_code):
         sammary = json.load(f)
     return sammary
 
+def get_codelist_topix100():
+    """TOPIX100構成銘柄の証券コードリストを取得
+
+    Returns:
+        [list]: TOPIX100構成銘柄の証券コード
+    """
+    # TOPIX100構成銘柄情報をcsvファイルから取得
+    path = os.path.join(path_name["TSE_listed_Issues"], path_name["TOPIX100"] + ".csv")
+    list_topix100 = pd.read_csv(path)
+
+    # 証券コード部分のみ摘出
+    codes = list_topix100["Local Code"].values.tolist()
+    for i, code in enumerate(codes):
+        codes[i] = str(code) + ".T"
+    return codes
+
 def get_codelist_topix500():
     """TOPIX500構成銘柄の証券コードリストを取得
 

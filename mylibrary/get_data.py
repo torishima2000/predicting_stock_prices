@@ -97,4 +97,6 @@ def get_codelist_topix500():
 
     # 証券コード部分のみ摘出
     codes = list_topix500["Local Code"].values.tolist()
+    for i, code in enumerate(codes):
+        codes[i] = str(code) + ".T"
     return codes

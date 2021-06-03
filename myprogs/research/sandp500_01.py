@@ -26,12 +26,12 @@ end_date = datetime.datetime(*end)
 per_reference_value = 10
 roe_reference_value = 0.1
 # グラフのタイトル
-graph_title1 = "Target: " + "S&P500" + "\n"
-graph_title1 += "Reference value: PER " + str(per_reference_value) + "times or less" + "\n"
-graph_title1 += "               : ROE over " + str(roe_reference_value) + "times" + "\n"
-graph_title1 += "Coverage period: "
-graph_title1 += str(begin[0]) + "/" + str(begin[1]) + "/" + str(begin[2]) + " ~ "
-graph_title1 += str(end[0]) + "/" + str(end[1]) + "/" + str(end[2])
+graph_title = "Target: " + "S&P500" + "\n"
+graph_title += "Reference value: PER " + str(per_reference_value) + "times or less" + "\n"
+graph_title += "               : ROE over " + str(roe_reference_value) + "times" + "\n"
+graph_title += "Coverage period: "
+graph_title += str(begin[0]) + "/" + str(begin[1]) + "/" + str(begin[2]) + " ~ "
+graph_title += str(end[0]) + "/" + str(end[1]) + "/" + str(end[2])
 
 
 # データの取得
@@ -208,7 +208,7 @@ value_df = df[(df.per < per_reference_value) & (df.roe > roe_reference_value)]
 plt.figure(figsize=(10.24, 7.68))
 plt.hist(value_df["rt"], bins = [(-0.5 + (i / 25.0)) for i in range(26)], ec = "black")
 plt.grid(True)
-plt.title(graph_title1)
+plt.title(graph_title)
 plt.xlim(-0.5, 0.5)
 plt.xlabel("monthly return")
 plt.ylabel("number of trades")
@@ -223,7 +223,7 @@ plt.close()
 plt.figure(figsize=(10.24, 7.68))
 plt.plot(balance["rt"])
 plt.grid(True)
-plt.title(graph_title1)
+plt.title(graph_title)
 plt.xlabel("date")
 plt.ylabel("cumulative return")
 plt.show()

@@ -27,13 +27,16 @@ import mylibrary as mylib
 # mylib.sammary_to_csv(Security_code)
 
 # TOPIX100構成銘柄をcsvファイルに保存
-mylib.topix100_to_csv()
+# mylib.topix100_to_csv()
 
 # TOPIX500構成銘柄をcsvファイルに保存
 # mylib.topix500_to_csv()
 
 # TOPIX500構成銘柄の証券コードを取得
-topix500_codes = mylib.get_codelist_topix500()
+# topix500_codes = mylib.get_codelist_topix500()
+
+# S&P500構成銘柄の証券コードを取得
+# sandp500_codes = mylib.get_codelist_sandp500()
 
 # 実行済み
 # for s in topix500_codes:

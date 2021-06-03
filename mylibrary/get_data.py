@@ -100,3 +100,17 @@ def get_codelist_topix500():
     for i, code in enumerate(codes):
         codes[i] = str(code) + ".T"
     return codes
+
+def get_codelist_sandp500():
+    """S&P500構成銘柄の証券コードリストを取得
+
+    Returns:
+        [list]: S&P500構成銘柄の証券コード
+    """
+    # S&P500構成銘柄情報をcsvファイルから取得
+    path = os.path.join(path_name["S&P500_components"], path_name["S&P500"] + ".csv")
+    list_sandp500 = pd.read_csv(path)
+
+    # 証券コード部分のみ摘出
+    codes = list_sandp500["Symbol"].values.tolist()
+    return codes

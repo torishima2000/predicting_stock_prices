@@ -3,3 +3,6 @@
 https://www.jpx.co.jp/markets/statistics-equities/misc/01.html
 英語
 https://www.jpx.co.jp/english/markets/statistics-equities/misc/01.html
+
+S&P500構成銘柄の証券コード
+https://datahub.io/core/s-and-p-500-companies

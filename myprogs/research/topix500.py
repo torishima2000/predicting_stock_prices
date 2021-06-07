@@ -28,7 +28,7 @@ roe_reference_value = 0.1
 # グラフのタイトル
 graph_title = "Target: " + "TOPIX500" + "\n"
 graph_title += "Reference value: PER " + str(per_reference_value) + "times or less" + "\n"
-graph_title += "               : ROE over " + str(roe_reference_value) + "times" + "\n"
+graph_title += "                        : ROE over " + str(roe_reference_value) + "times" + "\n"
 graph_title += "Coverage period: "
 graph_title += str(begin[0]) + "/" + str(begin[1]) + "/" + str(begin[2]) + " ~ "
 graph_title += str(end[0]) + "/" + str(end[1]) + "/" + str(end[2])
@@ -219,7 +219,6 @@ plt.show()
 balance = value_df.groupby(level = 0).mean().cumsum()
 
 # バランスカーブの描画
-plt.clf()
 plt.close()
 plt.figure(figsize=(10.24, 7.68))
 plt.plot(balance["rt"])

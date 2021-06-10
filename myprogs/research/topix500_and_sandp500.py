@@ -60,43 +60,14 @@ graph_title += str(end[0]) + "/" + str(end[1]) + "/" + str(end[2])
 #     mylib.sammary_to_csv(ticker)
 
 
-# 終値データフレームの作成
-# 終値
-topix500_closes = []
-# 終値をリストとして記憶
-for ticker in topix500_tickers:
-    df = mylib.get_stock_prices(ticker)
-    topix500_closes.append(df.Close)
-df = mylib.get_stock_prices(topix500_reference_ticker)
-topix500_closes.append(df.Close)
-# 終値のリストをDateFrame化
-topix500_closes = pd.DataFrame(topix500_closes).T
-# カラム名の指定
-topix500_closes.columns = [ticker for ticker in topix500_tickers] + [topix500_reference_ticker]
-# データのソート
-topix500_closes = topix500_closes.sort_index()
-# 欠損データの補完
-topix500_closes = topix500_closes.ffill()
+# TOPIX500の終値データフレーム
+topix500_closes = mylib.get_stock_prices_dataframe(topix500_tickers + [topix500_reference_ticker], "Close")
 # データ範囲の指定
 topix500_closes = topix500_closes[topix500_closes.index >= begin_date]
 topix500_closes = topix500_closes[topix500_closes.index <= end_date]
 
-# 終値
-sandp500_closes = []
-# 終値をリストとして記憶
-for ticker in sandp500_tickers:
-    df = mylib.get_stock_prices(ticker)
-    sandp500_closes.append(df.Close)
-df = mylib.get_stock_prices(sandp500_reference_ticker)
-sandp500_closes.append(df.Close)
-# 終値のリストをDateFrame化
-sandp500_closes = pd.DataFrame(sandp500_closes).T
-# カラム名の指定
-sandp500_closes.columns = [ticker for ticker in sandp500_tickers] + [sandp500_reference_ticker]
-# データのソート
-sandp500_closes = sandp500_closes.sort_index()
-# 欠損データの補完
-sandp500_closes = sandp500_closes.ffill()
+# S&P500の終値データフレーム
+sandp500_closes = mylib.get_stock_prices_dataframe(sandp500_tickers + [sandp500_reference_ticker], "Close")
 # データ範囲の指定
 sandp500_closes = sandp500_closes[sandp500_closes.index >= begin_date]
 sandp500_closes = sandp500_closes[sandp500_closes.index <= end_date]

@@ -229,7 +229,7 @@ def get_shares(tickers):
     # 発行株数をリストとして記憶
     for ticker in tickers:
         try:
-            df = get_sammary("AAPL")
+            df = get_sammary(ticker)
             shares.append(df["sharesOutstanding"])
         except:
             shares.append(np.nan)

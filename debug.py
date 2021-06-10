@@ -36,4 +36,4 @@ import mylibrary as mylib
 topix500_codes = mylib.get_codelist_topix500()
 
 # S&P500構成銘柄の証券コードを取得
-sandp500_codes = mylib.get_codelist_sandp500()
+sandp500_codes = mylib.get_codelist_sp500()

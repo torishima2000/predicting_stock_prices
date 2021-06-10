@@ -133,7 +133,7 @@ def get_codelist_sp500():
     return codes
 
 def get_stock_prices_dataframe(tickers, ohlc):
-    """OHLCいずれかのデータフレームを取得
+    """指定した銘柄群におけるOHLCいずれかのデータフレームを取得
 
     Args:
         tickers [list]: 取得したい銘柄の証券コードのリスト
@@ -159,6 +159,14 @@ def get_stock_prices_dataframe(tickers, ohlc):
     return ohlc_df
 
 def get_earnings_dataframe(tickers):
+    """指定した銘柄群における当期純利益のデータフレームを取得
+
+    Args:
+        tickers [list]: 取得したい銘柄の証券コードのリスト
+
+    Returns:
+        [DataFrame]: 当期純利益のデータフレーム
+    """
     # 当期純利益
     earnings = []
     # 当期純利益をリストとして記憶
@@ -179,6 +187,14 @@ def get_earnings_dataframe(tickers):
     return earnings
 
 def get_equity_dataframe(tickers):
+    """指定した銘柄群における自己資本のデータフレームを取得
+
+    Args:
+        tickers [list]: 取得したい銘柄の証券コードのリスト
+
+    Returns:
+        [DataFrame]: 自己資本のデータフレーム
+    """
     # 自己資本
     equity = []
     # 自己資本をリストとして記憶

@@ -57,7 +57,6 @@ closes = closes[closes.index <= end_date]
 # 当期純利益データフレーム
 earnings = mylib.get_earnings_dataframe(tickers + [reference_ticker])
 # データ範囲の指定
-earnings = earnings[earnings.index >= begin_date]
 earnings = earnings[earnings.index <= end_date]
 
 

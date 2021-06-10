@@ -76,13 +76,11 @@ sp500_closes = sp500_closes[sp500_closes.index <= end_date]
 # TOPIX500の当期純利益データフレーム
 topix500_earnings = mylib.get_earnings_dataframe(topix500_tickers + [topix500_reference_ticker])
 # データ範囲の指定
-topix500_earnings = topix500_earnings[topix500_earnings.index >= begin_date]
 topix500_earnings = topix500_earnings[topix500_earnings.index <= end_date]
 
 # S&P500の当期純利益データフレーム
 sp500_earnings = mylib.get_earnings_dataframe(sp500_tickers + [sp500_reference_ticker])
 # データ範囲の指定
-sp500_earnings = sp500_earnings[sp500_earnings.index >= begin_date]
 sp500_earnings = sp500_earnings[sp500_earnings.index <= end_date]
 
 

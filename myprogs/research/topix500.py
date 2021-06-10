@@ -47,24 +47,8 @@ graph_title += str(end[0]) + "/" + str(end[1]) + "/" + str(end[2])
 #     mylib.sammary_to_csv(ticker)
 
 
-# 終値データフレームの作成
-# 終値
-closes = []
-# 終値をリストとして記憶
-for ticker in tickers:
-    df = mylib.get_stock_prices(ticker)
-    closes.append(df.Close)
-df = mylib.get_stock_prices(reference_ticker)
-closes.append(df.Close)
-
-# 終値のリストをDateFrame化
-closes = pd.DataFrame(closes).T
-# カラム名の指定
-closes.columns = [ticker for ticker in tickers] + [reference_ticker]
-# データのソート
-closes = closes.sort_index()
-# 欠損データの補完
-closes = closes.ffill()
+# 終値データフレーム
+closes = mylib.get_stock_prices_dataframe(tickers + [reference_ticker], "Close")
 # データ範囲の指定
 closes = closes[closes.index >= begin_date]
 closes = closes[closes.index <= end_date]

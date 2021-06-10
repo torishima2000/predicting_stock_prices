@@ -214,3 +214,27 @@ def get_equity_dataframe(tickers):
     # データのソート
     equity = equity.sort_index()
     return equity
+
+def get_shares(tickers):
+    """指定した銘柄群における発行株数のデータフレームを取得
+
+    Args:
+        tickers [list]: 取得したい銘柄の証券コードのリスト
+
+    Returns:
+        [DataFrame]: 発行株数のデータフレーム
+    """
+    # 発行株数
+    shares = []
+    # 発行株数をリストとして記憶
+    for ticker in tickers:
+        try:
+            df = get_sammary("AAPL")
+            shares.append(df["sharesOutstanding"])
+        except:
+            shares.append(np.nan)
+    # 発行株数のリストをSeries化
+    shares = pd.Series(shares)
+    # インデックス名の指定
+    shares.index = tickers
+    return shares

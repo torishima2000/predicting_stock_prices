@@ -56,24 +56,7 @@ closes = closes[closes.index <= end_date]
 
 # 当期純利益データフレームの作成
 # 当期純利益
-earnings = []
-# 当期純利益をリストとして記憶
-dummy = mylib.get_pl(tickers[0])["Net Income"]
-dummy[:] = np.nan
-for ticker in tickers:
-    df = mylib.get_pl(ticker)
-    try:
-        earnings.append(df["Net Income"])
-    except:
-        earnings.append(dummy)
-earnings.append(dummy)
-
-# 当期純利益のリストをDateFrame化
-earnings = pd.DataFrame(earnings).T
-# カラム名の指定
-earnings.columns = [ticker for ticker in tickers] + [reference_ticker]
-# データのソート
-earnings = earnings.sort_index()
+earnings = mylib.get_earnings_dataframe(tickers + [reference_ticker])
 # データ範囲の指定
 earnings = earnings[earnings.index <= end_date]
 

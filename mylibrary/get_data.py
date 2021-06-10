@@ -165,8 +165,8 @@ def get_earnings_dataframe(tickers):
     dummy = get_pl("AAPL")["Net Income"]
     dummy[:] = np.nan
     for ticker in tickers:
-        df = get_pl(ticker)
         try:
+            df = get_pl(ticker)
             earnings.append(df["Net Income"])
         except:
             earnings.append(dummy)

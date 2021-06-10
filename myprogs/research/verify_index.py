@@ -84,46 +84,13 @@ sp500_earnings = mylib.get_earnings_dataframe(sp500_tickers + [sp500_reference_t
 sp500_earnings = sp500_earnings[sp500_earnings.index <= end_date]
 
 
-# 自己資本データフレームの作成
-# 自己資本
-topix500_equity = []
-# 自己資本をリストとして記憶
-topix500_dummy = mylib.get_balance_sheet(topix500_tickers[0])["Total Stockholder Equity"]
-topix500_dummy[:] = np.nan
-for ticker in topix500_tickers:
-    df = mylib.get_balance_sheet(ticker)
-    try:
-        topix500_equity.append(df["Total Stockholder Equity"])
-    except:
-        topix500_equity.append(topix500_dummy)
-topix500_equity.append(topix500_dummy)
-# 自己資本のリストをDateFrame化
-topix500_equity = pd.DataFrame(topix500_equity).T
-# カラム名の指定
-topix500_equity.columns = [ticker for ticker in topix500_tickers] + [topix500_reference_ticker]
-# データのソート
-topix500_equity = topix500_equity.sort_index()
+# TOPIX500の自己資本データフレーム
+topix500_equity = mylib.get_equity_dataframe(topix500_tickers + [topix500_reference_ticker])
 # データ範囲の指定
 topix500_equity = topix500_equity[topix500_equity.index <= end_date]
 
-# 自己資本
-sp500_equity = []
-# 自己資本をリストとして記憶
-sp500_dummy = mylib.get_balance_sheet(sp500_tickers[0])["Total Stockholder Equity"]
-sp500_dummy[:] = np.nan
-for ticker in sp500_tickers:
-    df = mylib.get_balance_sheet(ticker)
-    try:
-        sp500_equity.append(df["Total Stockholder Equity"])
-    except:
-        sp500_equity.append(sp500_dummy)
-sp500_equity.append(sp500_dummy)
-# 自己資本のリストをDateFrame化
-sp500_equity = pd.DataFrame(sp500_equity).T
-# カラム名の指定
-sp500_equity.columns = [ticker for ticker in sp500_tickers] + [sp500_reference_ticker]
-# データのソート
-sp500_equity = sp500_equity.sort_index()
+# S&P500の自己資本
+sp500_equity = mylib.get_equity_dataframe(sp500_tickers + [sp500_reference_ticker])
 # データ範囲の指定
 sp500_equity = sp500_equity[sp500_equity.index <= end_date]
 

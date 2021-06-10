@@ -61,24 +61,7 @@ earnings = earnings[earnings.index <= end_date]
 
 
 # 自己資本データフレーム
-equity = []
-# 自己資本をリストとして記憶
-dummy = mylib.get_balance_sheet(tickers[0])["Total Stockholder Equity"]
-dummy[:] = np.nan
-for ticker in tickers:
-    df = mylib.get_balance_sheet(ticker)
-    try:
-        equity.append(df["Total Stockholder Equity"])
-    except:
-        equity.append(dummy)
-equity.append(dummy)
-
-# 自己資本のリストをDateFrame化
-equity = pd.DataFrame(equity).T
-# カラム名の指定
-equity.columns = [ticker for ticker in tickers] + [reference_ticker]
-# データのソート
-equity = equity.sort_index()
+equity = mylib.get_equity_dataframe(tickers + [reference_ticker])
 # データ範囲の指定
 equity = equity[equity.index <= end_date]
 

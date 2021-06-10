@@ -130,3 +130,25 @@ def get_codelist_sandp500():
     # 証券コード部分のみ摘出
     codes = list_sandp500["Symbol"].values.tolist()
     return codes
+
+def get_stock_prices_dataframe(security_codes, ohlc):
+    """OHLCいずれかのデータフレームを取得
+
+    Args:
+        security_codes [list]: 取得したい銘柄の証券コードのリスト
+        ohlc [String]: Open, High, Low, Closeのうちいずれかを指定
+
+    Returns:
+        [DataFrame]: 指定したOHLCのデータフレーム
+    """
+
+    ohlc_df = []
+    for ticker in security_codes:
+        df = get_stock_prices(ticker)
+        ohlc_df.append(df[ohlc])
+    ohlc_df = pd.DataFrame(ohlc_df).T
+    ohlc_df.columns = security_codes
+    ohlc_df = ohlc_df.sort_index()
+    ohlc_df = ohlc_df.ffill()
+    return ohlc_df
+

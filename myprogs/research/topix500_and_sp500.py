@@ -73,47 +73,16 @@ sp500_closes = sp500_closes[sp500_closes.index >= begin_date]
 sp500_closes = sp500_closes[sp500_closes.index <= end_date]
 
 
-# 当期純利益データフレームの作成
-# 当期純利益
-topix500_earnings = []
-# 当期純利益をリストとして記憶
-dummy = mylib.get_pl(topix500_tickers[0])["Net Income"]
-dummy[:] = np.nan
-for ticker in topix500_tickers:
-    df = mylib.get_pl(ticker)
-    try:
-        topix500_earnings.append(df["Net Income"])
-    except:
-        topix500_earnings.append(dummy)
-topix500_earnings.append(dummy)
-# 当期純利益のリストをDateFrame化
-topix500_earnings = pd.DataFrame(topix500_earnings).T
-# カラム名の指定
-topix500_earnings.columns = [ticker for ticker in topix500_tickers] + [topix500_reference_ticker]
-# データのソート
-topix500_earnings = topix500_earnings.sort_index()
+# TOPIX500の当期純利益データフレーム
+topix500_earnings = mylib.get_earnings_dataframe(topix500_tickers + [topix500_reference_ticker])
 # データ範囲の指定
+topix500_earnings = topix500_earnings[topix500_earnings.index >= begin_date]
 topix500_earnings = topix500_earnings[topix500_earnings.index <= end_date]
 
-# 当期純利益
-sp500_earnings = []
-# 当期純利益をリストとして記憶
-dummy = mylib.get_pl(sp500_tickers[0])["Net Income"]
-dummy[:] = np.nan
-for ticker in sp500_tickers:
-    df = mylib.get_pl(ticker)
-    try:
-        sp500_earnings.append(df["Net Income"])
-    except:
-        sp500_earnings.append(dummy)
-sp500_earnings.append(dummy)
-# 当期純利益のリストをDateFrame化
-sp500_earnings = pd.DataFrame(sp500_earnings).T
-# カラム名の指定
-sp500_earnings.columns = [ticker for ticker in sp500_tickers] + [sp500_reference_ticker]
-# データのソート
-sp500_earnings = sp500_earnings.sort_index()
+# S&P500の当期純利益データフレーム
+sp500_earnings = mylib.get_earnings_dataframe(sp500_tickers + [sp500_reference_ticker])
 # データ範囲の指定
+sp500_earnings = sp500_earnings[sp500_earnings.index >= begin_date]
 sp500_earnings = sp500_earnings[sp500_earnings.index <= end_date]
 
 

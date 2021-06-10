@@ -3,6 +3,7 @@
 # モジュールのインポート
 import os
 import json
+import numpy as np
 import pandas as pd
 
 # 設定ファイルの読み込み
@@ -131,11 +132,11 @@ def get_codelist_sandp500():
     codes = list_sandp500["Symbol"].values.tolist()
     return codes
 
-def get_stock_prices_dataframe(security_codes, ohlc):
+def get_stock_prices_dataframe(tickers, ohlc):
     """OHLCいずれかのデータフレームを取得
 
     Args:
-        security_codes [list]: 取得したい銘柄の証券コードのリスト
+        tickers [list]: 取得したい銘柄の証券コードのリスト
         ohlc [String]: Open, High, Low, Closeのうちいずれかを指定
 
     Returns:
@@ -143,17 +144,36 @@ def get_stock_prices_dataframe(security_codes, ohlc):
     """
     # データフレームを格納する変数
     ohlc_df = []
-    # OHLCの情報をリストとして取得
-    for ticker in security_codes:
+    # OHLCの情報をリストとして記憶
+    for ticker in tickers:
         df = get_stock_prices(ticker)
         ohlc_df.append(df[ohlc])
     # OHLCのリストをDataFrame化
     ohlc_df = pd.DataFrame(ohlc_df).T
     # カラム名の指定
-    ohlc_df.columns = security_codes
+    ohlc_df.columns = tickers
     # データのソート
     ohlc_df = ohlc_df.sort_index()
     # 欠損データの補完
     ohlc_df = ohlc_df.ffill()
     return ohlc_df
 
+def get_earnings_dataframe(tickers):
+    # 当期純利益
+    earnings = []
+    # 当期純利益をリストとして記憶
+    dummy = get_pl("AAPL")["Net Income"]
+    dummy[:] = np.nan
+    for ticker in tickers:
+        df = get_pl(ticker)
+        try:
+            earnings.append(df["Net Income"])
+        except:
+            earnings.append(dummy)
+    # 当期純利益のリストをDateFrame化
+    earnings = pd.DataFrame(earnings).T
+    # カラム名の指定
+    earnings.columns = tickers
+    # データのソート
+    earnings = earnings.sort_index()
+    return earnings

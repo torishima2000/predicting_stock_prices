@@ -222,7 +222,7 @@ def get_shares(tickers):
         tickers [list]: 取得したい銘柄の証券コードのリスト
 
     Returns:
-        [DataFrame]: 発行株数のデータフレーム
+        [Series]: 発行株数のデータフレーム
     """
     # 発行株数
     shares = []

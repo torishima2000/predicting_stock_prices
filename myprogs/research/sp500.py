@@ -15,7 +15,7 @@ import mylibrary as mylib
 
 # ステータスの設定
 # 対象銘柄のリスト
-tickers = mylib.get_codelist_sandp500()
+tickers = mylib.get_codelist_sp500()
 reference_ticker = "^GSPC"
 # データ取得範囲
 begin = [2017, 4, 1]

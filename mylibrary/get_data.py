@@ -118,7 +118,7 @@ def get_codelist_topix500():
         codes[i] = str(code) + ".T"
     return codes
 
-def get_codelist_sandp500():
+def get_codelist_sp500():
     """S&P500構成銘柄の証券コードリストを取得
 
     Returns:
@@ -126,10 +126,10 @@ def get_codelist_sandp500():
     """
     # S&P500構成銘柄情報をcsvファイルから取得
     path = os.path.join(path_name["S&P500_components"], path_name["S&P500"] + ".csv")
-    list_sandp500 = pd.read_csv(path)
+    list_sp500 = pd.read_csv(path)
 
     # 証券コード部分のみ摘出
-    codes = list_sandp500["Symbol"].values.tolist()
+    codes = list_sp500["Symbol"].values.tolist()
     return codes
 
 def get_stock_prices_dataframe(tickers, ohlc):

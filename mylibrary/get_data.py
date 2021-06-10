@@ -141,14 +141,19 @@ def get_stock_prices_dataframe(security_codes, ohlc):
     Returns:
         [DataFrame]: 指定したOHLCのデータフレーム
     """
-
+    # データフレームを格納する変数
     ohlc_df = []
+    # OHLCの情報をリストとして取得
     for ticker in security_codes:
         df = get_stock_prices(ticker)
         ohlc_df.append(df[ohlc])
+    # OHLCのリストをDataFrame化
     ohlc_df = pd.DataFrame(ohlc_df).T
+    # カラム名の指定
     ohlc_df.columns = security_codes
+    # データのソート
     ohlc_df = ohlc_df.sort_index()
+    # 欠損データの補完
     ohlc_df = ohlc_df.ffill()
     return ohlc_df
 

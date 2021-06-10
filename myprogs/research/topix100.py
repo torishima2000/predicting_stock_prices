@@ -66,22 +66,8 @@ equity = mylib.get_equity_dataframe(tickers + [reference_ticker])
 equity = equity[equity.index <= end_date]
 
 
-# 発行株数データフレームの作成
-# 発行株数
-shares = []
-# 発行株数をリストとして記憶
-for ticker in tickers:
-    df = mylib.get_sammary(ticker)
-    try:
-        shares.append(df["sharesOutstanding"])
-    except:
-        shares.append(np.nan)
-shares.append(np.nan)
-
-# 発行株数のリストをSeries化
-shares = pd.Series(shares)
-# インデックス名の指定
-shares.index = [ticker for ticker in tickers] + [reference_ticker]
+# 発行株数データフレーム
+shares = mylib.get_shares(tickers + [reference_ticker])
 
 
 # EPS(一株当たり利益), ROE(自己資本利益率)のデータフレームの作成

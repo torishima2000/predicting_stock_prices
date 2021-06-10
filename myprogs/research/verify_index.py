@@ -95,36 +95,11 @@ sp500_equity = mylib.get_equity_dataframe(sp500_tickers + [sp500_reference_ticke
 sp500_equity = sp500_equity[sp500_equity.index <= end_date]
 
 
-# 発行株数データフレームの作成
-# 発行株数
-topix500_shares = []
-# 発行株数をリストとして記憶
-for ticker in topix500_tickers:
-    df = mylib.get_sammary(ticker)
-    try:
-        topix500_shares.append(df["sharesOutstanding"])
-    except:
-        topix500_shares.append(np.nan)
-topix500_shares.append(np.nan)
-# 発行株数のリストをSeries化
-topix500_shares = pd.Series(topix500_shares)
-# インデックス名の指定
-topix500_shares.index = [ticker for ticker in topix500_tickers] + [topix500_reference_ticker]
+# TOPIX500の発行株数データフレーム
+topix500_shares = mylib.get_shares(topix500_tickers + [topix500_reference_ticker])
 
-# 発行株数
-sp500_shares = []
-# 発行株数をリストとして記憶
-for ticker in sp500_tickers:
-    df = mylib.get_sammary(ticker)
-    try:
-        sp500_shares.append(df["sharesOutstanding"])
-    except:
-        sp500_shares.append(np.nan)
-sp500_shares.append(np.nan)
-# 発行株数のリストをSeries化
-sp500_shares = pd.Series(sp500_shares)
-# インデックス名の指定
-sp500_shares.index = [ticker for ticker in sp500_tickers] + [sp500_reference_ticker]
+# S&P500の発行株数
+sp500_shares = mylib.get_shares(sp500_tickers + [sp500_reference_ticker])
 
 
 # EPS(一株当たり利益), ROE(自己資本利益率)のデータフレームの作成

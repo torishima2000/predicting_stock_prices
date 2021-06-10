@@ -177,3 +177,24 @@ def get_earnings_dataframe(tickers):
     # データのソート
     earnings = earnings.sort_index()
     return earnings
+
+def get_equity_dataframe(tickers):
+    # 自己資本
+    equity = []
+    # 自己資本をリストとして記憶
+    dummy = get_balance_sheet("AAPL")["Total Stockholder Equity"]
+    dummy[:] = np.nan
+    for ticker in tickers:
+        try:
+            df = get_balance_sheet(ticker)
+            equity.append(df["Total Stockholder Equity"])
+        except:
+            equity.append(dummy)
+
+    # 自己資本のリストをDateFrame化
+    equity = pd.DataFrame(equity).T
+    # カラム名の指定
+    equity.columns = tickers
+    # データのソート
+    equity = equity.sort_index()
+    return equity

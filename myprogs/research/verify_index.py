@@ -238,13 +238,18 @@ for i in range(5, 40):
 fig = plt.figure(figsize=(10.24, 7.68))
 ax = fig.add_subplot(projection="3d")
 
+#ax.tick_params(labelsize=14)
 ax.set_xlabel("PER [times]")
+#ax.set_xlabel("PER [times]", fontsize=16)
 ax.set_ylabel("ROE [%]")
+#ax.set_ylabel("ROE [%]", fontsize=16)
 ax.set_zlabel("cumulative return")
+#ax.set_zlabel("cumulative return", fontsize=16)
 
 ax.scatter(topix500_return_df["PER"], topix500_return_df["ROE"], topix500_return_df["rt"], s=40, marker="o", label="TOPIX500")
 ax.scatter(sp500_return_df["PER"], sp500_return_df["ROE"], sp500_return_df["rt"], s=40, marker="o", label="S&P500")
 ax.legend()
+#ax.legend(fontsize=12)
 
 plt.show()
 plt.close()

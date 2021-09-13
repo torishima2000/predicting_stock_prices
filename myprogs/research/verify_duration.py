@@ -84,6 +84,8 @@ roe = roe.ffill()
 eps = eps.drop([reference_ticker], axis = 1)
 roe = roe.drop([reference_ticker], axis = 1)
 
+temp = closes
+
 
 # 終値データフレームの整形, および月次リターンデータフレームの作成
 # 月カラムの作成
@@ -138,35 +140,93 @@ df[df.rt > 1.0] = np.nan
 # 割安でクオリティが高い銘柄を抽出
 value_df = df[(df.per < per_reference_value) & (df.roe > roe_reference_value)]
 
-# ヒストグラムの描画
-plt.figure(figsize=(10.24, 7.68))
-plt.hist(value_df["rt"], bins = [(-0.5 + (i / 25.0)) for i in range(26)], ec = "black")
-plt.grid(True)
-plt.title(graph_title)
-plt.xlim(-0.5, 0.5)
-#plt.xticks(fontsize=18)
-#plt.yticks(fontsize=18)
-plt.xlabel("monthly return")
-#plt.xlabel("monthly return", fontsize=20)
-plt.ylabel("number of trades")
-#plt.ylabel("number of trades", fontsize=20)
-plt.show()
-
 
 # 累積リターンを作成
 balance = value_df.groupby(level = 0).mean().cumsum()
 
+
+closes = temp
+
+# 終値データフレームの整形, および週次リターンデータフレームの作成
+# 曜日カラムの作成
+closes["day_of_the_week"] = closes.index.dayofweek
+# 週末のデータのみを抽出
+closes = closes[closes.day_of_the_week == 1]
+
+# 週次リターン(今週の株価と来週の株価の差分)の作成(ラグあり)
+weekly_rt = closes.pct_change().shift(-1)
+# マーケットリターンの控除
+weekly_rt = weekly_rt.sub(weekly_rt[reference_ticker], axis = 0)
+
+
+# 不要なカラムの削除
+closes = closes.drop([reference_ticker, "day_of_the_week"], axis = 1)
+weekly_rt = weekly_rt.drop([reference_ticker, "day_of_the_week"], axis = 1)
+
+
+# PER, ROEデータフレームの作成(週次リターンと同次元)
+# EPSデータフレーム(週次リターンと同次元)
+weekly_eps_df = pd.DataFrame(index = weekly_rt.index, columns = weekly_rt.columns)
+# ROEデータフレーム(週次リターンと同次元)
+weekly_roe_df = pd.DataFrame(index = weekly_rt.index, columns = weekly_rt.columns)
+
+# 値の代入
+for i in range(len(weekly_eps_df)):
+    weekly_eps_df.iloc[i] = eps[eps.index < weekly_eps_df.index[i]].iloc[-1]
+for i in range(len(weekly_roe_df)):
+    weekly_roe_df.iloc[i] = roe[roe.index < weekly_roe_df.index[i]].iloc[-1]
+
+# PERデータフレーム(週次リターンと同次元)
+weekly_per_df = closes / weekly_eps_df
+
+
+# データの結合
+# 各データを一次元にスタック
+stack_weekly_rt = weekly_rt.stack()
+weekly_stack_per_df = weekly_per_df.stack()
+weekly_stack_roe_df = weekly_roe_df.stack()
+
+# データの結合
+weekly_df = pd.concat([stack_weekly_rt, weekly_stack_per_df, weekly_stack_roe_df], axis = 1)
+# カラム名の設定
+weekly_df.columns = ["rt", "per", "roe"]
+
+# 異常値の除去
+weekly_df[weekly_df.rt > 1.0] = np.nan
+
+
+# 割安でクオリティが高い銘柄を抽出
+weekly_value_df = weekly_df[(weekly_df.per < per_reference_value) & (weekly_df.roe > roe_reference_value)]
+
+
+# 累積リターンを作成
+weekly_balance = weekly_value_df.groupby(level = 0).mean().cumsum()
+
+
+# ヒストグラムの描画
+plt.figure(figsize=(10.24, 7.68))
+monthly_rt_weights = np.ones_like(value_df["rt"]) / len(value_df)
+plt.hist(value_df["rt"], bins = [(-0.5 + (i / 25.0)) for i in range(26)], weights=monthly_rt_weights, alpha = 0.5, ec = "black", label="monthly")
+# plt.hist(value_df["rt"], bins = [(-0.5 + (i / 25.0)) for i in range(26)], alpha = 0.5, ec = "black")
+weekly_rt_weights = np.ones_like(weekly_value_df["rt"]) / len(weekly_value_df)
+plt.hist(weekly_value_df["rt"], bins = [(-0.5 + (i / 25.0)) for i in range(26)], weights=weekly_rt_weights, alpha = 0.5, ec = "black", label="weekly")
+# plt.hist(weekly_value_df["rt"], bins = [(-0.5 + (i / 25.0)) for i in range(26)], alpha = 0.5, ec = "black")
+plt.grid(True)
+plt.title(graph_title)
+plt.xlim(-0.5, 0.5)
+plt.xlabel("day_of_the_week")
+plt.ylabel("number of trades")
+plt.legend(loc="upper left")
+plt.show()
+
 # バランスカーブの描画
 plt.close()
 plt.figure(figsize=(10.24, 7.68))
-plt.plot(balance["rt"])
-plt.xticks(fontsize=14)
-plt.yticks(fontsize=18)
-#plt.grid(True)
-plt.axhline(y=0, color='black', linestyle='dotted', alpha=0.7)
-#plt.title(graph_title)
-#plt.xlabel("date")
-plt.xlabel("date", fontsize=20)
-#plt.ylabel("cumulative return")
-plt.ylabel("cumulative return", fontsize=20)
+plt.plot(balance["rt"], label="monthly")
+plt.plot(weekly_balance["rt"], label="weekly")
+plt.grid(True)
+plt.title(graph_title)
+plt.xlabel("date")
+plt.ylabel("cumulative return")
+plt.legend(loc="upper left")
 plt.show()

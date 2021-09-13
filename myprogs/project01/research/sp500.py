@@ -5,7 +5,7 @@
 # モジュールのインポート
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 import datetime
 import numpy as np
 import pandas as pd

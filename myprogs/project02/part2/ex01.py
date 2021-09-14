@@ -61,3 +61,33 @@ plt.xlabel("date")
 plt.ylabel("price")
 plt.show()
 plt.close()
+
+
+# MACDの算出
+df["MACD"], df["MACDsignal"], df["MACDhist"] = talib.MACD(np.array(df["Close"]), fastperiod=12, slowperiod=26, signalperiod=9)
+
+# MACDの描画
+plt.figure(figsize=(10.24, 7.68))
+plt.plot(df["MACD"], label="MCAD")
+plt.plot(df["MACDsignal"], label="MACDsignal")
+plt.plot(df["MACDhist"], label="MACDhist")
+plt.legend()
+plt.xlabel("date")
+plt.ylabel("price")
+plt.show()
+plt.close()
+
+
+# RSIの算出
+df["RSI9"] = talib.RSI(np.array(df["Close"]), timeperiod=9)
+df["RSI14"] = talib.RSI(np.array(df["Close"]), timeperiod=14)
+
+# RSIの描画
+plt.figure(figsize=(10.24, 7.68))
+plt.plot(df["RSI9"], label="RSI9")
+plt.plot(df["RSI14"], label="RSI14")
+plt.legend()
+plt.xlabel("date")
+plt.ylabel("price")
+plt.show()
+plt.close()

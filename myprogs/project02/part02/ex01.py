@@ -31,17 +31,12 @@ df["SMA75"] = talib.SMA(np.array(df["Close"]), timeperiod=75)
 df["SMA100"] = talib.SMA(np.array(df["Close"]), timeperiod=100)
 
 # 移動平均線の描画
-plt.figure(figsize=(10.24, 7.68))
-plt.plot(df["SMA5"], label="SMA5")
-plt.plot(df["SMA25"], label="SMA25")
-plt.plot(df["SMA50"], label="SMA50")
-plt.plot(df["SMA75"], label="SMA75")
-plt.plot(df["SMA100"], label="SMA100")
-plt.legend()
-plt.xlabel("date")
-plt.ylabel("price")
-plt.show()
-plt.close()
+sma = { "SMA5":df["SMA5"],
+        "SMA25":df["SMA25"],
+        "SMA50":df["SMA50"],
+        "SMA75":df["SMA75"],
+        "SMA100":df["SMA100"]}
+mylib.plot_chart(sma)
 
 
 # ボリンジャーバンドの算出
@@ -50,33 +45,23 @@ df["upper2"], middle, df["lower2"] = talib.BBANDS(np.array(df["Close"]), timeper
 df["upper3"], middle, df["lower3"] = talib.BBANDS(np.array(df["Close"]), timeperiod=25, nbdevup=3, nbdevdn=3, matype=0)
 
 # ボリンジャーバンドの描画
-plt.figure(figsize=(10.24, 7.68))
-plt.plot(df["upper1"], label="upper1")
-plt.plot(df["lower1"], label="lower1")
-plt.plot(df["upper2"], label="upper2")
-plt.plot(df["lower2"], label="lower2")
-plt.plot(df["upper3"], label="upper3")
-plt.plot(df["lower3"], label="lower3")
-plt.legend()
-plt.xlabel("date")
-plt.ylabel("price")
-plt.show()
-plt.close()
+bbands = {  "upper1":df["upper1"],
+            "lower1":df["lower1"],
+            "upper2":df["upper2"],
+            "lower2":df["lower2"],
+            "upper3":df["upper3"],
+            "lower3":df["lower3"],}
+mylib.plot_chart(bbands)
 
 
 # MACDの算出
 df["MACD"], df["MACDsignal"], df["MACDhist"] = talib.MACD(np.array(df["Close"]), fastperiod=12, slowperiod=26, signalperiod=9)
 
 # MACDの描画
-plt.figure(figsize=(10.24, 7.68))
-plt.plot(df["MACD"], label="MCAD")
-plt.plot(df["MACDsignal"], label="MACDsignal")
-plt.plot(df["MACDhist"], label="MACDhist")
-plt.legend()
-plt.xlabel("date")
-plt.ylabel("price")
-plt.show()
-plt.close()
+macd = {"MACD":df["MACD"],
+        "MACDsignal":df["MACDsignal"],
+        "MACDhist":df["MACDhist"]}
+mylib.plot_chart(macd)
 
 
 # RSIの算出
@@ -84,11 +69,6 @@ df["RSI9"] = talib.RSI(np.array(df["Close"]), timeperiod=9)
 df["RSI14"] = talib.RSI(np.array(df["Close"]), timeperiod=14)
 
 # RSIの描画
-plt.figure(figsize=(10.24, 7.68))
-plt.plot(df["RSI9"], label="RSI9")
-plt.plot(df["RSI14"], label="RSI14")
-plt.legend()
-plt.xlabel("date")
-plt.ylabel("price")
-plt.show()
-plt.close()
+rsi = { "RSI9":df["RSI9"],
+        "RSI14":df["RSI14"]}
+mylib.plot_chart(rsi)

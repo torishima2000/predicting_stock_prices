@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 
 def plot_chart(data, size={"x":10.24, "y":7.68}):
     fig = plt.figure(figsize=(size["x"], size["y"]))
-    print(data)
     for k, v in data.items():
         plt.plot(v, label=k)
     plt.legend()

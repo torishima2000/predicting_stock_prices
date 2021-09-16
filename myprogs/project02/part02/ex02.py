@@ -19,7 +19,7 @@ def main():
     df = mylib.get_stock_prices("7203.T")
 
     # 元データの成形
-    begin = datetime.datetime(*[2018, 5, 16])
+    begin = datetime.datetime(*[2010, 5, 16])
     end = datetime.datetime(*[2020, 1, 9])
     df = df[df.index >= begin]
     df = df[df.index <= end]
@@ -52,6 +52,15 @@ def main():
     # 目的変数の作成
     # 3日後の株価の変化量の計算
     df["variation"] = df["Open"].diff(-3).shift(-1) * -1
+
+    # 不要インデックスの削除
+    df = df.dropna(subset=[ "SMA3", "SMA5", "SMA25", "SMA50", "SMA75", "SMA100",
+                            "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
+                            "MACD", "MACDsignal", "MACDhist",
+                            "RSI9", "RSI14",
+                            "variation"])
+
+    # 目的変数の計算
     df["target"] = (df["variation"] >= 0)
 
     # 不要カラムの削除
@@ -60,21 +69,37 @@ def main():
     # 欠損値の補完
     df.ffill()
 
-    # 訓練データ、教師データの作成
-    train_X, vaild_X, train_Y, vaild_Y = train_test_split(df.drop(["target"], axis=1), df["target"], train_size=0.8)
+    # 学習データ、テストデータの作成
+    # train 学習時データ vaild 学習時の検証データ test 学習後のテストデータ
+    X_train, X_test, y_train, y_test = train_test_split(df.drop(["target"], axis=1), df["target"], train_size=0.8, random_state=0)
+    X_train, X_vaild, y_train, y_vaild = train_test_split(X_train, y_train, train_size=0.8, random_state=0)
+
 
     # データセットを登録
-    lgb_train = lgb.Dataset(train_X, train_Y)
-    lgb_vaild = lgb.Dataset(vaild_X, vaild_Y)
+    lgb_train = lgb.Dataset(X_train, label=y_train)
+    lgb_vaild = lgb.Dataset(X_vaild, label=y_vaild)
 
     # ハイパーパラメータの設定
-    lgb_params = {"objective": "binary",}
+    lgb_params = {
+        "boosting_type": "gbdt",
+        "objective": "binary",
+        "num_iterations": 100,
+        "learning_rate": 0.1
+    }
 
     # 訓練
-    bst = lgb.train(params=lgb_params, train_set=lgb_train, valid_sets=[lgb_vaild])
-    lgb.plot_importance(bst, height=0.5, figsize=(10.24, 7.68))
-    plt.show()
-    plt.close()
+    model = lgb.train(params=lgb_params, train_set=lgb_train, valid_sets=[lgb_train, lgb_vaild], num_boost_round=100, early_stopping_rounds=30, verbose_eval=10)
+    
+    # テストデータの推論
+    y_pred = model.predict(X_test, num_iteration=model.best_iteration)
+    X_test["accuracy"] = (y_pred >= 0.5)
+    accuracy = sum(y_test==X_test["accuracy"]) / len(y_test)
+    print(accuracy)
+
+    # 結果の表示
+    #lgb.plot_importance(model, height=0.5, figsize=(10.24, 7.68))
+    #plt.show()
+    #plt.close()
     #bst.save_model("model.txt")
 
 

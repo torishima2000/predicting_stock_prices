@@ -14,11 +14,11 @@ import talib
 from sklearn.model_selection import train_test_split
 import mylibrary as mylib
 
-def weite_date(code, dates):
+def write_date(code, dates):
     """取引日をptファイルに書き込む関数
 
     Args:
-        dates (Datetimeindex): 購入日のリスト
+        dates (Datetimeindex): 購入日のみを抽出したデータセット
 
     Returns:
         [String]: 購入日をもとにした売買基準をprotra用に記述した文字列
@@ -127,9 +127,8 @@ def main():
     test["assets"] = (test["variation"]*test["isbuy"]).cumsum()
     
     mylib.plot_chart({"assets": test["assets"]})
-    weite_date("^N225", test[test["isbuy"] == True])
     with open(os.path.join("myprogs", "project02", "part02", "LightGBM.pt"), mode="w") as f:
-        f.write(weite_date("^N225", test[test["isbuy"] == True]))
+        f.write(write_date("^N225", test[test["isbuy"] == True]))
 
     # 結果の表示
     #lgb.plot_importance(model, height=0.5, figsize=(10.24, 7.68))

@@ -14,6 +14,32 @@ import talib
 from sklearn.model_selection import train_test_split
 import mylibrary as mylib
 
+def weite_date(code, dates):
+    """取引日をptファイルに書き込む関数
+
+    Args:
+        dates (Datetimeindex): 購入日のリスト
+
+    Returns:
+        [String]: 購入日をもとにした売買基準をprotra用に記述した文字列
+    """
+    s = "def IsBUYDATE\n"
+    s += "  if ((int)Code == " + code + ")\n"
+    s += "     if ( \\\n"
+    for index, row in dates.iterrows():
+        s += "(Year == " + str(index.year)
+        s += " && Month == " + str(index.month)
+        s += " && Day == " + str(index.day) + ") || \\\n"
+    s += "         (Year == 3000))\n"
+    s += "         return 1\n"
+    s += "     else\n"
+    s += "         return 0\n"
+    s += "     end\n"
+    s += "  end\n"
+    s += "end\n"
+    return s
+
+
 def main():
     # 株価データの取得
     df = mylib.get_stock_prices("7203.T")
@@ -95,12 +121,15 @@ def main():
 
     # テスト運用
     test = X_test
-    test["buy"] = (y_pred >= 10)
+    test["isbuy"] = (y_pred >= 10)
     test["variation"] = y_test
     test = test.sort_index()
-    test["assets"] = (test["variation"]*test["buy"]).cumsum()
+    test["assets"] = (test["variation"]*test["isbuy"]).cumsum()
     
     mylib.plot_chart({"assets": test["assets"]})
+    weite_date("^N225", test[test["isbuy"] == True])
+    with open(os.path.join("myprogs", "project02", "part02", "LightGBM.pt"), mode="w") as f:
+        f.write(weite_date("^N225", test[test["isbuy"] == True]))
 
     # 結果の表示
     #lgb.plot_importance(model, height=0.5, figsize=(10.24, 7.68))

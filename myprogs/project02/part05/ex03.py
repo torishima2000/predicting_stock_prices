@@ -1,5 +1,5 @@
-# 【第二回】機械学習で株価予測（TA-LibとLightGBMを使った学習モデル構築）
-# 学習モデル
+# 【第五回】機械学習で株価予測（Protraを使ったバックテスト解決編）
+# ソースコード
 
 # モジュールのインポート
 import os
@@ -126,8 +126,10 @@ def main():
     test = test.sort_index()
     test["assets"] = (test["variation"]*test["isbuy"]).cumsum()
     
+
+    # Protra変換部分
     mylib.plot_chart({"assets": test["assets"]})
-    with open(os.path.join("myprogs", "project02", "part02", "LightGBM.pt"), mode="w") as f:
+    with open(os.path.join("myprogs", "project02", "LightGBM.pt"), mode="w") as f:
         f.write(write_date("^N225", test[test["isbuy"] == True]))
 
     # 結果の表示

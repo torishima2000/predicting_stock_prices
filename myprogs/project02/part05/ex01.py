@@ -45,8 +45,8 @@ def main():
     df = mylib.get_stock_prices("7203.T")
 
     # 元データの成形
-    begin = datetime.datetime(*[2015, 1, 1])
-    end = datetime.datetime(*[2021, 1, 1])
+    begin = datetime.datetime(*[1998, 1, 5])
+    end = datetime.datetime(*[2020, 1, 24])
     df = df[df.index >= begin]
     df = df[df.index <= end]
 
@@ -83,7 +83,11 @@ def main():
     df = df.dropna(subset=[ "SMA3", "SMA5", "SMA25", "SMA50", "SMA75", "SMA100",
                             "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
                             "MACD", "MACDsignal", "MACDhist",
-                            "RSI9", "RSI14"])
+                            "RSI9", "RSI14",
+                            "target"])
+    
+    # 目的変数の型変換
+    df["target"] = df["target"].astype(int)
 
 
     # 不要カラムの削除
@@ -94,7 +98,9 @@ def main():
 
     # 学習データ、テストデータの作成
     # train 学習時データ vaild 学習時の検証データ test 学習後のテストデータ
-    X_train, X_test, y_train, y_test = train_test_split(df.drop(["target"], axis=1), df["target"], train_size=0.8, random_state=0)
+    df_X = df.drop(["target"], axis=1)
+    df_y = df["target"]
+    X_train, X_test, y_train, y_test = train_test_split(df_X, df_y, train_size=0.8, random_state=0)
     X_train, X_vaild, y_train, y_vaild = train_test_split(X_train, y_train, train_size=0.8, random_state=0)
 
 
@@ -107,7 +113,7 @@ def main():
         "boosting_type": "gbdt",
         "objective": "regression",  # 回帰
         "metric": "mse",            # 二乗誤差関数
-        "num_iterations": 1000,     # 学習回数
+        "num_iterations": 1000,     # 木の数
         "learning_rate": 0.1        # 学習率
     }
 
@@ -116,26 +122,25 @@ def main():
     
     # テストデータの推論
     y_pred = model.predict(X_test, num_iteration=model.best_iteration)
-    accuracy = sum(y_test*y_pred > 0) / len(y_test)
+    accuracy = sum(y_test * y_pred > 0) / len(y_test)
     print("Win rate: ", accuracy)
 
     # テスト運用
-    test = X_test
-    test["isbuy"] = (y_pred >= 10)
-    test["variation"] = y_test
-    test = test.sort_index()
-    test["assets"] = (test["variation"]*test["isbuy"]).cumsum()
-    
+    X_test = X_test.assign(isbuy=(y_pred >= 10))
+    X_test["variation"] = y_test
+    X_test = X_test.sort_index()
+    X_test["assets"] = (X_test["variation"]*X_test["isbuy"]).cumsum()
+    mylib.plot_chart({"assets": X_test["assets"]})
 
     # Protra変換部分
-    mylib.plot_chart({"assets": test["assets"]})
+    df["isbuy"] = (model.predict(df_X, num_iteration=model.best_iteration) >= 10)
     with open(os.path.join("myprogs", "project02", "LightGBM.pt"), mode="w") as f:
-        f.write(write_date("^N225", test[test["isbuy"] == True]))
+        f.write(write_date("7203", df[df["isbuy"] == True]))
 
     # 結果の表示
-    #lgb.plot_importance(model, height=0.5, figsize=(10.24, 7.68))
-    #plt.show()
-    #plt.close()
+    lgb.plot_importance(model, height=0.5, figsize=(10.24, 7.68))
+    plt.show()
+    plt.close()
     #bst.save_model("model.txt")
 
 

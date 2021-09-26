@@ -51,20 +51,20 @@ def main():
 
     # 目的変数の作成
     # 3日後の株価の変化量の計算
-    df["variation"] = df["Open"].diff(-3).shift(-1) * -1
+    df["target"] = df["Open"].diff(-3).shift(-1) * -1
 
     # 不要インデックスの削除
     df = df.dropna(subset=[ "SMA3", "SMA5", "SMA25", "SMA50", "SMA75", "SMA100",
                             "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
                             "MACD", "MACDsignal", "MACDhist",
                             "RSI9", "RSI14",
-                            "variation"])
+                            "target"])
 
-    # 目的変数の計算
-    df["target"] = (df["variation"] >= 0)
+    # 目的変数の型変換
+    df["target"] = df["target"].astype(int)
 
     # 不要カラムの削除
-    df = df.drop(["Dividends", "Stock Splits", "variation"], axis=1)
+    df = df.drop(["Dividends", "Stock Splits"], axis=1)
 
     # 欠損値の補完
     df.ffill()

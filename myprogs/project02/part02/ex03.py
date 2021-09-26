@@ -52,28 +52,28 @@ def main():
 
     # 目的変数の作成
     # 3日後の株価の変化量の計算
-    df["variation"] = df["Open"].diff(-3).shift(-1) * -1
+    df["target"] = df["Open"].diff(-3).shift(-1) * -1
 
     # 不要インデックスの削除
     df = df.dropna(subset=[ "SMA3", "SMA5", "SMA25", "SMA50", "SMA75", "SMA100",
                             "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
                             "MACD", "MACDsignal", "MACDhist",
                             "RSI9", "RSI14",
-                            "variation"])
+                            "target"])
 
-    # 目的変数の計算
-    df["target"] = (df["variation"] >= 0)
+    # 目的変数の型変換
+    df["target"] = df["target"].astype(int)
 
     # 不要カラムの削除
-    df = df.drop(["Dividends", "Stock Splits", "variation"], axis=1)
+    df = df.drop(["Dividends", "Stock Splits"], axis=1)
 
     # 欠損値の補完
     df.ffill()
 
     # 学習データ、テストデータの作成
     # train 学習時データ vaild 学習時の検証データ test 学習後のテストデータ
-    df_y = df["target"]
     df_X = df.drop(["target"], axis=1)
+    df_y = np.array(df["target"])
     X_train, X_vaild, y_train, y_vaild = train_test_split(df_X, df_y, train_size=0.8, random_state=0)
     print("X_train:{}".format(X_train.shape))
     print("y_train:{}".format(y_train.shape))
@@ -88,6 +88,7 @@ def main():
     
     # 正解率の確認
     y_pred = model.predict(X_vaild)
+    print(y_pred)
     accuracy = sum(y_vaild & y_pred > 0) / len(y_vaild)
     print("Testing Accuracy{}".format(accuracy))
 
@@ -96,10 +97,9 @@ def main():
     test = test[test.index >= datetime.datetime(*[2018, 2, 26])]
     test = test[test.index <= datetime.datetime(*[2019, 12, 26])]
     test["isbuy"] = (model.predict(test))
-    test["variation"] = test["Open"].diff(-3).shift(-1) * -1
+    test["target"] = test["Open"].diff(-3).shift(-1) * -1
     test = test.sort_index()
-    test["assets"] = (test["variation"]*test["isbuy"]).cumsum()
-    print(test)
+    test["assets"] = (test["target"]*test["isbuy"]).cumsum()
     mylib.plot_chart({"assets": test["assets"]})
 
 

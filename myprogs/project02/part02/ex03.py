@@ -100,7 +100,7 @@ def main():
     test["target"] = test["Open"].diff(-3).shift(-1) * -1
     test = test.sort_index()
     test["assets"] = (test["target"]*test["isbuy"]).cumsum()
-    mylib.plot_chart({"assets": test["assets"]})
+    mylib.plot_chart({"": test["assets"]})
 
 
 if __name__=="__main__":

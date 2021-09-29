@@ -137,7 +137,7 @@ def main():
     with open(os.path.join("myprogs", "project02", "LightGBM.pt"), mode="w") as f:
         f.write(write_date("7203", df[df["isbuy"] == True]))
 
-    # 結果の表示
+    # 特徴量の重みの表示
     lgb.plot_importance(model, height=0.5, figsize=(10.24, 7.68))
     plt.show()
     plt.close()

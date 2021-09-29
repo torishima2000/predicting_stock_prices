@@ -41,14 +41,24 @@ def write_date(code, dates):
 
 
 def main():
+    # 使用するデータ期間の指定
+    begin = datetime.datetime(*[2000, 1, 1])
+    end = datetime.datetime(*[2020, 12, 31])
+
+
     # 株価データの取得
+    # mylib.stock_prices_to_csv("7203.T")
     df = mylib.get_stock_prices("7203.T")
 
+
     # 元データの成形
-    begin = datetime.datetime(*[1998, 1, 5])
-    end = datetime.datetime(*[2020, 1, 24])
+    # データの範囲の調整
     df = df[df.index >= begin]
     df = df[df.index <= end]
+    # 不要カラムの削除
+    df.drop(["Dividends", "Stock Splits"], inplace=True, axis=1)
+    print(df)
+
 
     # 特徴量の計算
     # 曜日カラムの作成
@@ -74,27 +84,20 @@ def main():
     df["RSI9"] = talib.RSI(np.array(df["Close"]), timeperiod=9)
     df["RSI14"] = talib.RSI(np.array(df["Close"]), timeperiod=14)
 
+    # 欠損値のある行の削除
+    df.dropna(how="any", axis=0, inplace=True)
+
 
     # 目的変数の作成
     # 3日後の株価の変化量の計算
     df["target"] = df["Open"].diff(-3).shift(-1) * -1
 
-    # 不要インデックスの削除
-    df = df.dropna(subset=[ "SMA3", "SMA5", "SMA25", "SMA50", "SMA75", "SMA100",
-                            "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
-                            "MACD", "MACDsignal", "MACDhist",
-                            "RSI9", "RSI14",
-                            "target"])
+    # 欠損値のある行の削除
+    df.dropna(subset=["target"], axis=0, inplace=True)
     
-    # 目的変数の型変換
+    # 目的変数をint型に変換
     df["target"] = df["target"].astype(int)
 
-
-    # 不要カラムの削除
-    df = df.drop(["Dividends", "Stock Splits"], axis=1)
-
-    # 欠損値の補完
-    df.ffill()
 
     # 学習データ、テストデータの作成
     # train 学習時データ vaild 学習時の検証データ test 学習後のテストデータ

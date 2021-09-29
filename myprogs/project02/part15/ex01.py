@@ -23,8 +23,7 @@ def write_date(code, dates):
     Returns:
         [String]: 購入日をもとにした売買基準をprotra用に記述した文字列
     """
-    s = "def IsBUYDATE\n"
-    s += "  if ((int)Code == " + code + ")\n"
+    s = "  if ((int)Code == " + code + ")\n"
     s += "     if ( \\\n"
     for index, row in dates.iterrows():
         s += "(Year == " + str(index.year)
@@ -32,21 +31,80 @@ def write_date(code, dates):
         s += " && Day == " + str(index.day) + ") || \\\n"
     s += "         (Year == 3000))\n"
     s += "         return 1\n"
-    s += "     else\n"
-    s += "         return 0\n"
     s += "     end\n"
     s += "  end\n"
-    s += "end\n"
     return s
 
+def vr_(close, volume, window=26):
+    """[summary]
 
-def main():
+    Args:
+        close (np.array): 終値
+        volume (np.array): ボリューム
+        window (int, optional): ウィンドウサイズ. Defaults to 25.
+
+    Returns:
+        [DataFrame.Series]: 期間内の株価上昇日の出来高合計
+        [DataFrame.Series]: 期間内の株価下落日の出来高合計
+        [DataFrame.Series]: 期間内の株価変わらずの日の出来高合計
+    """
+    df = pd.DataFrame()
+    df["up"] = np.where(np.append(np.nan, np.diff(close)) > 0, volume, 0)
+    df["down"] = np.where(np.append(np.nan, np.diff(close)) < 0, volume, 0)
+    df["same"] = np.where(np.append(np.nan, np.diff(close)) == 0, volume, 0)
+    u = df["up"].rolling(window=window, center=False).sum()
+    d = df["down"].rolling(window=window, center=False).sum()
+    s = df["same"].rolling(window=window, center=False).sum()
+    return u, d, s
+
+def vr_a(close, volume, window):
+    """Volume Ratioを計算する関数
+
+    Args:
+        close (np.array): 終値
+        volume (np.array): ボリューム
+        window (int, optional): ウィンドウサイズ
+    """
+    u, d, s = vr_(close, volume, window)
+    vr = (u + s / 2) / (d + s / 2) * 100
+    return np.array(vr)
+
+def vr_b(close, volume, window=26):
+    """Volume Ratioを計算する関数
+
+    Args:
+        close (np.array): 終値
+        volume (np.array): ボリューム
+        window (int, optional): ウィンドウサイズ. Defaults to 25.
+    """
+    u, d, s = vr_(close, volume, window)
+    vr = (u + s / 2) / (u + d + s) * 100
+    return np.array(vr)
+
+def vr_wako(close, volume, window=26):
+    """Volume Ratioを計算する関数
+
+    Args:
+        close (np.array): 終値
+        volume (np.array): ボリューム
+        window (int, optional): ウィンドウサイズ. Defaults to 25.
+    """
+    u, d, s = vr_(close, volume, window)
+    vr = (u - d - s) / (u + d + s) * 100
+    return np.array(vr)
+
+def main(ticker):
+    """main文
+
+    Args:
+        ticker (string): [description]
+    """
     # 株価データの取得
-    df = mylib.get_stock_prices("7203.T")
+    df = mylib.get_stock_prices(ticker + ".T")
 
     # 元データの成形
-    begin = datetime.datetime(*[2015, 1, 1])
-    end = datetime.datetime(*[2021, 1, 1])
+    begin = datetime.datetime(*[2000, 1, 5])
+    end = datetime.datetime(*[2021, 8, 6])
     df = df[df.index >= begin]
     df = df[df.index <= end]
 
@@ -62,8 +120,7 @@ def main():
 
     # 移動平均線の算出
     df["SMA3"] = talib.SMA(close, timeperiod=3)
-    df["SMA5"] = talib.SMA(close, timeperiod=5)
-    df["SMA25"] = talib.SMA(close, timeperiod=25)
+    df["SMA15"] = talib.SMA(close, timeperiod=15)
     df["SMA50"] = talib.SMA(close, timeperiod=50)
     df["SMA75"] = talib.SMA(close, timeperiod=75)
     df["SMA100"] = talib.SMA(close, timeperiod=100)
@@ -108,28 +165,29 @@ def main():
     df["DoD2"] = df["Close"].shift(1) / df["Close"].shift(2)
     df["DoD3"] = df["Close"].shift(2) / df["Close"].shift(3)
 
-    # VR(volume Ratio)の算出
-
-    print(df)
+    # VR(Volume Ratio)の算出
+    df["VR"] = vr_a(np.array(df["Close"]), np.array(df["Volume"]), window=25)
 
     # 目的変数の作成
     # 3日後の株価の変化量の計算
-    df["target"] = df["Open"].diff(-3).shift(-1) * -1
+    df["variation"] = (df["Open"].shift(-3) - df["Open"].shift(-1)) / df["Open"].shift(-1)
+    df["target"] = (df["variation"] >= 0.03)
 
     # 不要インデックスの削除
-    df.dropna(subset=[  "SMA3", "SMA5", "SMA25", "SMA50", "SMA75", "SMA100",
+    df.dropna(subset=[  "SMA3", "SMA15", "SMA50", "SMA75", "SMA100",
                         "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
                         "MACD", "MACDsignal", "MACDhist",
                         "RSI9", "RSI14",
                         "ADX", "CCI", "ROC", "ADOSC",
                         "ATR",
                         "MAER5", "MAER15", "MAER25",
-                        "DoD1", "DoD2", "DoD3"],
+                        "DoD1", "DoD2", "DoD3",
+                        "VR",
+                        "target"],
                         inplace=True)
 
-
     # 不要カラムの削除
-    df.drop(["Dividends", "Stock Splits"], inplace=True, axis=1)
+    df.drop(["Dividends", "Stock Splits", "variation"], inplace=True, axis=1)
 
     # 欠損値の補完
     df.ffill()
@@ -139,7 +197,6 @@ def main():
     X_train, X_test, y_train, y_test = train_test_split(df.drop(["target"], axis=1), df["target"], train_size=0.8, random_state=0)
     X_train, X_vaild, y_train, y_vaild = train_test_split(X_train, y_train, train_size=0.8, random_state=0)
 
-
     # データセットを登録
     lgb_train = lgb.Dataset(X_train, label=y_train)
     lgb_vaild = lgb.Dataset(X_vaild, label=y_vaild)
@@ -147,39 +204,37 @@ def main():
     # ハイパーパラメータの設定
     lgb_params = {
         "boosting_type": "gbdt",
-        "objective": "regression",  # 回帰
-        "metric": "mse",            # 二乗誤差関数
+        "objective": "binary",      # 二値分類
+        "metric": "binary_error", # 二乗誤差関数
         "num_iterations": 1000,     # 学習回数
         "learning_rate": 0.1        # 学習率
     }
 
     # 訓練
-    model = lgb.train(params=lgb_params, train_set=lgb_train, valid_sets=[lgb_train, lgb_vaild], num_boost_round=100, early_stopping_rounds=30, verbose_eval=10)
-    
-    # テストデータの推論
-    y_pred = model.predict(X_test, num_iteration=model.best_iteration)
-    accuracy = sum(y_test*y_pred > 0) / len(y_test)
-    print("Win rate: ", accuracy)
+    model = lgb.train(params=lgb_params, train_set=lgb_train, valid_sets=[lgb_train, lgb_vaild], num_boost_round=100, early_stopping_rounds=50, verbose_eval=10)
 
     # テスト運用
-    test = X_test
-    test["isbuy"] = (y_pred >= 10)
-    test["variation"] = y_test
+    test = df.drop(["target"], axis=1)
+    test["isbuy"] = np.where(model.predict(test, num_iteration=model.best_iteration) >= 0.8, True, False)
     test = test.sort_index()
-    test["assets"] = (test["variation"]*test["isbuy"]).cumsum()
-    
-
-    # Protra変換部分
-    mylib.plot_chart({"assets": test["assets"]})
-    with open(os.path.join("myprogs", "project02", "LightGBM.pt"), mode="w") as f:
-        f.write(write_date("^N225", test[test["isbuy"] == True]))
 
     # 結果の表示
     lgb.plot_importance(model, height=0.5, figsize=(10.24, 7.68))
     plt.show()
     plt.close()
-    #bst.save_model("model.txt")
 
+    return write_date(ticker, test[test["isbuy"] == True])
+
+# 時価総額ランキングTop20
+stock_names = [ "7203", "6861", "6758", "9432", "9984", "6098", "8306", "9983", "9433", "6367",
+                "6594", "4063", "8035", "9434", "7974", "4519", "7267", "7741", "6902", "6501"]
 
 if __name__=="__main__":
-    main()
+    string = "def IsBUYDATE\n"
+    for s in stock_names:
+        string += main(s)
+    string += "    return 0\n"
+    string += "end\n"
+    # Protra変換部分
+    with open(os.path.join("myprogs", "project02", "LightGBM.pt"), mode="w") as f:
+        f.write(string)

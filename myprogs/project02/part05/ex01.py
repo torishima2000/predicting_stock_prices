@@ -57,6 +57,8 @@ def main():
     df = df[df.index <= end]
     # 不要カラムの削除
     df.drop(["Dividends", "Stock Splits"], inplace=True, axis=1)
+    # 出来高が欠損している部分の削除
+    df = df[df["Volume"] != 0]
 
 
     # 特徴量の計算

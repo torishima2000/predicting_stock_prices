@@ -42,8 +42,8 @@ def write_date(code, dates):
 
 def main():
     # 使用するデータ期間の指定
-    begin = datetime.datetime(*[2000, 1, 1])
-    end = datetime.datetime(*[2020, 12, 31])
+    begin = datetime.datetime(*[2000, 1, 4])
+    end = datetime.datetime(*[2020, 12, 30])
 
 
     # 株価データの取得
@@ -57,7 +57,6 @@ def main():
     df = df[df.index <= end]
     # 不要カラムの削除
     df.drop(["Dividends", "Stock Splits"], inplace=True, axis=1)
-    print(df)
 
 
     # 特徴量の計算

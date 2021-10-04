@@ -146,6 +146,8 @@ def main():
 
     # 特徴量の重みの表示
     lgb.plot_importance(model, height=0.5, figsize=(10.24, 7.68))
+    #plt.title("")
+    #plt.grid(False)
     plt.show()
     plt.close()
     #bst.save_model("model.txt")

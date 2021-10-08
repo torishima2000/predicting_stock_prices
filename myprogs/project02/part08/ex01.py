@@ -268,11 +268,7 @@ def main():
     
     # Protra変換部分
     mylib.conversion_to_protra("7203", X_test[X_test["isbuy"] == True], os.path.relpath(__file__))
-
-    # 全テストデータに対するバックテスト
-    #df["isbuy"] = (model.predict(df_X, num_iteration=model.best_iteration) >= 10)
-    #with open(os.path.join("myprogs", "project02", "LightGBM.pt"), mode="w") as f:
-    #    f.write(write_date("7203", df[df["isbuy"] == True]))
+    
     
     #bst.save_model("model.txt")
 

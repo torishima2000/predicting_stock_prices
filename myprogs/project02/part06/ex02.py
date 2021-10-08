@@ -201,14 +201,16 @@ def main():
     # 訓練
     model = lgb.train(params=lgb_params, train_set=lgb_train, valid_sets=[lgb_train, lgb_vaild], verbose_eval=10)
     
-    # Protra変換部分
+    
+    # 株価予測
     # テストデータに対するバックテスト
     X_test = X_test.sort_index()
     y_pred = model.predict(X_test, num_iteration=model.best_iteration)
     X_test["variation"] = y_pred
     X_test = X_test.assign(isbuy=(y_pred >= 10))
-    with open(os.path.join("myprogs", "project02", "LightGBM.pt"), mode="w") as f:
-        f.write(write_date("7203", X_test[X_test["isbuy"] == True]))
+    
+    # Protra変換部分
+    mylib.conversion_to_protra("7203", X_test[X_test["isbuy"] == True], os.path.relpath(__file__))
 
     # 全テストデータに対するバックテスト
     #df["isbuy"] = (model.predict(df_X, num_iteration=model.best_iteration) >= 10)

@@ -255,7 +255,7 @@ def main():
     plt.close()
 
 
-    # Protra変換部分
+    # 株価予測
     # テストデータに対するバックテスト
     X_test = X_test.sort_index()
     # モデルを使用し、株価を予測
@@ -265,8 +265,9 @@ def main():
         X_test["variation"] += y_pred / len(models)
 
     X_test = X_test.assign(isbuy=(y_pred >= 10))
-    with open(os.path.join("myprogs", "project02", "LightGBM.pt"), mode="w") as f:
-        f.write(write_date("7203", X_test[X_test["isbuy"] == True]))
+    
+    # Protra変換部分
+    mylib.conversion_to_protra("7203", X_test[X_test["isbuy"] == True], os.path.relpath(__file__))
 
     # 全テストデータに対するバックテスト
     #df["isbuy"] = (model.predict(df_X, num_iteration=model.best_iteration) >= 10)

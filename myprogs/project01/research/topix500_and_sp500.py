@@ -49,16 +49,6 @@ graph_title += str(end[0]) + "/" + str(end[1]) + "/" + str(end[2])
 # for ticker in tickers:
 #     mylib.sammary_to_csv(ticker)
 
-# for ticker in tickers:
-#     mylib.stock_prices_to_csv(ticker)
-# mylib.stock_prices_to_csv(reference_ticker)
-# for ticker in tickers:
-#     mylib.pl_to_csv(ticker)
-# for ticker in tickers:
-#     mylib.balance_sheet_to_csv(ticker)
-# for ticker in tickers:
-#     mylib.sammary_to_csv(ticker)
-
 
 # TOPIX500の終値データフレーム
 topix500_closes = mylib.get_stock_prices_dataframe(topix500_tickers + [topix500_reference_ticker], "Close")

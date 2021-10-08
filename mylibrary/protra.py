@@ -53,5 +53,6 @@ def conversion_to_protra(code, dates, relpath):
         f.write(soucecode)
 
     # libraryを保存
-    with open(os.path.join(path_name["protra"], "lib", "LGBM_List", "LightGBM_{}.pt".format(relpath.replace("\\", "-"))), mode="w") as f:
+    file_name = "LightGBM_{}.pt".format(relpath.replace("\\", "-").replace(".py", ""))
+    with open(os.path.join(path_name["protra"], "lib", "LGBM_List", file_name), mode="w") as f:
         f.write(soucecode)

@@ -21,17 +21,20 @@ import mylibrary as mylib
 
 
 def main():
+    # 変数の定義
     # 層化K-分割交差検証法(stratified k-fold cross-validation)の分割数
     kfold_splits = 10
-
     # seed値
     seed = 42
+    # 証券コード
+    security_code = "7203"
+
 
     # 株価データフレームの作成
     # データのダウンロード
-    # mylib.get_stock_prices("7203.T")
+    # mylib.get_stock_prices(security_code + ".T")
     # 取得したデータの読み取り
-    df = mylib.get_stock_prices("7203.T")
+    df = mylib.get_stock_prices(security_code + ".T")
 
     # 元データの成形
     begin = datetime.datetime(*[1998, 1, 5])
@@ -119,16 +122,23 @@ def main():
         "metric": "rmse",               # 二乗平均平方根誤差
         "learning_rate": 0.1,           # 学習率
         "early_stopping_rounds": 100,   # アーリーストッピング
-        "force_col_wise": True          # 列毎のヒストグラムの作成を強制する
+        "force_col_wise": True,         # 列毎のヒストグラムの作成を強制する
+        "deterministic": True,          # 再現性確保用のパラメータ
     }
 
     # ハイパーパラメータチューニング用のデータセット分割
     X_train_, X_vaild, y_train_, y_vaild = train_test_split(X_train, y_train, train_size=0.75, random_state=seed)
+    
     # データセットを登録
     lgb_train = lgb.Dataset(X_train_, label=y_train_)
     lgb_vaild = lgb.Dataset(X_vaild, label=y_vaild)
-    study = lgbo.train(params=lgb_params, train_set=lgb_train, valid_sets=[lgb_train, lgb_vaild])
-    lgb_params = study.params
+
+    # 学習
+    study = lgbo.LightGBMTuner(params=lgb_params, train_set=lgb_train, valid_sets=[lgb_train, lgb_vaild], optuna_seed=seed)
+    study.run()
+
+    # 最適なハイパーパラメータの保存
+    lgb_params = study.best_params
 
 
     # 層化K-分割交差検証法(stratified k-fold cross-validation)を行うためのモデル作成
@@ -196,7 +206,7 @@ def main():
     X_test = X_test.assign(isbuy=(y_pred >= 10))
     
     # Protra変換部分
-    mylib.conversion_to_protra("7203", X_test[X_test["isbuy"] == True], os.path.relpath(__file__))
+    mylib.conversion_to_protra(security_code, X_test[X_test["isbuy"] == True], os.path.relpath(__file__))
     
     
     #bst.save_model("model.txt")

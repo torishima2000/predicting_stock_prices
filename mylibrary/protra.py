@@ -1,4 +1,4 @@
-# Protra関連のメソッド
+# Protra関連のモジュール群
 
 # モジュールのインポート
 import os

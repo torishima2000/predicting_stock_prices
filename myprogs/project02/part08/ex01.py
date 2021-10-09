@@ -1,5 +1,5 @@
 # 【第八回】機械学習で株価予測（交差検証＋ROC 曲線とAUCで精度65%）
-# ボリュームレシオ追加の学習モデル有効性検証
+# モデルの評価
 
 # モジュールのインポート
 import os
@@ -17,67 +17,6 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import mean_squared_error
 import mylibrary as mylib
 
-
-def vr_(close, volume, window=26):
-    """[summary]
-
-    Args:
-        close (np.array): 終値
-        volume (np.array): ボリューム
-        window (int, optional): ウィンドウサイズ. Defaults to 25.
-
-    Returns:
-        [DataFrame.Series]: 期間内の株価上昇日の出来高合計
-        [DataFrame.Series]: 期間内の株価下落日の出来高合計
-        [DataFrame.Series]: 期間内の株価変わらずの日の出来高合計
-    """
-    df = pd.DataFrame()
-    df["up"] = np.where(np.append(np.nan, np.diff(close)) > 0, volume, 0)
-    df["down"] = np.where(np.append(np.nan, np.diff(close)) < 0, volume, 0)
-    df["same"] = np.where(np.append(np.nan, np.diff(close)) == 0, volume, 0)
-    u = df["up"].rolling(window=window, center=False).sum()
-    d = df["down"].rolling(window=window, center=False).sum()
-    s = df["same"].rolling(window=window, center=False).sum()
-    return u, d, s
-
-def vr_a(close, volume, window):
-    """Volume Ratioを計算する関数
-
-    Args:
-        close (np.array): 終値
-        volume (np.array): ボリューム
-        window (int, optional): ウィンドウサイズ
-    """
-    u, d, s = vr_(close, volume, window)
-    vr = (u + s / 2) / (d + s / 2) * 100
-    return np.array(vr)
-
-def vr_b(close, volume, window=26):
-    """Volume Ratioを計算する関数
-
-    Args:
-        close (np.array): 終値
-        volume (np.array): ボリューム
-        window (int, optional): ウィンドウサイズ. Defaults to 25.
-    """
-    u, d, s = vr_(close, volume, window)
-    vr = (u + s / 2) / (u + d + s) * 100
-    return np.array(vr)
-
-def vr_wako(close, volume, window=26):
-    """Volume Ratioを計算する関数
-
-    Args:
-        close (np.array): 終値
-        volume (np.array): ボリューム
-        window (int, optional): ウィンドウサイズ. Defaults to 25.
-    """
-    u, d, s = vr_(close, volume, window)
-    vr = (u - d - s) / (u + d + s) * 100
-    return np.array(vr)
-
-def three_charge(df):
-    return (25 > df["RSI14"]) & (-18 > df["MAER15"]) & (70 > df["VR"])
 
 def main():
     # 層化K-分割交差検証法(stratified k-fold cross-validation)の分割数
@@ -122,14 +61,12 @@ def main():
     df["RSI14"] = talib.RSI(close, timeperiod=14)
 
     # VR(Volume Ratio)の算出
-    df["VR"] = vr_a(np.array(df["Close"]), np.array(df["Volume"]), window=25)
+    df["VR"] = mylib.vr_a(np.array(df["Close"]), np.array(df["Volume"]), window=25)
 
     # 移動平均乖離率(Moving Average Estrangement Rate)の算出
     sma15 = talib.SMA(close, timeperiod=15)
     df["MAER15"] = 100 * (close - sma15) / sma15
 
-    # 三点チャージ法による判断
-    df["charge3"] = three_charge(df)
 
     # 目的変数の作成
     # 3日後の株価の変化量の計算
@@ -140,7 +77,7 @@ def main():
                             "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
                             "MACD", "MACDsignal", "MACDhist",
                             "RSI9", "RSI14",
-                            "VR", "MAER15", "charge3",
+                            "VR", "MAER15",
                             "target"])
     
     # 目的変数の型変換

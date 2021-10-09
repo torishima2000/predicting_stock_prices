@@ -71,7 +71,7 @@ def main():
     df["RSI14"] = talib.RSI(close, timeperiod=14)
 
     # VR(Volume Ratio)の算出
-    df["VR"] = mylib.vr_a(np.array(df["Close"]), np.array(df["Volume"]), window=25)
+    df["VR"] = mylib.vr_a(close, volume, window=25)
 
     # 移動平均乖離率(Moving Average Estrangement Rate)の算出
     sma15 = talib.SMA(close, timeperiod=15)
@@ -206,9 +206,10 @@ def main():
     X_test = X_test.assign(isbuy=(y_pred >= 10))
     
     # Protra変換部分
-    mylib.conversion_to_protra(security_code, X_test[X_test["isbuy"] == True], os.path.relpath(__file__))
+    trading_days = {security_code: X_test[X_test["isbuy"] == True]}
+    mylib.conversion_to_protra(trading_days, os.path.relpath(__file__))
     
-    
+
     #bst.save_model("model.txt")
     print(lgb_params)
 

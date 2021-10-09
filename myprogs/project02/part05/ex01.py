@@ -113,7 +113,8 @@ def main():
     X_test = X_test.assign(isbuy=(y_pred >= 10))
     
     # Protra変換部分
-    mylib.conversion_to_protra("7203", X_test[X_test["isbuy"] == True], os.path.relpath(__file__))
+    trading_days = {"7203": X_test[X_test["isbuy"] == True]}
+    mylib.conversion_to_protra(trading_days, os.path.relpath(__file__))
 
 
     # 特徴量の重みの表示

@@ -17,30 +17,6 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import mean_squared_error
 import mylibrary as mylib
 
-def write_date(code, dates):
-    """取引日をptファイルに書き込む関数
-
-    Args:
-        dates (Datetimeindex): 購入日のみを抽出したデータセット
-
-    Returns:
-        [String]: 購入日をもとにした売買基準をprotra用に記述した文字列
-    """
-    s = "def IsBUYDATE\n"
-    s += "  if ((int)Code == " + code + ")\n"
-    s += "     if ( \\\n"
-    for index, row in dates.iterrows():
-        s += "(Year == " + str(index.year)
-        s += " && Month == " + str(index.month)
-        s += " && Day == " + str(index.day) + ") || \\\n"
-    s += "         (Year == 3000))\n"
-    s += "         return 1\n"
-    s += "     else\n"
-    s += "         return 0\n"
-    s += "     end\n"
-    s += "  end\n"
-    s += "end\n"
-    return s
 
 def vr_(close, volume, window=26):
     """[summary]

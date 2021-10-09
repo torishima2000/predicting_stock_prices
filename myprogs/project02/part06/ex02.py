@@ -14,30 +14,6 @@ import talib
 from sklearn.model_selection import train_test_split
 import mylibrary as mylib
 
-def write_date(code, dates):
-    """取引日をptファイルに書き込む関数
-
-    Args:
-        dates (Datetimeindex): 購入日のみを抽出したデータセット
-
-    Returns:
-        [String]: 購入日をもとにした売買基準をprotra用に記述した文字列
-    """
-    s = "def IsBUYDATE\n"
-    s += "  if ((int)Code == " + code + ")\n"
-    s += "     if ( \\\n"
-    for index, row in dates.iterrows():
-        s += "(Year == " + str(index.year)
-        s += " && Month == " + str(index.month)
-        s += " && Day == " + str(index.day) + ") || \\\n"
-    s += "         (Year == 3000))\n"
-    s += "         return 1\n"
-    s += "     else\n"
-    s += "         return 0\n"
-    s += "     end\n"
-    s += "  end\n"
-    s += "end\n"
-    return s
 
 def vr_(close, volume, window=26):
     """[summary]
@@ -211,7 +187,7 @@ def main():
     
     # Protra変換部分
     mylib.conversion_to_protra("7203", X_test[X_test["isbuy"] == True], os.path.relpath(__file__))
-    
+
 
     # 特徴量の重みの表示
     lgb.plot_importance(model, height=0.5, figsize=(10.24, 7.68))

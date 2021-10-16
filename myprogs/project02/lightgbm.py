@@ -135,10 +135,12 @@ def main():
     lgb_params = study_params(X_train, y_train, seed)
 
 
+
+    # 回帰モデル
     # K-分割交差検証法(k-fold cross-validation)を行うためのモデル作成
-    models = []
+    regression_models = []
     rmse = []
-    feature_importance = pd.Series([0] * len(df_X.columns), index=df_X.columns, name="feature importance")
+    regression_feature_importance = pd.Series([0] * len(df_X.columns), index=df_X.columns, name="feature importance")
     
     # KFoldクラスのインスタンス作成
     K_fold = KFold(n_splits=kfold_splits, shuffle=True, random_state=seed)
@@ -159,14 +161,14 @@ def main():
         model = lgb.train(params=lgb_params, train_set=lgb_train, valid_sets=[lgb_train, lgb_vaild], verbose_eval=200)
 
         # モデルの保存
-        models.append(model)
+        regression_models.append(model)
 
         # 訓練結果の評価
         y_pred = model.predict(X_test)
         rmse.append(np.sqrt(mean_squared_error(y_test, y_pred)))
 
         # 特徴量の重要度の保存
-        feature_importance += (model.feature_importance() / kfold_splits)
+        regression_feature_importance += (model.regression_feature_importance() / kfold_splits)
     
     # 平均スコアの表示
     # スコアの算出方法：平均平方二乗誤差(RMSE)
@@ -177,11 +179,11 @@ def main():
 
     # 特徴量の重みを描画
     # ソート
-    feature_importance.sort_values(ascending=True, inplace=True)
+    regression_feature_importance.sort_values(ascending=True, inplace=True)
 
     # グラフ描画
     plt.figure(figsize=(10.24, 7.68))
-    plt.barh(feature_importance.index, feature_importance)
+    plt.barh(regression_feature_importance.index, regression_feature_importance)
     #plt.title("")
     #plt.grid(False)
     plt.show()
@@ -193,9 +195,9 @@ def main():
     X_test = X_test.sort_index()
     # モデルを使用し、株価を予測
     X_test["variation"] = 0
-    for model_ in models:
+    for model_ in regression_models:
         y_pred = model_.predict(X_test.drop("variation", axis=1))
-        X_test["variation"] += y_pred / len(models)
+        X_test["variation"] += y_pred / len(regression_models)
 
     X_test = X_test.assign(isbuy=(y_pred >= 5))
     

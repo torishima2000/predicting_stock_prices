@@ -19,7 +19,7 @@ import mylibrary as mylib
 
 
 def main():
-    # 層化K-分割交差検証法(stratified k-fold cross-validation)の分割数
+    # K-分割交差検証法(k-fold cross-validation)の分割数
     kfold_splits = 10
 
     # 株価データの取得
@@ -101,15 +101,15 @@ def main():
     lgb_test = lgb.Dataset(X_test, label=y_test)
 
 
-    # 層化K-分割交差検証法(stratified k-fold cross-validation)を行うためのモデル作成
+    # K-分割交差検証法(k-fold cross-validation)を行うためのモデル作成
     models = []
     scores = []
     feature_importance = pd.Series([0] * len(df_X.columns), index=df_X.columns, name="feature importance")
     
     # KFoldクラスのインスタンス作成
-    K_fold = StratifiedKFold(n_splits=kfold_splits, shuffle=True, random_state=42)
+    K_fold = KFold(n_splits=kfold_splits, shuffle=True, random_state=42)
 
-    # 層化K-分割交差検証法(stratified k-fold cross-validation)を用いた学習
+    # K-分割交差検証法(k-fold cross-validation)を用いた学習
     for fold, (train_indices, vaild_indices) in enumerate(K_fold.split(X_train, y_train)):
         # データセットを分割し割り当て
         X_train_ = X_train.iloc[train_indices]

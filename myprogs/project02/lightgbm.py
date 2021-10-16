@@ -121,9 +121,6 @@ def main():
     df_X = df.drop(["target"], axis=1)
     df_y = df["target"]
 
-    # 適当にシャッフルして分割
-    #X_train, X_test, y_train, y_test = train_test_split(df_X, df_y, train_size=0.8, random_state=seed)
-
     # 1点で分割
     term = datetime.datetime(*[2019, 12, 31])
     X_train = df_X[df.index <= term]

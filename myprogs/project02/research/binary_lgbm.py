@@ -103,7 +103,8 @@ def main():
 
     # 目的変数の作成
     # 目的変数の計算
-    df["target"] = ((df["Open"].diff(-3).shift(-1) * -1) > 0)
+    df["growth rate"] = (df["Open"].pct_change(-3).shift(-1) * -1)
+    df["target"] = (df["growth rate"] > 0)
 
 
     # 欠損値がある行の削除
@@ -116,7 +117,7 @@ def main():
 
     # 学習データ、テストデータの作成
     # train 学習時データ test 学習後のテストデータ
-    df_X = df.drop(["target"], axis=1)
+    df_X = df.drop(["growth rate", "target"], axis=1)
     df_y = df["target"]
 
     # 1点で分割
@@ -202,6 +203,24 @@ def main():
         X_test["variation"] += y_pred / len(models)
     X_test = X_test.assign(isbuy=(y_pred >= isbuy_threshold))
 
+    # バックテスト
+    X_test["growth rate"] = 0
+    X_test["total assets"] = 0
+    # 株価の増加量の記載
+    for index, value in X_test.iterrows():
+        X_test.loc[index, "growth rate"] = df.loc[index, "growth rate"]
+    # 総資産の移り変わりの記憶
+    total_assets = 10000
+    for index, value in X_test.iterrows():
+        if value["isbuy"]:
+            total_assets -= 1000
+            total_assets += 1000 * (1 + value["growth rate"])
+        X_test.loc[index, "total assets"] = total_assets
+    # 結果の表示
+    print(X_test)
+    mylib.plot_chart({security_code: X_test["total assets"]})
+
+    
     """
     # Protra変換部分
     trading_days = {security_code: X_test[X_test["isbuy"] == True]}

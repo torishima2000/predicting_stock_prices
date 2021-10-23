@@ -1,6 +1,4 @@
-# 【第十三回】機械学習を使った株価予測（LightGBMをOptunaでパラメータチューニング）
-# ベイズ最適化でのパラメータ探索
-# optunaの自動ハイパーパラメータ調整を利用したもの
+# 二値分類モデル
 
 # モジュールのインポート
 import os
@@ -14,7 +12,7 @@ import lightgbm as lgb
 import optuna.integration.lightgbm as lgbo
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import KFold
-from sklearn.metrics import mean_squared_error
+from sklearn import metrics
 import mylibrary as mylib
 
 
@@ -32,12 +30,12 @@ def study_params(X, y, seed):
     # ハイパーパラメータのチューニング
     lgb_params = {
         "num_iterations": 1000,         # 木の数
-        "max_depth": 5,                 # 木の深さ
-        "num_leaves": 15,               # 葉の数
+        "max_depth": 7,                 # 木の深さ
+        "num_leaves": 31,               # 葉の数
         "min_data_in_leaf": 20,         # 葉に割り当てられる最小データ数
         "boosting": "gbdt",             # 勾配ブースティング
-        "objective": "regression",      # 回帰
-        "metric": "rmse",               # 二乗平均平方根誤差
+        "objective": "binary",          # 回帰
+        "metric": "binary_logloss",     # 二乗平均平方根誤差
         "learning_rate": 0.01,          # 学習率
         "early_stopping_rounds": 100,   # アーリーストッピング
         "force_col_wise": True,         # 列毎のヒストグラムの作成を強制する
@@ -67,21 +65,24 @@ def main():
     # 証券コード
     security_code = "7203"
     # データ期間
-    begin = datetime.datetime(*[2011, 1, 1])
+    begin = datetime.datetime(*[2000, 1, 1])
     end = datetime.datetime(*[2020, 12, 31])
     # 特徴量
     feature = [ "SMA3", "SMA5", "SMA15", "SMA25", "SMA50", "SMA75", "SMA100",
                 "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
                 "MACD", "MACDsignal", "MACDhist",
                 "RSI9", "RSI14",
-                "VR", "MAER15"]
+                "VR", "MAER15",
+                "ADX", "CCI", "ROC", "ADOSC", "ATR"]
     # 削除する特徴量
     drop_feature = ["SMA3", "SMA15", "SMA25", "upper1", "upper2", "lower1", "lower2"]
+    # 買い判断をするための閾値
+    isbuy_threshold = 0.6
 
 
     # 株価データフレームの作成
     # データのダウンロード
-    # mylib.get_stock_prices(security_code + ".T")
+    mylib.get_stock_prices(security_code + ".T")
     # 取得したデータの読み取り
     df = mylib.get_stock_prices(security_code + ".T")
 
@@ -101,14 +102,13 @@ def main():
         feature.remove(v)
 
     # 目的変数の作成
-    # 3日後の株価の変化量の計算
-    df["target"] = df["Open"].diff(-3).shift(-1) * -1
+    # 目的変数の計算
+    df["target"] = ((df["Open"].diff(-3).shift(-1) * -1) > 0)
+
 
     # 欠損値がある行の削除
     df.dropna(subset=(feature + ["target"]), inplace=True)
     
-    # 目的変数の型変換
-    df["target"] = df["target"].astype(int)
 
     # 欠損値の補完
     df.ffill()
@@ -119,11 +119,8 @@ def main():
     df_X = df.drop(["target"], axis=1)
     df_y = df["target"]
 
-    # 適当にシャッフルして分割
-    #X_train, X_test, y_train, y_test = train_test_split(df_X, df_y, train_size=0.8, random_state=seed)
-
     # 1点で分割
-    term = datetime.datetime(*[2019, 12, 31])
+    term = datetime.datetime(*[2016, 12, 31])
     X_train = df_X[df.index <= term]
     X_test = df_X[df.index > term]
     y_train = df_y[df.index <= term]
@@ -134,9 +131,11 @@ def main():
 
     # K-分割交差検証法(k-fold cross-validation)を行うためのモデル作成
     models = []
-    rmse = []
-    feature_importance = pd.Series([0] * len(df_X.columns), index=df_X.columns, name="feature importance")
+    accuracy_score = []
+    auc = []
+    feature_importance = pd.Series([0.0] * len(df_X.columns), index=df_X.columns, name="feature importance of binary")
     
+
     # KFoldクラスのインスタンス作成
     K_fold = KFold(n_splits=kfold_splits, shuffle=True, random_state=seed)
 
@@ -153,36 +152,44 @@ def main():
         lgb_vaild = lgb.Dataset(X_vaild, label=y_vaild)
 
         # 訓練
-        model = lgb.train(params=study_params(X_train, y_train, seed), train_set=lgb_train, valid_sets=[lgb_train, lgb_vaild], verbose_eval=200)
+        model = lgb.train(params=study_params(X_train_, y_train_, seed), train_set=lgb_train, valid_sets=[lgb_train, lgb_vaild], verbose_eval=200)
 
         # モデルの保存
         models.append(model)
 
-        # 訓練結果の評価
-        y_pred = model.predict(X_test)
-        rmse.append(np.sqrt(mean_squared_error(y_test, y_pred)))
-
         # 特徴量の重要度の保存
         feature_importance += (model.feature_importance() / kfold_splits)
+
+        # 訓練結果の評価
+        y_pred = model.predict(X_test)
+        accuracy_score.append(metrics.accuracy_score(y_true=y_test, y_pred=(y_pred > 0.5)))
+        #fpr, tpr = roc_curve(y_test, y_pred)
+        #auc.append(auc(fpr, tpr))
+        
     
     # 平均スコアの表示
-    # スコアの算出方法：平均平方二乗誤差(RMSE)
-    ave_rmse = np.average(rmse)
-    print(rmse)
-    print("average rmse : {}".format(ave_rmse))
+    print(accuracy_score)
+    ave_accuracy_score = np.average(accuracy_score)
+    print("average accuracy score : {}".format(ave_accuracy_score))
+    #ave_auc = np.average(auc)
+    #print(auc)
+    #print("average auc : {}".format(ave_auc))
 
 
+    """
     # 特徴量の重みを描画
     # ソート
     feature_importance.sort_values(ascending=True, inplace=True)
-
+    # 出力
+    print(feature_importance)
     # グラフ描画
     plt.figure(figsize=(10.24, 7.68))
     plt.barh(feature_importance.index, feature_importance)
-    #plt.title("")
+    plt.title("binary model's feature important")
     #plt.grid(False)
     plt.show()
     plt.close()
+    """
 
 
     # 株価予測
@@ -193,13 +200,13 @@ def main():
     for model_ in models:
         y_pred = model_.predict(X_test.drop("variation", axis=1))
         X_test["variation"] += y_pred / len(models)
+    X_test = X_test.assign(isbuy=(y_pred >= isbuy_threshold))
 
-    X_test = X_test.assign(isbuy=(y_pred >= 5))
-    
+    """
     # Protra変換部分
     trading_days = {security_code: X_test[X_test["isbuy"] == True]}
     mylib.conversion_to_protra(trading_days, os.path.relpath(__file__))
-    
+    """
 
     #bst.save_model("model.txt")
 

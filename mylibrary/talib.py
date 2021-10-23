@@ -74,8 +74,8 @@ def colculate_feature(df):
     """
     # 特徴量の計算
     # 高値、安値、終値のnp.array化
-    # high = np.array(df["High"])
-    # low = np.array(df["Low"])
+    high = np.array(df["High"])
+    low = np.array(df["Low"])
     close = np.array(df["Close"])
     volume = np.array(df["Volume"]).astype(np.float64)
 
@@ -106,5 +106,20 @@ def colculate_feature(df):
     # 移動平均乖離率(Moving Average Estrangement Rate)の算出
     sma15 = talib.SMA(close, timeperiod=15)
     df["MAER15"] = 100 * (close - sma15) / sma15
+
+    # ADX(平均方向性指数)の算出
+    df["ADX"] = talib.ADX(high, low, close, timeperiod=14)
+
+    # CCI(商品チャンネル指数(Commodity Channel Index) )の算出
+    df["CCI"] = talib.CCI(high, low, close, timeperiod=14)
+
+    # ROC(rate of change)の算出
+    df["ROC"] = talib.ROC(close, timeperiod=10)
+
+    # ADOSC(チャイキンオシレーター:A/DのMACD)の算出
+    df["ADOSC"] = talib.ADOSC(high, low, close, volume, fastperiod=3, slowperiod=10)
+
+    # ATR(Average True Range)の算出
+    df["ATR"] = talib.ATR(high, low, close, timeperiod=14)
 
     return df

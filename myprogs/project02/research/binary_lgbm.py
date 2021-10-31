@@ -69,12 +69,14 @@ def main():
     begin = datetime.datetime(*[2000, 1, 1])
     end = datetime.datetime(*[2020, 12, 31])
     # 特徴量
-    feature = [ "SMA3", "SMA5", "SMA15", "SMA25", "SMA50", "SMA75", "SMA100",
-                "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
-                "MACD", "MACDsignal", "MACDhist",
-                "RSI9", "RSI14",
-                "VR", "MAER15",
-                "ADX", "CCI", "ROC", "ADOSC", "ATR"]
+    feature = [
+        "SMA3", "SMA5", "SMA15", "SMA25", "SMA50", "SMA75", "SMA100",
+        "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
+        "MACD", "MACDsignal", "MACDhist",
+        "RSI9", "RSI14",
+        "VR", "MAER15",
+        "ADX", "CCI", "ROC", "ADOSC", "ATR"
+    ]
     # 削除する特徴量
     drop_feature = []
     # drop_feature = ["SMA3", "SMA15", "SMA25", "upper1", "upper2", "lower1", "lower2"]

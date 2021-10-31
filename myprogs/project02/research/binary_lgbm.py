@@ -265,7 +265,6 @@ def main():
         mylib.conversion_to_protra(trading_days, os.path.relpath(__file__))
         """
 
-        #bst.save_model("model.txt")
 
 
     # 合計値の計算

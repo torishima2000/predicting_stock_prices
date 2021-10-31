@@ -9,57 +9,64 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import lightgbm as lgb
-import optuna.integration.lightgbm as lgbo
+import optuna
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import KFold
 from sklearn import metrics
 import mylibrary as mylib
 
 
-def study_params(X, y, seed):
-    """ハイパーパラメータの自動チューニングを行う関数
 
-    Args:
-        X (Pandas.DataFrame): 特徴量
-        y (Pandas.DataFrame): 目的変数
-        seed (int): seed値
+class Objective:
+    """目的関数に相当するクラス"""
 
-    Returns:
-        [dict]: 最適化されたハイパーパラメータ
-    """
-    # ハイパーパラメータのチューニング
-    lgb_params = {
-        "num_iterations": 1000,         # 木の数
-        "max_depth": 15,                # 木の深さ
-        "num_leaves": 127,              # 葉の数
-        "min_data_in_leaf": 20,         # 葉に割り当てられる最小データ数
-        "boosting": "gbdt",             # 勾配ブースティング
-        "objective": "binary",          # 回帰
-        "metric": "binary_logloss",     # 二乗平均平方根誤差
-        "learning_rate": 0.01,          # 学習率
-        "early_stopping_rounds": 100,   # アーリーストッピング
-        "force_col_wise": True,         # 列毎のヒストグラムの作成を強制する
-        "deterministic": True,          # 再現性確保用のパラメータ
-    }
+    def __init__(self, df_X, df_y, seed=42):
+        self.X_train, self.X_test = train_test_split(df_X, test_size=0.2, shuffle=False)
+        self.y_train, self.y_test = train_test_split(df_y, test_size=0.2, shuffle=False)
+        self.seed = seed
 
-    # ハイパーパラメータチューニング用のデータセット分割
-    X_train, X_valid, y_train, y_valid = train_test_split(X, y, train_size=0.75, random_state=seed)
-    
-    # データセットを登録
-    lgb_train = lgb.Dataset(X_train, label=y_train)
-    lgb_valid = lgb.Dataset(X_valid, label=y_valid)
+    def __call__(self, trial):
+        """オブジェクトが呼び出されたときに実行"""
+        param = {
+            "objective": "binary",                                                          # 回帰
+            "metric": "binary_logloss",                                                     # 二乗平均平方根誤差
+            "boosting": trial.suggest_categorical("boosting", ["gbdt", "dart"]),            # 勾配ブースティング
+            "lambda_l1": trial.suggest_float("lambda_l1", 1e-8, 10.0, log=True),            # 正則化項1
+            "lambda_l2": trial.suggest_float("lambda_l2", 1e-8, 10.0, log=True),            # 正則化項2
+            "feature_fraction": trial.suggest_float("feature_fraction", 0.4, 1.0),          # 特徴量の使用割合
+            "bagging_fraction": trial.suggest_uniform("bagging_fraction", 0.4, 1.0),
+            "bagging_freq": trial.suggest_int("bagging_freq", 1, 7),
+            "num_iterations": 1000,                                                         # 木の数
+            "max_depth": trial.suggest_int("max_depth", 3, 8),                              # 木の深さ
+            "num_leaves": trial.suggest_int("num_leaves", 3, 255),                          # 葉の数
+            "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 10, 50),              # 葉に割り当てられる最小データ数
+            "learning_rate": trial.suggest_float("learning_rate", 1e-4, 1e-1, log=True),    # 学習率
+            "early_stopping_rounds": 100,                                                   # アーリーストッピング
+            "force_col_wise": True,                                                         # 列毎のヒストグラムの作成を強制する
+        }
 
-    # 学習
-    study = lgbo.LightGBMTuner(params=lgb_params, train_set=lgb_train, valid_sets=[lgb_train, lgb_valid], optuna_seed=seed, verbose_eval=200)
-    study.run()
+        # ハイパーパラメータチューニング用のデータセット分割
+        X_train, X_valid, y_train, y_valid = train_test_split(self.X_train, self.y_train, train_size=0.75, random_state=self.seed)
 
-    return study.best_params
+        # データセットを登録
+        lgb_train = lgb.Dataset(X_train, label=y_train)
+        lgb_valid = lgb.Dataset(X_valid, label=y_valid)
+
+        # 学習モデル作成
+        model = lgb.train(params=param, train_set=lgb_train, valid_sets=[lgb_train, lgb_valid], verbose_eval=-1)
+
+        # モデルでの予測
+        y_pred = model.predict(self.X_test)
+        score = metrics.accuracy_score(y_true=self.y_test, y_pred=(y_pred > 0.6))
+
+        return score
+
 
 
 def main():
     # 変数の定義
     # K-分割交差検証法(k-fold cross-validation)の分割数
-    kfold_splits = 10
+    kfold_splits = 5
     # seed値
     seed = 42
     # 証券コード
@@ -81,7 +88,7 @@ def main():
     drop_feature = []
     # drop_feature = ["SMA3", "SMA15", "SMA25", "upper1", "upper2", "lower1", "lower2"]
     # 買い判断をするための閾値
-    isbuy_threshold = 0.8
+    isbuy_threshold = 0.6
 
 
     # 結果を所持するDataFrame
@@ -142,6 +149,22 @@ def main():
         lgb_test = lgb.Dataset(X_test, label=y_test)
 
 
+        # ハイパーパラメータの取得
+        objective = Objective(df_X, df_y, seed=seed)
+        opt = optuna.create_study()
+        opt.optimize(objective, n_trials=31)
+
+        params = {
+            "objective": "binary",                                                              # 回帰
+            "metric": "binary_logloss",                                                         # 二乗平均平方根誤差
+            "num_iterations": 1000,                                                             # 木の数
+            "early_stopping_rounds": 100,                                                       # アーリーストッピング
+            "force_col_wise": True,                                                             # 列毎のヒストグラムの作成を強制する
+            "deterministic": True                                                               # 再現性確保用のパラメータ
+        }
+        params.update(opt.best_params)
+
+
         # K-分割交差検証法(k-fold cross-validation)を行うためのモデル作成
         models = []
         accuracy_score = []
@@ -165,7 +188,7 @@ def main():
             lgb_valid = lgb.Dataset(X_valid, label=y_valid)
 
             # 訓練
-            model = lgb.train(params=study_params(X_train_, y_train_, seed), train_set=lgb_train, valid_sets=[lgb_train, lgb_valid], verbose_eval=200)
+            model = lgb.train(params=params, train_set=lgb_train, valid_sets=[lgb_train, lgb_valid], verbose_eval=-1)
 
             # モデルの保存
             models.append(model)

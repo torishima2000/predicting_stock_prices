@@ -28,8 +28,8 @@ class Objective:
     def __call__(self, trial):
         """オブジェクトが呼び出されたときに実行"""
         param = {
-            "objective": "binary",                                                          # 回帰
-            "metric": "binary_logloss",                                                     # 二乗平均平方根誤差
+            "objective": "binary",                                                          # 二値分類
+            "metric": "binary_logloss",                                                     # クロスエントロピー
             "boosting": trial.suggest_categorical("boosting", ["gbdt", "dart"]),            # 勾配ブースティング
             "lambda_l1": trial.suggest_float("lambda_l1", 1e-8, 10.0, log=True),            # 正則化項1
             "lambda_l2": trial.suggest_float("lambda_l2", 1e-8, 10.0, log=True),            # 正則化項2

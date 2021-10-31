@@ -105,7 +105,9 @@ def main():
         df = mylib.colculate_feature(df)
 
         # 不要な特徴量の削除
+        # dfからの修正
         df.drop(drop_feature, axis = 1, inplace=True)
+        # 特徴量カラムの修正
         for v in drop_feature:
             feature.remove(v)
 

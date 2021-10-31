@@ -43,14 +43,14 @@ def study_params(X, y, seed):
     }
 
     # ハイパーパラメータチューニング用のデータセット分割
-    X_train, X_vaild, y_train, y_vaild = train_test_split(X, y, train_size=0.75, random_state=seed)
+    X_train, X_valid, y_train, y_valid = train_test_split(X, y, train_size=0.75, random_state=seed)
     
     # データセットを登録
     lgb_train = lgb.Dataset(X_train, label=y_train)
-    lgb_vaild = lgb.Dataset(X_vaild, label=y_vaild)
+    lgb_valid = lgb.Dataset(X_valid, label=y_valid)
 
     # 学習
-    study = lgbo.LightGBMTuner(params=lgb_params, train_set=lgb_train, valid_sets=[lgb_train, lgb_vaild], optuna_seed=seed, verbose_eval=200)
+    study = lgbo.LightGBMTuner(params=lgb_params, train_set=lgb_train, valid_sets=[lgb_train, lgb_valid], optuna_seed=seed, verbose_eval=200)
     study.run()
 
     return study.best_params
@@ -153,19 +153,19 @@ def main():
         K_fold = KFold(n_splits=kfold_splits, shuffle=True, random_state=seed)
 
         # K-分割交差検証法(k-fold cross-validation)を用いた学習
-        for fold, (train_indices, vaild_indices) in enumerate(K_fold.split(X_train, y_train)):
+        for fold, (train_indices, valid_indices) in enumerate(K_fold.split(X_train, y_train)):
             # データセットを分割し割り当て
             X_train_ = X_train.iloc[train_indices]
             y_train_ = y_train.iloc[train_indices]
-            X_vaild = X_train.iloc[vaild_indices]
-            y_vaild = y_train.iloc[vaild_indices]
+            X_valid = X_train.iloc[valid_indices]
+            y_valid = y_train.iloc[valid_indices]
 
             # データセットを登録
             lgb_train = lgb.Dataset(X_train_, label=y_train_)
-            lgb_vaild = lgb.Dataset(X_vaild, label=y_vaild)
+            lgb_valid = lgb.Dataset(X_valid, label=y_valid)
 
             # 訓練
-            model = lgb.train(params=study_params(X_train_, y_train_, seed), train_set=lgb_train, valid_sets=[lgb_train, lgb_vaild], verbose_eval=200)
+            model = lgb.train(params=study_params(X_train_, y_train_, seed), train_set=lgb_train, valid_sets=[lgb_train, lgb_valid], verbose_eval=200)
 
             # モデルの保存
             models.append(model)

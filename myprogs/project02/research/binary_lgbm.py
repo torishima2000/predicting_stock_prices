@@ -30,8 +30,8 @@ def study_params(X, y, seed):
     # ハイパーパラメータのチューニング
     lgb_params = {
         "num_iterations": 1000,         # 木の数
-        "max_depth": 7,                 # 木の深さ
-        "num_leaves": 31,               # 葉の数
+        "max_depth": 15,                # 木の深さ
+        "num_leaves": 127,              # 葉の数
         "min_data_in_leaf": 20,         # 葉に割り当てられる最小データ数
         "boosting": "gbdt",             # 勾配ブースティング
         "objective": "binary",          # 回帰
@@ -64,7 +64,7 @@ def main():
     seed = 42
     # 証券コード
     # security_code = "7203.T"
-    security_codes = ["6758.T", "7203.T", "99984.T", "^N225"]
+    security_codes = ["6758.T", "7203.T", "9984.T", "^N225"]
     # データ期間
     begin = datetime.datetime(*[2000, 1, 1])
     end = datetime.datetime(*[2020, 12, 31])
@@ -79,7 +79,7 @@ def main():
     drop_feature = []
     # drop_feature = ["SMA3", "SMA15", "SMA25", "upper1", "upper2", "lower1", "lower2"]
     # 買い判断をするための閾値
-    isbuy_threshold = 0.7
+    isbuy_threshold = 0.8
 
 
     # 結果を所持するDataFrame
@@ -253,7 +253,6 @@ def main():
         plot[column] = value
     # 資産の変遷の描画
     mylib.plot_chart(plot)
-
 
 
 if __name__=="__main__":

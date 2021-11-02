@@ -146,14 +146,17 @@ def main():
 
 
     # 結果を所持するDataFrame
-    result = {}
-    assets = pd.DataFrame()
+    result = {
+        "params": {},
+        "feature importance": {},
+        "assets": pd.DataFrame(),
+        "acc": {},
+        "Log loss": {},
+        "AUC": {}
+    }
 
     # 銘柄群に対して実行
     for security_code in security_codes:
-
-        # 結果保存用の辞書
-        result[security_code] = {}
 
         # 株価データフレームの作成
         # データのダウンロード
@@ -183,15 +186,15 @@ def main():
         # optunaによるハイパーパラメータの最適化
         opt = optuna.create_study()
         opt.optimize(Objective(df_X, df_y, seed=seed), n_trials=31)
-        result[security_code]["params"] = opt.best_params
+        result["params"][security_code] = opt.best_params
 
 
-        # K-分割交差検証法(k-fold cross-validation)を行うためのモデル作成
+        # K-分割交差検証法(k-fold cross-validation)の経過保存を行うためのモデル作成
         models = []
         log_loss = []
         accuracy_score = []
         auc = []
-        feature_importance = pd.Series([0.0] * len(df_X.columns), index=df_X.columns, name="feature importance of binary")
+        result["feature importance"][security_code] = pd.Series([0.0] * len(df_X.columns), index=df_X.columns, name="feature importance of binary")
 
 
         # KFoldクラスのインスタンス作成
@@ -210,48 +213,44 @@ def main():
             lgb_valid = lgb.Dataset(X_valid, label=y_valid)
 
             # 訓練
-            model = lgb.train(params=result[security_code]["params"], train_set=lgb_train, valid_sets=[lgb_train, lgb_valid], verbose_eval=-1)
+            model = lgb.train(params=result["params"][security_code], train_set=lgb_train, valid_sets=[lgb_train, lgb_valid], verbose_eval=-1)
 
             # モデルの保存
             models.append(model)
 
             # 特徴量の重要度の保存
-            feature_importance += (model.feature_importance() / kfold_splits)
+            result["feature importance"][security_code] += (model.feature_importance() / kfold_splits)
 
             # テストデータの予測
             y_pred = model.predict(X_test)
             
             # 訓練結果の評価
-            # 正解率
+            # 正解率(Accuracy score)
             accuracy_score.append(metrics.accuracy_score(y_true=y_test, y_pred=(y_pred > isbuy_threshold)))
-            # Log損失
+            # Log損失(Logarithmic Loss)
             log_loss.append(metrics.log_loss(y_true=y_test, y_pred=y_pred))
-            #fpr, tpr = roc_curve(y_test, y_pred)
-            #auc.append(auc(fpr, tpr))
+            # AUC(Area Under the Curve)
+            # fpr, tpr, thresholds = metrics.roc_curve(y_test, y_pred)
+            auc.append(metrics.roc_auc_score(y_test, y_pred))
 
 
         # 平均スコアの保存
-        # 正解率
-        result[security_code]["accuracy score"] = np.average(accuracy_score)
-        print("average accuracy score : {}".format(result[security_code]["accuracy score"]))
-        # Log損失
-        result[security_code]["Log loss"] = np.average(log_loss)
-        print("average Log loss : {}".format(result[security_code]["Log loss"]))
-        return 0
-        #ave_auc = np.average(auc)
-        #print(auc)
-        #print("average auc : {}".format(ave_auc))
-
+        # 正解率(Accuracy score)
+        result["acc"][security_code] = np.lib.average(accuracy_score)
+        # Log損失(Logarithmic Loss)
+        result["Log loss"][security_code] = np.lib.average(log_loss)
+        # AUC(Area Under the Curve)
+        result["AUC"][security_code] = np.lib.average(auc)
 
         """
         # 特徴量の重みを描画
         # ソート
-        feature_importance.sort_values(ascending=True, inplace=True)
+        result["feature importance"][security_code].sort_values(ascending=True, inplace=True)
         # 出力
-        print(feature_importance)
+        print(result["feature importance"][security_code])
         # グラフ描画
         plt.figure(figsize=(10.24, 7.68))
-        plt.barh(feature_importance.index, feature_importance)
+        plt.barh(result["feature importance"][security_code].index, result["feature importance"][security_code])
         plt.title("binary model's feature important")
         #plt.grid(False)
         plt.show()
@@ -261,21 +260,20 @@ def main():
 
         # 株価予測
         # テストデータに対するバックテスト
-        X_test = X_test.sort_index()
         # モデルを使用し、株価を予測
-        X_test["variation"] = 0
+        y_pred = []
         for model_ in models:
-            y_pred = model_.predict(X_test.drop("variation", axis=1))
-            X_test["variation"] += y_pred / len(models)
+            y_pred = model_.predict(X_test)
+        X_test["variation"] = np.lib.average(y_pred)
         X_test = X_test.assign(isbuy=(y_pred >= isbuy_threshold))
 
         # バックテスト
         X_test["growth rate"] = 0
         X_test["total assets"] = 0
-        # 株価の増加量の記載
+        # 株価の増加量の取得
         for index, value in X_test.iterrows():
             X_test.loc[index, "growth rate"] = df.loc[index, "growth rate"]
-        # 総資産の移り変わりの記憶
+        # 総資産の移り変わり計算
         total_assets = 10000
         for index, value in X_test.iterrows():
             if value["isbuy"]:
@@ -287,8 +285,7 @@ def main():
 
 
         # 結果の集計
-        assets[security_code] = X_test["total assets"]
-
+        result["assets"][security_code] = X_test["total assets"]
         
         """
         # Protra変換部分
@@ -299,17 +296,21 @@ def main():
 
 
     # 合計値の計算
-    assets["total"] = assets.sum(axis=1)
-    assets["total"] /= len(security_codes)
-    assets.to_csv("assets.csv", sep = ",")
+    result["assets"] = result["assets"].assign(average=(result["assets"].mean(axis=1)))
+    result["assets"].to_csv("assets.csv", sep = ",")
     # 異常値の削除
-    assets.dropna(axis = 0, inplace=True)
+    result["assets"].dropna(axis = 0, inplace=True)
     # 描画用にデータを整形
     plot = {}
-    for column, value in assets.iteritems():
+    for column, value in result["assets"].iteritems():
         plot[column] = value
     # 資産の変遷の描画
     mylib.plot_chart(plot)
+
+
+    # debug用
+    print(result)
+
 
 
 if __name__=="__main__":

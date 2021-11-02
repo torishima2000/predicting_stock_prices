@@ -72,7 +72,7 @@ def main():
 
     # 証券コード
     security_code = "7203.T"
-    
+
     # データ期間
     begin = datetime.datetime(*[2000, 1, 1])
     end = datetime.datetime(*[2020, 12, 31])

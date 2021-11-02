@@ -67,14 +67,18 @@ def main():
     # 変数の定義
     # K-分割交差検証法(k-fold cross-validation)の分割数
     kfold_splits = 5
+
     # seed値
     seed = 42
+
     # 証券コード
     # security_code = "7203.T"
     security_codes = ["6758.T", "7203.T", "9984.T", "^N225"]
+
     # データ期間
     begin = datetime.datetime(*[2000, 1, 1])
     end = datetime.datetime(*[2020, 12, 31])
+
     # 特徴量
     feature = [
         "SMA3", "SMA5", "SMA15", "SMA25", "SMA50", "SMA75", "SMA100",
@@ -87,6 +91,10 @@ def main():
     # 削除する特徴量
     drop_feature = []
     # drop_feature = ["SMA3", "SMA15", "SMA25", "upper1", "upper2", "lower1", "lower2"]
+    # 特徴量カラムの修正
+    for v in drop_feature:
+        feature.remove(v)
+
     # 買い判断をするための閾値
     isbuy_threshold = 0.6
 
@@ -139,9 +147,6 @@ def main():
         # 不要な特徴量の削除
         # dfからの修正
         df.drop(drop_feature, axis = 1, inplace=True)
-        # 特徴量カラムの修正
-        for v in drop_feature:
-            feature.remove(v)
 
         # 目的変数の作成
         # 目的変数の計算

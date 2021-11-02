@@ -68,7 +68,7 @@ def colculate_feature(df, objective=None):
 
     Args:
         df (pandas.DataFrame): 始値, 高値, 安値, 終値, 出来高を要素に持つDataFrame
-        objective (string): 目的関数の種類 [regression, binary]
+        objective (string): 目的関数の種類. This one must be either False or 'regression' or 'binary'.
 
     Returns:
         [pandas.DataFrame]: 特徴量を算出した Pandas.DataFrame

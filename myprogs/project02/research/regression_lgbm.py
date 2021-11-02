@@ -67,7 +67,7 @@ def main():
     # 変数の定義
     # K-分割交差検証法(k-fold cross-validation)の分割数
     kfold_splits = 5
-    
+
     # seed値
     seed = 41
 
@@ -110,7 +110,7 @@ def main():
 
     # ダウ平均株価
     # データの取得
-    mylib.stock_prices_to_csv("^DJI")
+    # mylib.stock_prices_to_csv("^DJI")
     # データをロード
     df_DJI = mylib.get_stock_prices("^DJI")
     # 整形
@@ -118,7 +118,7 @@ def main():
 
     # S&P500
     # データの取得
-    mylib.stock_prices_to_csv("^GSPC")
+    # mylib.stock_prices_to_csv("^GSPC")
     # データをロード
     df_GSPC = mylib.get_stock_prices("^GSPC")
     # 整形
@@ -137,28 +137,15 @@ def main():
         # 取得したデータの読み取り
         df = mylib.get_stock_prices(security_code)
 
-        # データの整形
-        df = mylib.shaping_yfinance(df, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"])
-
-
         # 特徴量の計算
-        df = mylib.colculate_feature(df)
+        df = mylib.colculate_feature(df, objective="regression")
 
-        # 不要な特徴量の削除
-        # dfからの修正
-        df.drop(drop_feature, axis = 1, inplace=True)
-
-        # 目的変数の作成
-        # 目的変数の計算
-        df["target"] = (df["Open"].pct_change(-3).shift(-1) * -1)
+        # データの整形
+        df = mylib.shaping_yfinance(df, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"] + drop_feature)
 
 
         # 欠損値がある行の削除
         df.dropna(subset=(feature + ["target"]), inplace=True)
-
-
-        # 欠損値の補完
-        df.ffill()
 
 
         # 学習データ、テストデータの作成

@@ -63,15 +63,24 @@ def vr_wako(close, volume, window=26):
     vr = (u - d - s) / (u + d + s) * 100
     return np.array(vr)
 
-def colculate_feature(df):
+def colculate_feature(df, objective=None):
     """特徴量の計算
 
     Args:
         df (pandas.DataFrame): 始値, 高値, 安値, 終値, 出来高を要素に持つDataFrame
+        objective (string): 目的関数の種類 [regression, binary]
 
     Returns:
         [pandas.DataFrame]: 特徴量を算出した Pandas.DataFrame
     """
+    # 目的変数の確認
+    if (objective is None):
+        raise ValueError(
+            "'objective' must be given."
+        )
+    if (objective not in (False, "regression", "binary")):
+        raise ValueError("Invalid objective: {repr(status)} (must be either False or 'regression' or 'binary').")
+
     # 特徴量の計算
     # 高値、安値、終値のnp.array化
     high = np.array(df["High"])
@@ -121,5 +130,12 @@ def colculate_feature(df):
 
     # ATR(Average True Range)の算出
     df["ATR"] = talib.ATR(high, low, close, timeperiod=14)
+
+    # 目的変数の計算
+    if (objective == "regression"):
+        df["target"] = (df["Open"].pct_change(-3).shift(-1) * -1)
+    if (objective == "binary"):
+        df["growth rate"] = (df["Open"].pct_change(-3).shift(-1) * -1)
+        df["target"] = (df["growth rate"] > 0)
 
     return df

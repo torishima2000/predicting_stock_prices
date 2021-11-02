@@ -136,13 +136,10 @@ def main():
         # mylib.stock_prices_to_csv(security_code)
         # 取得したデータの読み取り
         df = mylib.get_stock_prices(security_code)
-
         # 特徴量の計算
         df = mylib.colculate_feature(df, objective="binary")
-
         # データの整形
         df = mylib.shaping_yfinance(df, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"] + drop_feature)
-
         # 欠損値がある行の削除
         df.dropna(subset=(feature + ["target"]), inplace=True)
 

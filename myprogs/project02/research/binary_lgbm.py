@@ -306,8 +306,6 @@ def main():
     # 資産の変遷の描画
     mylib.plot_chart(plot)
 
-
-    # debug用
     print(result)
 
 

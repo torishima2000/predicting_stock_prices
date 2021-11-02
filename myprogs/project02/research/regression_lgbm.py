@@ -105,6 +105,8 @@ def main():
     # mylib.stock_prices_to_csv("^N225")
     # データをロード
     df_N225 = mylib.get_stock_prices("^N225")
+    # 特徴量の計算
+    df_N225 = mylib.colculate_feature(df_N225, objective=False)
     # 整形
     df_N225 = mylib.shaping_yfinance(df_N225, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"])
 
@@ -113,6 +115,8 @@ def main():
     # mylib.stock_prices_to_csv("^DJI")
     # データをロード
     df_DJI = mylib.get_stock_prices("^DJI")
+    # 特徴量の計算
+    df_DJI = mylib.colculate_feature(df_DJI, objective=False)
     # 整形
     df_DJI = mylib.shaping_yfinance(df_DJI, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"])
 
@@ -121,6 +125,8 @@ def main():
     # mylib.stock_prices_to_csv("^GSPC")
     # データをロード
     df_GSPC = mylib.get_stock_prices("^GSPC")
+    # 特徴量の計算
+    df_GSPC = mylib.colculate_feature(df_GSPC, objective=False)
     # 整形
     df_GSPC = mylib.shaping_yfinance(df_GSPC, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"])
 

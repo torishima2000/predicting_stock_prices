@@ -91,6 +91,32 @@ def main():
     isbuy_threshold = 0.6
 
 
+    # 株価指標の取得
+    # 日経平均株価
+    # データの取得
+    # mylib.stock_prices_to_csv("^N225")
+    # データをロード
+    df_N225 = mylib.get_stock_prices("^N225")
+    # 整形
+    df_N225 = mylib.shaping_yfinance(df_N225, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"])
+
+    # ダウ平均株価
+    # データの取得
+    mylib.stock_prices_to_csv("^DJI")
+    # データをロード
+    df_DJI = mylib.get_stock_prices("^DJI")
+    # 整形
+    df_DJI = mylib.shaping_yfinance(df_DJI, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"])
+
+    # S&P500
+    # データの取得
+    mylib.stock_prices_to_csv("^GSPC")
+    # データをロード
+    df_GSPC = mylib.get_stock_prices("^GSPC")
+    # 整形
+    df_GSPC = mylib.shaping_yfinance(df_GSPC, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"])
+
+
     # 結果を所持するDataFrame
     assets = pd.DataFrame()
 

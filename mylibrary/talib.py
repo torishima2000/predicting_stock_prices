@@ -79,7 +79,7 @@ def colculate_feature(df, objective=None):
             "'objective' must be given."
         )
     if (objective not in (False, "regression", "binary")):
-        raise ValueError("Invalid objective: {repr(status)} (must be either False or 'regression' or 'binary').")
+        raise ValueError("Invalid variable: 'objective' must be either False or 'regression' or 'binary'.")
 
     # 特徴量の計算
     # 高値、安値、終値のnp.array化

@@ -28,21 +28,21 @@ class Objective:
     def __call__(self, trial):
         """オブジェクトが呼び出されたときに実行"""
         param = {
-            "objective": "binary",                                                          # 二値分類
-            "metric": "binary_logloss",                                                     # クロスエントロピー
+            "objective": trial.suggest_categorical("objective", ["binary"]),                # 二値分類
+            "metric": trial.suggest_categorical("metric", ["binary_logloss"]),              # Log損失
             "boosting": trial.suggest_categorical("boosting", ["gbdt", "dart"]),            # 勾配ブースティング
             "lambda_l1": trial.suggest_float("lambda_l1", 1e-8, 10.0, log=True),            # 正則化項1
             "lambda_l2": trial.suggest_float("lambda_l2", 1e-8, 10.0, log=True),            # 正則化項2
             "feature_fraction": trial.suggest_float("feature_fraction", 0.4, 1.0),          # 特徴量の使用割合
             "bagging_fraction": trial.suggest_uniform("bagging_fraction", 0.4, 1.0),
             "bagging_freq": trial.suggest_int("bagging_freq", 1, 7),
-            "num_iterations": 1000,                                                         # 木の数
+            "num_iterations": trial.suggest_int("num_iterations", 500, 1000),               # 木の数
             "max_depth": trial.suggest_int("max_depth", 3, 8),                              # 木の深さ
             "num_leaves": trial.suggest_int("num_leaves", 3, 255),                          # 葉の数
             "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 10, 50),              # 葉に割り当てられる最小データ数
             "learning_rate": trial.suggest_float("learning_rate", 1e-4, 1e-1, log=True),    # 学習率
-            "early_stopping_rounds": 100,                                                   # アーリーストッピング
-            "force_col_wise": True,                                                         # 列毎のヒストグラムの作成を強制する
+            "early_stopping_rounds": trial.suggest_int("early_stopping_rounds", 10, 100),   # アーリーストッピング
+            "force_col_wise": trial.suggest_categorical("force_col_wise", [True]),          # 列毎のヒストグラムの作成を強制する
         }
 
         # ハイパーパラメータチューニング用のデータセット分割
@@ -146,10 +146,14 @@ def main():
 
 
     # 結果を所持するDataFrame
+    result = {}
     assets = pd.DataFrame()
 
     # 銘柄群に対して実行
     for security_code in security_codes:
+
+        # 結果保存用の辞書
+        result[security_code] = {}
 
         # 株価データフレームの作成
         # データのダウンロード
@@ -176,28 +180,19 @@ def main():
         y_test = df_y[df.index > test_begin]
 
 
-        # ハイパーパラメータの取得
-        objective = Objective(df_X, df_y, seed=seed)
+        # optunaによるハイパーパラメータの最適化
         opt = optuna.create_study()
-        opt.optimize(objective, n_trials=31)
-
-        params = {
-            "objective": "binary",                                                              # 回帰
-            "metric": "binary_logloss",                                                         # 二乗平均平方根誤差
-            "num_iterations": 1000,                                                             # 木の数
-            "early_stopping_rounds": 100,                                                       # アーリーストッピング
-            "force_col_wise": True,                                                             # 列毎のヒストグラムの作成を強制する
-            "deterministic": True                                                               # 再現性確保用のパラメータ
-        }
-        params.update(opt.best_params)
+        opt.optimize(Objective(df_X, df_y, seed=seed), n_trials=31)
+        result[security_code]["params"] = opt.best_params
 
 
         # K-分割交差検証法(k-fold cross-validation)を行うためのモデル作成
         models = []
+        log_loss = []
         accuracy_score = []
         auc = []
         feature_importance = pd.Series([0.0] * len(df_X.columns), index=df_X.columns, name="feature importance of binary")
-        
+
 
         # KFoldクラスのインスタンス作成
         K_fold = KFold(n_splits=kfold_splits, shuffle=True, random_state=seed)
@@ -215,7 +210,7 @@ def main():
             lgb_valid = lgb.Dataset(X_valid, label=y_valid)
 
             # 訓練
-            model = lgb.train(params=params, train_set=lgb_train, valid_sets=[lgb_train, lgb_valid], verbose_eval=-1)
+            model = lgb.train(params=result[security_code]["params"], train_set=lgb_train, valid_sets=[lgb_train, lgb_valid], verbose_eval=-1)
 
             # モデルの保存
             models.append(model)
@@ -223,17 +218,26 @@ def main():
             # 特徴量の重要度の保存
             feature_importance += (model.feature_importance() / kfold_splits)
 
-            # 訓練結果の評価
+            # テストデータの予測
             y_pred = model.predict(X_test)
-            accuracy_score.append(metrics.accuracy_score(y_true=y_test, y_pred=(y_pred > 0.5)))
+            
+            # 訓練結果の評価
+            # 正解率
+            accuracy_score.append(metrics.accuracy_score(y_true=y_test, y_pred=(y_pred > isbuy_threshold)))
+            # Log損失
+            log_loss.append(metrics.log_loss(y_true=y_test, y_pred=y_pred))
             #fpr, tpr = roc_curve(y_test, y_pred)
             #auc.append(auc(fpr, tpr))
-            
-        
-        # 平均スコアの表示
-        print(accuracy_score)
-        ave_accuracy_score = np.average(accuracy_score)
-        print("average accuracy score : {}".format(ave_accuracy_score))
+
+
+        # 平均スコアの保存
+        # 正解率
+        result[security_code]["accuracy score"] = np.average(accuracy_score)
+        print("average accuracy score : {}".format(result[security_code]["accuracy score"]))
+        # Log損失
+        result[security_code]["Log loss"] = np.average(log_loss)
+        print("average Log loss : {}".format(result[security_code]["Log loss"]))
+        return 0
         #ave_auc = np.average(auc)
         #print(auc)
         #print("average auc : {}".format(ave_auc))

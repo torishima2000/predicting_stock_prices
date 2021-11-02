@@ -28,21 +28,21 @@ class Objective:
     def __call__(self, trial):
         """オブジェクトが呼び出されたときに実行"""
         param = {
-            "objective": "regression",                                                      # 回帰
-            "metric": "rmse",                                                               # 二乗平均平方根誤差
+            "objective": trial.suggest_categorical("objective", ["regression"]),            # 回帰
+            "metric": trial.suggest_categorical("metric", ["rmse"]),                        # 二乗平均平方根誤差
             "boosting": trial.suggest_categorical("boosting", ["gbdt", "dart"]),            # 勾配ブースティング
             "lambda_l1": trial.suggest_float("lambda_l1", 1e-8, 10.0, log=True),            # 正則化項1
             "lambda_l2": trial.suggest_float("lambda_l2", 1e-8, 10.0, log=True),            # 正則化項2
             "feature_fraction": trial.suggest_float("feature_fraction", 0.4, 1.0),          # 特徴量の使用割合
             "bagging_fraction": trial.suggest_uniform("bagging_fraction", 0.4, 1.0),
             "bagging_freq": trial.suggest_int("bagging_freq", 1, 7),
-            "num_iterations": 1000,                                                         # 木の数
+            "num_iterations": trial.suggest_int("num_iterations", 500, 1000),               # 木の数
             "max_depth": trial.suggest_int("max_depth", 3, 8),                              # 木の深さ
             "num_leaves": trial.suggest_int("num_leaves", 3, 255),                          # 葉の数
             "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 10, 50),              # 葉に割り当てられる最小データ数
             "learning_rate": trial.suggest_float("learning_rate", 1e-4, 1e-1, log=True),    # 学習率
-            "early_stopping_rounds": 100,                                                   # アーリーストッピング
-            "force_col_wise": True,                                                         # 列毎のヒストグラムの作成を強制する
+            "early_stopping_rounds": trial.suggest_int("early_stopping_rounds", 10, 100),   # アーリーストッピング
+            "force_col_wise": trial.suggest_categorical("force_col_wise", [True]),          # 列毎のヒストグラムの作成を強制する
         }
 
         # ハイパーパラメータチューニング用のデータセット分割

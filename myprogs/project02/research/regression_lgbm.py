@@ -93,12 +93,13 @@ def main():
 
     # 結果を所持するDataFrame
     assets = pd.DataFrame()
+    
     # 銘柄群に対して実行
     for security_code in security_codes:
 
         # 株価データフレームの作成
         # データのダウンロード
-        # mylib.get_stock_prices(security_code)
+        # mylib.stock_prices_to_csv(security_code)
         # 取得したデータの読み取り
         df = mylib.get_stock_prices(security_code)
 

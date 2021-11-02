@@ -129,13 +129,9 @@ def main():
         # 取得したデータの読み取り
         df = mylib.get_stock_prices(security_code)
 
-        # 不要カラムの削除
-        df.drop(["Dividends", "Stock Splits"], axis=1, inplace=True)
+        # データの整形
+        df = mylib.shaping_yfinance(df, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"])
 
-        # 元データの成形
-        df = df[df.index >= begin]
-        df = df[df.index <= end]
-        
 
         # 特徴量の計算
         df = mylib.colculate_feature(df)

@@ -109,6 +109,8 @@ def main():
     df_N225 = mylib.colculate_feature(df_N225, objective=False)
     # 整形
     df_N225 = mylib.shaping_yfinance(df_N225, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"])
+    # カラム名の変更
+    [df_N225.rename(columns={columns: "N225_" + columns}, inplace=True) for columns in df_N225.columns]
 
     # ダウ平均株価
     # データの取得
@@ -119,6 +121,8 @@ def main():
     df_DJI = mylib.colculate_feature(df_DJI, objective=False)
     # 整形
     df_DJI = mylib.shaping_yfinance(df_DJI, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"])
+    # カラム名の変更
+    [df_DJI.rename(columns={columns: "DJI_" + columns}, inplace=True) for columns in df_DJI.columns]
 
     # S&P500
     # データの取得
@@ -129,6 +133,8 @@ def main():
     df_GSPC = mylib.colculate_feature(df_GSPC, objective=False)
     # 整形
     df_GSPC = mylib.shaping_yfinance(df_GSPC, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"])
+    # カラム名の変更
+    [df_GSPC.rename(columns={columns: "GSPC_" + columns}, inplace=True) for columns in df_GSPC.columns]
 
 
     # 結果を所持するDataFrame

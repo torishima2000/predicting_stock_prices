@@ -230,7 +230,6 @@ def main():
             # Log損失(Logarithmic Loss)
             log_loss.append(metrics.log_loss(y_true=y_test, y_pred=y_pred))
             # AUC(Area Under the Curve)
-            # fpr, tpr, thresholds = metrics.roc_curve(y_test, y_pred)
             auc.append(metrics.roc_auc_score(y_test, y_pred))
 
 

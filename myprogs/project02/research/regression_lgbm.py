@@ -36,13 +36,14 @@ class Objective:
             "feature_fraction": trial.suggest_float("feature_fraction", 0.4, 1.0),          # 特徴量の使用割合
             "bagging_fraction": trial.suggest_uniform("bagging_fraction", 0.4, 1.0),
             "bagging_freq": trial.suggest_int("bagging_freq", 1, 7),
-            "num_iterations": trial.suggest_int("num_iterations", 500, 1000),               # 木の数
+            "num_iterations": trial.suggest_int("num_iterations", 1000, 1000),              # 木の数
             "max_depth": trial.suggest_int("max_depth", 3, 8),                              # 木の深さ
             "num_leaves": trial.suggest_int("num_leaves", 3, 255),                          # 葉の数
             "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 10, 50),              # 葉に割り当てられる最小データ数
             "learning_rate": trial.suggest_float("learning_rate", 1e-4, 1e-1, log=True),    # 学習率
-            "early_stopping_rounds": trial.suggest_int("early_stopping_rounds", 10, 100),   # アーリーストッピング
+            "early_stopping_rounds": trial.suggest_int("early_stopping_rounds", 100, 100),  # アーリーストッピング
             "force_col_wise": trial.suggest_categorical("force_col_wise", [True]),          # 列毎のヒストグラムの作成を強制する
+            "deterministic": trial.suggest_categorical("force_col_wise", [True])            # 再現性の確保
         }
 
         # ハイパーパラメータチューニング用のデータセット分割
@@ -146,6 +147,12 @@ def main():
 
 
     # 結果を所持するDataFrame
+    result = {
+        "params": {},
+        "feature importance": {},
+        "assets": pd.DataFrame(),
+        "rmse": {}
+    }
     assets = pd.DataFrame()
 
     # 銘柄群に対して実行
@@ -177,26 +184,15 @@ def main():
 
 
         # ハイパーパラメータの取得
-        objective = Objective(df_X, df_y, seed=seed)
         opt = optuna.create_study()
-        opt.optimize(objective, n_trials=31)
-
-        params = {
-            "objective": "binary",                                                              # 回帰
-            "metric": "binary_logloss",                                                         # 二乗平均平方根誤差
-            "num_iterations": 1000,                                                             # 木の数
-            "early_stopping_rounds": 100,                                                       # アーリーストッピング
-            "force_col_wise": True,                                                             # 列毎のヒストグラムの作成を強制する
-            "deterministic": True                                                               # 再現性確保用のパラメータ
-        }
-        params.update(opt.best_params)
+        opt.optimize(Objective(df_X, df_y, seed=seed), n_trials=31)
+        result["params"][security_code] = opt.best_params
 
 
         # K-分割交差検証法(k-fold cross-validation)を行うためのモデル作成
         models = []
         rmse = []
-        auc = []
-        feature_importance = pd.Series([0.0] * len(df_X.columns), index=df_X.columns, name="feature importance of binary")
+        result["feature importance"][security_code] = pd.Series([0.0] * len(df_X.columns), index=df_X.columns, name="feature importance of binary")
 
 
         # KFoldクラスのインスタンス作成
@@ -215,28 +211,25 @@ def main():
             lgb_valid = lgb.Dataset(X_valid, label=y_valid)
 
             # 訓練
-            model = lgb.train(params=params, train_set=lgb_train, valid_sets=[lgb_train, lgb_valid], verbose_eval=-1)
+            model = lgb.train(params=result["params"][security_code], train_set=lgb_train, valid_sets=[lgb_train, lgb_valid], verbose_eval=-1)
 
             # モデルの保存
             models.append(model)
 
             # 特徴量の重要度の保存
-            feature_importance += (model.feature_importance() / kfold_splits)
+            result["feature importance"][security_code] += (model.feature_importance() / kfold_splits)
+
+            # テストデータの予測
+            y_pred = model.predict(X_test)
 
             # 訓練結果の評価
-            y_pred = model.predict(X_test)
+            # 平均二乗偏差(Root Mean Squared Error)
             rmse.append(np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
-            #fpr, tpr = roc_curve(y_test, y_pred)
-            #auc.append(auc(fpr, tpr))
             
         
-        # 平均スコアの表示
-        print(rmse)
-        ave_rmse = np.average(rmse)
-        print("average rmse : {}".format(ave_rmse))
-        #ave_auc = np.average(auc)
-        #print(auc)
-        #print("average auc : {}".format(ave_auc))
+        # 平均スコアの保存
+        # 平均二乗偏差(Root Mean Squared Error)
+        result["rmse"][security_code] = np.lib.average(rmse)
 
 
         """
@@ -257,12 +250,11 @@ def main():
 
         # 株価予測
         # テストデータに対するバックテスト
-        X_test = X_test.sort_index()
         # モデルを使用し、株価を予測
-        X_test["variation"] = 0
+        y_pred = []
         for model_ in models:
-            y_pred = model_.predict(X_test.drop("variation", axis=1))
-            X_test["variation"] += y_pred / len(models)
+            y_pred = model_.predict(X_test)
+        X_test["variation"] = np.lib.average(y_pred)
         X_test = X_test.assign(isbuy=(y_pred >= isbuy_threshold))
 
         # バックテスト
@@ -285,7 +277,7 @@ def main():
         # 結果の集計
         assets[security_code] = X_test["total assets"]
 
-        
+
         """
         # Protra変換部分
         trading_days = {security_code: X_test[X_test["isbuy"] == True]}
@@ -295,8 +287,7 @@ def main():
 
 
     # 合計値の計算
-    assets["total"] = assets.sum(axis=1)
-    assets["total"] /= len(security_codes)
+    assets = assets.assign(average=(assets.mean(axis=1)))
     assets.to_csv("assets.csv", sep = ",")
     # 異常値の削除
     assets.dropna(axis = 0, inplace=True)
@@ -306,6 +297,8 @@ def main():
         plot[column] = value
     # 資産の変遷の描画
     mylib.plot_chart(plot)
+
+    print(result)
 
 
 if __name__=="__main__":

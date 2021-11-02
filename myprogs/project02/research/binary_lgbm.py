@@ -43,6 +43,7 @@ class Objective:
             "learning_rate": trial.suggest_float("learning_rate", 1e-4, 1e-1, log=True),    # 学習率
             "early_stopping_rounds": trial.suggest_int("early_stopping_rounds", 10, 100),   # アーリーストッピング
             "force_col_wise": trial.suggest_categorical("force_col_wise", [True]),          # 列毎のヒストグラムの作成を強制する
+            "deterministic": trial.suggest_categorical("force_col_wise", [True])            # 再現性の確保
         }
 
         # ハイパーパラメータチューニング用のデータセット分割

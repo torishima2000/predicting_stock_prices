@@ -99,7 +99,7 @@ def main():
     isbuy_threshold = 0.6
 
 
-    # 株価指標の取得
+    # 株価指標データフレームの作成
     # 日経平均株価
     # データの取得
     # mylib.stock_prices_to_csv("^N225")
@@ -141,6 +141,7 @@ def main():
     df_GSPC.dropna(subset=(feature), inplace=True)
     # カラム名の変更
     [df_GSPC.rename(columns={columns: "GSPC_" + columns}, inplace=True) for columns in df_GSPC.columns]
+
 
     # 結果を所持するDataFrame
     assets = pd.DataFrame()

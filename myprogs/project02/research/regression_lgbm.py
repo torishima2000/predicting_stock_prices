@@ -99,7 +99,7 @@ def main():
     isbuy_threshold = 0.05
 
 
-    # 株価指標の取得
+    # 株価指標データフレームの作成
     # 日経平均株価
     # データの取得
     # mylib.stock_prices_to_csv("^N225")

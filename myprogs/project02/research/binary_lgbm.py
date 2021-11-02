@@ -78,6 +78,8 @@ def main():
     # データ期間
     begin = datetime.datetime(*[2000, 1, 1])
     end = datetime.datetime(*[2020, 12, 31])
+    # テストデータの開始日
+    test_begin = datetime.datetime(*[2016, 12, 31])
 
     # 特徴量
     feature = [
@@ -168,11 +170,8 @@ def main():
         df_y = df["target"]
 
         # 1点で分割
-        term = datetime.datetime(*[2016, 12, 31])
-        X_train = df_X[df.index <= term]
-        X_test = df_X[df.index > term]
-        y_train = df_y[df.index <= term]
-        y_test = df_y[df.index > term]
+        X_train = df_X[df.index <= test_begin], X_test = df_X[df.index > test_begin]
+        y_train = df_y[df.index <= test_begin], y_test = df_y[df.index > test_begin]
 
         lgb_test = lgb.Dataset(X_test, label=y_test)
 

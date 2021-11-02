@@ -175,8 +175,6 @@ def main():
         y_train = df_y[df.index <= test_begin]
         y_test = df_y[df.index > test_begin]
 
-        lgb_test = lgb.Dataset(X_test, label=y_test)
-
 
         # ハイパーパラメータの取得
         objective = Objective(df_X, df_y, seed=seed)

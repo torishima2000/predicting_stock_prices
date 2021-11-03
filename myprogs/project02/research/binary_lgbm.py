@@ -96,6 +96,10 @@ def main():
     # 特徴量カラムの修正
     for v in drop_feature:
         feature.remove(v)
+    # 追加の特徴量
+    add_feature = ["N225_" + column for column in feature]
+    add_feature += ["DJI_" + column for column in feature]
+    add_feature += ["GSPC_" + column for column in feature]
 
     # 買い判断をするための閾値
     isbuy_threshold = 0.5
@@ -167,6 +171,8 @@ def main():
         df = mylib.colculate_feature(df, objective="binary")
         # データの整形
         df = mylib.shaping_yfinance(df, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"] + drop_feature)
+        # 株価指標データの結合
+        df = pd.concat([df, df_N225, df_DJI, df_GSPC], axis=1)
         # 欠損値がある行の削除
         df.dropna(subset=(feature + ["target"]), inplace=True)
 
@@ -174,7 +180,7 @@ def main():
         # 学習データ、テストデータの作成
         # train 学習時データ test 学習後のテストデータ
         df_X = df.drop(["growth rate", "target"], axis=1)
-        df_y = df["target"]
+        df_y = (df["target"].copy().astype(bool))
 
         # 1点で分割
         X_train = df_X[df_X.index <= test_begin]

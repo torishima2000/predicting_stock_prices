@@ -153,7 +153,6 @@ def main():
         "assets": pd.DataFrame(),
         "rmse": {}
     }
-    assets = pd.DataFrame()
 
     # 銘柄群に対して実行
     for security_code in security_codes:
@@ -275,7 +274,7 @@ def main():
 
 
         # 結果の集計
-        assets[security_code] = X_test["total assets"]
+        result["assets"][security_code] = X_test["total assets"]
 
 
         """
@@ -287,13 +286,13 @@ def main():
 
 
     # 合計値の計算
-    assets = assets.assign(average=(assets.mean(axis=1)))
-    assets.to_csv("assets.csv", sep = ",")
+    result["assets"] = result["assets"].assign(average=(result["assets"].mean(axis=1)))
+    result["assets"].to_csv("assets.csv", sep = ",")
     # 異常値の削除
-    assets.dropna(axis = 0, inplace=True)
+    result["assets"].dropna(axis = 0, inplace=True)
     # 描画用にデータを整形
     plot = {}
-    for column, value in assets.iteritems():
+    for column, value in result["assets"].iteritems():
         plot[column] = value
     # 資産の変遷の描画
     mylib.plot_chart(plot)

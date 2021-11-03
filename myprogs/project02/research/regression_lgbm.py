@@ -249,46 +249,35 @@ def main():
         """
 
 
-        # 株価予測
         # テストデータに対するバックテスト
-        X_test.insert(len(X_test.columns), "variation", np.mean(y_preds, axis=0))
-        X_test.insert(len(X_test.columns), "isbuy", (X_test["variation"].copy() >= isbuy_threshold))
-        print(y_preds)
-        print(X_test["variation"].copy())
-        print(y_test)
-        return 0
-
-        # バックテスト
-        X_test["target"] = 0
-        X_test["total assets"] = 0
-        # 株価の増加量の記載
-        for index, value in X_test.iterrows():
-            X_test.loc[index, "target"] = df.loc[index, "target"]
+        # 株価予測
+        Xy_test.insert(len(Xy_test.columns), "variation", np.mean(y_preds, axis=0))
+        Xy_test.insert(len(Xy_test.columns), "isbuy", (Xy_test["variation"].copy() >= isbuy_threshold))
         # 総資産の移り変わりの記憶
         total_assets = 10000
-        for index, value in X_test.iterrows():
+        for index, value in Xy_test.iterrows():
             if value["isbuy"]:
                 total_assets -= 1000
-                total_assets += 1000 * (1 + value["target"])
-            X_test.loc[index, "total assets"] = total_assets
+                total_assets += 1000 * (value["target"] / 100 + 1)
+            Xy_test.loc[index, "total assets"] = total_assets
         # 結果の表示
-        # mylib.plot_chart({security_code: X_test["total assets"]})
+        # mylib.plot_chart({security_code: Xy_test["total assets"]})
 
 
         # 結果の集計
-        result["assets"][security_code] = X_test["total assets"]
+        result["assets"].insert(len(result["assets"].columns), security_code, Xy_test["total assets"].copy())
 
 
         """
         # Protra変換部分
-        trading_days = {security_code: X_test[X_test["isbuy"] == True]}
+        trading_days = {security_code: Xy_test[Xy_test["isbuy"] == True]}
         mylib.conversion_to_protra(trading_days, os.path.relpath(__file__))
         """
 
 
 
     # 合計値の計算
-    result["assets"] = result["assets"].assign(average=(result["assets"].mean(axis=1)))
+    result["assets"].insert(len(result["assets"].columns), "average", result["assets"].copy().mean(axis=1))
     result["assets"].to_csv("assets.csv", sep = ",")
     # 異常値の削除
     result["assets"].dropna(axis = 0, inplace=True)

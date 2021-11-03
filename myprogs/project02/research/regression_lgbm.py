@@ -176,10 +176,11 @@ def main():
         df_y = df["target"]
 
         # 1点で分割
-        X_train = df_X[df.index <= test_begin]
-        X_test = df_X[df.index > test_begin]
-        y_train = df_y[df.index <= test_begin]
-        y_test = df_y[df.index > test_begin]
+        X_train = df_X[df_X.index <= test_begin]
+        X_test = df_X[df_X.index > test_begin]
+        y_train = df_y[df_y.index <= test_begin]
+        y_test = df_y[df_y.index > test_begin]
+        Xy_test = df[df.index > test_begin]
 
 
         # ハイパーパラメータの取得

@@ -134,6 +134,7 @@ def colculate_feature(df, objective=None):
     # 目的変数の計算
     if (objective == "regression"):
         df["target"] = (df["Open"].pct_change(-3).shift(-1) * -1)
+        df["target"] *= 100
     if (objective == "binary"):
         df["growth rate"] = (df["Open"].pct_change(-3).shift(-1) * -1)
         df["target"] = (df["growth rate"] > 0)

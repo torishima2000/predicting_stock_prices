@@ -28,22 +28,22 @@ class Objective:
     def __call__(self, trial):
         """オブジェクトが呼び出されたときに実行"""
         param = {
-            "objective": trial.suggest_categorical("objective", ["binary"]),                # 二値分類
-            "metric": trial.suggest_categorical("metric", ["binary_logloss"]),              # Log損失
-            "boosting": trial.suggest_categorical("boosting", ["gbdt", "dart"]),            # 勾配ブースティング
-            "lambda_l1": trial.suggest_float("lambda_l1", 1e-8, 10.0, log=True),            # 正則化項1
-            "lambda_l2": trial.suggest_float("lambda_l2", 1e-8, 10.0, log=True),            # 正則化項2
-            "feature_fraction": trial.suggest_float("feature_fraction", 0.4, 1.0),          # 特徴量の使用割合
+            "objective": trial.suggest_categorical("objective", ["binary"]),                    # 二値分類
+            "metric": trial.suggest_categorical("metric", ["binary_logloss"]),                  # Log損失
+            "boosting": trial.suggest_categorical("boosting", ["gbdt", "dart"]),                # 勾配ブースティング
+            "lambda_l1": trial.suggest_float("lambda_l1", 1e-8, 10.0, log=True),                # 正則化項1
+            "lambda_l2": trial.suggest_float("lambda_l2", 1e-8, 10.0, log=True),                # 正則化項2
+            "feature_fraction": trial.suggest_float("feature_fraction", 0.4, 1.0),              # 特徴量の使用割合
             "bagging_fraction": trial.suggest_uniform("bagging_fraction", 0.4, 1.0),
             "bagging_freq": trial.suggest_int("bagging_freq", 1, 7),
-            "num_iterations": trial.suggest_int("num_iterations", 500, 1000),               # 木の数
-            "max_depth": trial.suggest_int("max_depth", 3, 8),                              # 木の深さ
-            "num_leaves": trial.suggest_int("num_leaves", 3, 255),                          # 葉の数
-            "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 10, 50),              # 葉に割り当てられる最小データ数
-            "learning_rate": trial.suggest_float("learning_rate", 1e-4, 1e-1, log=True),    # 学習率
-            "early_stopping_rounds": trial.suggest_int("early_stopping_rounds", 10, 100),   # アーリーストッピング
-            "force_col_wise": trial.suggest_categorical("force_col_wise", [True]),          # 列毎のヒストグラムの作成を強制する
-            "deterministic": trial.suggest_categorical("force_col_wise", [True])            # 再現性の確保
+            "num_iterations": trial.suggest_categorical("num_iterations", [1000]),              # 木の数
+            "max_depth": trial.suggest_int("max_depth", 3, 8),                                  # 木の深さ
+            "num_leaves": trial.suggest_int("num_leaves", 3, 255),                              # 葉の数
+            "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 10, 50),                  # 葉に割り当てられる最小データ数
+            "learning_rate": trial.suggest_float("learning_rate", 1e-4, 1e-1, log=True),        # 学習率
+            "early_stopping_rounds": trial.suggest_categorical("early_stopping_rounds", [100]), # アーリーストッピング
+            "force_col_wise": trial.suggest_categorical("force_col_wise", [True]),              # 列毎のヒストグラムの作成を強制する
+            "deterministic": trial.suggest_categorical("force_col_wise", [True])                # 再現性の確保
         }
 
         # ハイパーパラメータチューニング用のデータセット分割
@@ -193,6 +193,7 @@ def main():
 
         # K-分割交差検証法(k-fold cross-validation)の経過保存を行うためのモデル作成
         models = []
+        y_preds = []
         log_loss = []
         accuracy_score = []
         auc = []
@@ -224,15 +225,15 @@ def main():
             result["feature importance"][security_code] += (model.feature_importance() / kfold_splits)
 
             # テストデータの予測
-            y_pred = model.predict(X_test)
+            y_preds.append(model.predict(X_test))
             
             # 訓練結果の評価
             # 正解率(Accuracy score)
-            accuracy_score.append(metrics.accuracy_score(y_true=y_test, y_pred=(y_pred > isbuy_threshold)))
+            accuracy_score.append(metrics.accuracy_score(y_true=y_test, y_pred=(y_preds[-1] > isbuy_threshold)))
             # Log損失(Logarithmic Loss)
-            log_loss.append(metrics.log_loss(y_true=y_test, y_pred=y_pred))
+            log_loss.append(metrics.log_loss(y_true=y_test, y_pred=y_preds[-1]))
             # AUC(Area Under the Curve)
-            auc.append(metrics.roc_auc_score(y_test, y_pred))
+            auc.append(metrics.roc_auc_score(y_test, y_preds[-1]))
 
 
         # 平均スコアの保存
@@ -261,12 +262,8 @@ def main():
 
         # 株価予測
         # テストデータに対するバックテスト
-        # モデルを使用し、株価を予測
-        y_pred = []
-        for model_ in models:
-            y_pred = model_.predict(X_test)
-        X_test["variation"] = np.lib.average(y_pred)
-        X_test = X_test.assign(isbuy=(y_pred >= isbuy_threshold))
+        X_test.insert(len(X_test.columns), "variation", np.mean(y_preds, axis=0))
+        X_test.insert(len(X_test.columns), "isbuy", (X_test["variation"].copy() >= isbuy_threshold))
 
         # バックテスト
         X_test["growth rate"] = 0

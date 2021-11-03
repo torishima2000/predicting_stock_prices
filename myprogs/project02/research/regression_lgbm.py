@@ -36,12 +36,11 @@ class Objective:
             "feature_fraction": trial.suggest_float("feature_fraction", 0.4, 1.0),              # 特徴量の使用割合
             "bagging_fraction": trial.suggest_uniform("bagging_fraction", 0.4, 1.0),
             "bagging_freq": trial.suggest_int("bagging_freq", 1, 7),
-            "num_iterations": trial.suggest_categorical("num_iterations", [1000]),              # 木の数
+            "num_iterations": 1000,                                                             # 木の数
             "max_depth": trial.suggest_int("max_depth", 3, 8),                                  # 木の深さ
             "num_leaves": trial.suggest_int("num_leaves", 3, 255),                              # 葉の数
             "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 10, 50),                  # 葉に割り当てられる最小データ数
             "learning_rate": trial.suggest_float("learning_rate", 1e-4, 1e-1, log=True),        # 学習率
-            "early_stopping_rounds": trial.suggest_categorical("early_stopping_rounds", [100]), # アーリーストッピング
             "force_col_wise": trial.suggest_categorical("force_col_wise", [True]),              # 列毎のヒストグラムの作成を強制する
             "deterministic": trial.suggest_categorical("force_col_wise", [True])                # 再現性の確保
         }
@@ -187,6 +186,7 @@ def main():
         opt = optuna.create_study()
         opt.optimize(Objective(df_X, df_y, seed=seed), n_trials=31)
         result["params"][security_code] = opt.best_params
+        result["params"][security_code].update({"num_iterations": 1000})
 
 
         # K-分割交差検証法(k-fold cross-validation)を行うためのモデル作成
@@ -253,6 +253,10 @@ def main():
         # テストデータに対するバックテスト
         X_test.insert(len(X_test.columns), "variation", np.mean(y_preds, axis=0))
         X_test.insert(len(X_test.columns), "isbuy", (X_test["variation"].copy() >= isbuy_threshold))
+        print(y_preds)
+        print(X_test["variation"].copy())
+        print(y_test)
+        return 0
 
         # バックテスト
         X_test["target"] = 0

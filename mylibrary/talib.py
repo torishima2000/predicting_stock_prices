@@ -63,12 +63,21 @@ def vr_wako(close, volume, window=26):
     vr = (u - d - s) / (u + d + s) * 100
     return np.array(vr)
 
-def colculate_feature(df, objective=None):
+def colculate_feature(df, objective=None, exclude=[]):
     """特徴量の計算
+    feature = [
+        "SMA3", "SMA5", "SMA15", "SMA25", "SMA50", "SMA75", "SMA100",
+        "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
+        "MACD", "MACDsignal", "MACDhist",
+        "RSI9", "RSI14",
+        "VR", "MAER15",
+        "ADX", "CCI", "ROC", "ADOSC", "ATR"
+    ]
 
     Args:
         df (pandas.DataFrame): 始値, 高値, 安値, 終値, 出来高を要素に持つDataFrame
         objective (string): 目的関数の種類. This one must be either False or 'regression' or 'binary'.
+        exclude (list): 除外する特徴量の名称. The element in this list must be included in feature.
 
     Returns:
         [pandas.DataFrame]: 特徴量を算出した Pandas.DataFrame
@@ -81,6 +90,19 @@ def colculate_feature(df, objective=None):
     if (objective not in (False, "regression", "binary")):
         raise ValueError("Invalid variable: 'objective' must be either False or 'regression' or 'binary'.")
 
+    # 除外する特徴量の確認
+    feature = [
+        "SMA3", "SMA5", "SMA15", "SMA25", "SMA50", "SMA75", "SMA100",
+        "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
+        "MACD", "MACDsignal", "MACDhist",
+        "RSI9", "RSI14",
+        "VR", "MAER15",
+        "ADX", "CCI", "ROC", "ADOSC", "ATR"
+    ]
+    for v in exclude:
+        if (v not in feature):
+            raise ValueError("Invalid variable: The element in 'exclude' must be included in feature.")
+
     # 特徴量の計算
     # 高値、安値、終値のnp.array化
     high = np.array(df["High"].copy())
@@ -89,47 +111,81 @@ def colculate_feature(df, objective=None):
     volume = np.array(df["Volume"].copy()).astype(np.float64)
 
     # 移動平均線の算出
-    df.insert(len(df.columns), "SMA3", talib.SMA(close, timeperiod=3))
-    df.insert(len(df.columns), "SMA5", talib.SMA(close, timeperiod=5))
-    df.insert(len(df.columns), "SMA15", talib.SMA(close, timeperiod=15))
-    df.insert(len(df.columns), "SMA25", talib.SMA(close, timeperiod=25))
-    df.insert(len(df.columns), "SMA50", talib.SMA(close, timeperiod=50))
-    df.insert(len(df.columns), "SMA75", talib.SMA(close, timeperiod=75))
-    df.insert(len(df.columns), "SMA100", talib.SMA(close, timeperiod=100))
+    if ("SMA3" not in exclude):
+        df.insert(len(df.columns), "SMA3", talib.SMA(close, timeperiod=3))
+    if ("SMA5" not in exclude):
+        df.insert(len(df.columns), "SMA5", talib.SMA(close, timeperiod=5))
+    if ("SMA15" not in exclude):
+        df.insert(len(df.columns), "SMA15", talib.SMA(close, timeperiod=15))
+    if ("SMA25" not in exclude):
+        df.insert(len(df.columns), "SMA25", talib.SMA(close, timeperiod=25))
+    if ("SMA50" not in exclude):
+        df.insert(len(df.columns), "SMA50", talib.SMA(close, timeperiod=50))
+    if ("SMA75" not in exclude):
+        df.insert(len(df.columns), "SMA75", talib.SMA(close, timeperiod=75))
+    if ("SMA100" not in exclude):
+        df.insert(len(df.columns), "SMA100", talib.SMA(close, timeperiod=100))
 
     # ボリンジャーバンドの算出
-    df["upper1"], middle, df["lower1"] = talib.BBANDS(close, timeperiod=25, nbdevup=1, nbdevdn=1, matype=0)
-    df["upper2"], middle, df["lower2"] = talib.BBANDS(close, timeperiod=25, nbdevup=2, nbdevdn=2, matype=0)
-    df["upper3"], middle, df["lower3"] = talib.BBANDS(close, timeperiod=25, nbdevup=3, nbdevdn=3, matype=0)
+    upper1, middle, lower1 = talib.BBANDS(close, timeperiod=25, nbdevup=1, nbdevdn=1, matype=0)
+    if ("upper1" not in exclude):
+        df.insert(len(df.columns), "upper1", upper1)
+    if ("lower1" not in exclude):
+        df.insert(len(df.columns), "lower1", lower1)
+    upper2, middle, lower2 = talib.BBANDS(close, timeperiod=25, nbdevup=2, nbdevdn=2, matype=0)
+    if ("upper2" not in exclude):
+        df.insert(len(df.columns), "upper2", upper2)
+    if ("lower2" not in exclude):
+        df.insert(len(df.columns), "lower2", lower2)
+    upper3, middle, lower3 = talib.BBANDS(close, timeperiod=25, nbdevup=3, nbdevdn=3, matype=0)
+    if ("upper3" not in exclude):
+        df.insert(len(df.columns), "upper3", upper3)
+    if ("lower3" not in exclude):
+        df.insert(len(df.columns), "lower3", lower3)
 
     # MACDの算出
-    df["MACD"], df["MACDsignal"], df["MACDhist"] = talib.MACD(close, fastperiod=12, slowperiod=26, signalperiod=9)
+    macd, macdsignal, macdhist = talib.MACD(close, fastperiod=12, slowperiod=26, signalperiod=9)
+    if ("MACD" not in exclude):
+        df.insert(len(df.columns), "MACD", macd)
+    if ("MACDsignal" not in exclude):
+        df.insert(len(df.columns), "MACDsignal", macdsignal)
+    if ("MACDhist" not in exclude):
+        df.insert(len(df.columns), "MACDhist", macdhist)
 
     # RSIの算出
-    df.insert(len(df.columns), "RSI9", talib.RSI(close, timeperiod=9))
-    df.insert(len(df.columns), "RSI14", talib.RSI(close, timeperiod=14))
+    if ("RSI9" not in exclude):
+        df.insert(len(df.columns), "RSI9", talib.RSI(close, timeperiod=9))
+    if ("RSI14" not in exclude):
+        df.insert(len(df.columns), "RSI14", talib.RSI(close, timeperiod=14))
 
     # VR(Volume Ratio)の算出
-    df.insert(len(df.columns), "VR", vr_a(close, volume, window=25))
+    if ("VR" not in exclude):
+        df.insert(len(df.columns), "VR", vr_a(close, volume, window=25))
 
     # 移動平均乖離率(Moving Average Estrangement Rate)の算出
-    sma15 = talib.SMA(close, timeperiod=15)
-    df.insert(len(df.columns), "MAER15", (100 * (close - sma15) / sma15))
+    if ("MAER15" not in exclude):
+        sma15 = talib.SMA(close, timeperiod=15)
+        df.insert(len(df.columns), "MAER15", (100 * (close - sma15) / sma15))
 
     # ADX(平均方向性指数)の算出
-    df.insert(len(df.columns), "ADX", talib.ADX(high, low, close, timeperiod=14))
+    if ("CCI" not in exclude):
+        df.insert(len(df.columns), "ADX", talib.ADX(high, low, close, timeperiod=14))
 
     # CCI(商品チャンネル指数(Commodity Channel Index) )の算出
-    df.insert(len(df.columns), "CCI", talib.CCI(high, low, close, timeperiod=14))
+    if ("CCI" not in exclude):
+        df.insert(len(df.columns), "CCI", talib.CCI(high, low, close, timeperiod=14))
 
     # ROC(rate of change)の算出
-    df.insert(len(df.columns), "ROC", talib.ROC(close, timeperiod=10))
+    if ("ROC" not in exclude):
+        df.insert(len(df.columns), "ROC", talib.ROC(close, timeperiod=10))
 
     # ADOSC(チャイキンオシレーター:A/DのMACD)の算出
-    df.insert(len(df.columns), "ADOSC", talib.ADOSC(high, low, close, volume, fastperiod=3, slowperiod=10))
+    if ("ADOSC" not in exclude):
+        df.insert(len(df.columns), "ADOSC", talib.ADOSC(high, low, close, volume, fastperiod=3, slowperiod=10))
 
     # ATR(Average True Range)の算出
-    df.insert(len(df.columns), "ATR", talib.ATR(high, low, close, timeperiod=14))
+    if ("ATR" not in exclude):
+        df.insert(len(df.columns), "ATR", talib.ATR(high, low, close, timeperiod=14))
 
     # 目的変数の計算
     if (objective == "regression"):

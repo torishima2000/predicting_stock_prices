@@ -98,7 +98,7 @@ def main():
         feature.remove(v)
 
     # 買い判断をするための閾値
-    isbuy_threshold = 0.05
+    isbuy_threshold = 3
 
 
     # 株価指標データフレームの作成

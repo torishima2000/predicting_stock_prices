@@ -66,7 +66,7 @@ class Objective:
 def main():
     # 変数の定義
     # K-分割交差検証法(k-fold cross-validation)の分割数
-    kfold_splits = 5
+    kfold_splits = 10
 
     # seed値
     seed = 42
@@ -266,21 +266,6 @@ def main():
         # AUC(Area Under the Curve)
         result["AUC"][security_code] = np.lib.average(auc)
 
-        """
-        # 特徴量の重みを描画
-        # ソート
-        result["feature importance"][security_code].sort_values(ascending=True, inplace=True)
-        # 出力
-        print(result["feature importance"][security_code])
-        # グラフ描画
-        plt.figure(figsize=(10.24, 7.68))
-        plt.barh(result["feature importance"][security_code].index, result["feature importance"][security_code])
-        plt.title("binary model's feature important")
-        #plt.grid(False)
-        plt.show()
-        plt.close()
-        """
-
 
         # テストデータに対するバックテスト
         # 株価予測
@@ -303,6 +288,23 @@ def main():
         mylib.conversion_to_protra(trading_days, os.path.relpath(__file__))
         """
 
+
+    """
+    # 特徴量の重みを描画
+    # 平均の計算
+    for feature_importance in result["feature importance"].values():
+        # ソート
+        feature_importance.sort_values(ascending=True, inplace=True)
+        # 出力
+        print(feature_importance)
+        # グラフ描画
+        plt.figure(figsize=(10.24, 7.68))
+        plt.barh(feature_importance.index, feature_importance)
+        plt.title("regression model's feature important")
+        #plt.grid(False)
+        plt.show()
+        plt.close()
+    """
 
 
     # 合計値の計算

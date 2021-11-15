@@ -103,6 +103,23 @@ def sammary_to_csv(security_code):
         json.dump(info, f)
 
 
+def isbuy_dataset_to_csv(df, security_code):
+    """買い判断を含むデータセットをcsvファイルに記憶する
+    保存先は \myprogs\project02\research\logs
+
+    Args:
+        df (pandas.DataFrame): 買い判断を含むデータフレーム
+        security_code (string): 銘柄コード
+    """
+    # データの成形
+    df = df.loc[:, ["Open", "High", "Low", "Close", "isbuy"]]
+
+    # データをcsvファイルで保存する
+    os.makedirs(os.path.join("myprogs", "project02", "research", "logs"), exist_ok = True)
+    file_name = os.path.join("myprogs", "project02", "research", "logs", security_code + ".csv")
+    df.to_csv(file_name, sep = ",")
+
+
 def topix100_to_csv():
     """TOPIX100構成銘柄の取得
     保存先は \Dates\List_of_TSE-listedIssues\[取得したリストの更新年月日]

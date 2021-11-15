@@ -96,7 +96,7 @@ def get_isbuy_dataset(security_code):
         [pandas.DataFrame]]: 買い判断を含むデータフレーム
     """
     # データフレームをcsvファイルから取得
-    path = os.path.join("myprogs", "project02", "research", "logs")
+    path = os.path.join("myprogs", "project02", "research", "logs", security_code + ".csv")
     isbuy_df = pd.read_csv(path, index_col = 0)
     isbuy_df.index = pd.to_datetime(isbuy_df.index)
     return isbuy_df

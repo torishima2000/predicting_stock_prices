@@ -271,6 +271,8 @@ def main():
         # 株価予測
         Xy_test.insert(len(Xy_test.columns), "variation", np.mean(y_preds, axis=0))
         Xy_test.insert(len(Xy_test.columns), "isbuy", (Xy_test["variation"].copy() >= isbuy_threshold))
+        # 予測結果の保存
+        mylib.isbuy_dataset_to_csv(Xy_test, security_code)
         # 総資産の移り変わり計算
         total_assets = 10000
         for index, value in Xy_test.iterrows():

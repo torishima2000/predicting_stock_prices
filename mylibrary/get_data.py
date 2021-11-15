@@ -86,6 +86,21 @@ def get_sammary(security_code):
         sammary = json.load(f)
     return sammary
 
+def get_isbuy_dataset(security_code):
+    """買い判断を含むデータセットを取得
+
+    Args:
+        security_code (string): 銘柄コード
+
+    Returns:
+        [pandas.DataFrame]]: 買い判断を含むデータフレーム
+    """
+    # データフレームをcsvファイルから取得
+    path = os.path.join("myprogs", "project02", "research", "logs")
+    isbuy_df = pd.read_csv(path, index_col = 0)
+    isbuy_df.index = pd.to_datetime(isbuy_df.index)
+    return isbuy_df
+
 def get_codelist_topix100():
     """TOPIX100構成銘柄の証券コードリストを取得
 

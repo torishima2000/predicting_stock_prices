@@ -20,6 +20,7 @@ class Objective:
     """目的関数に相当するクラス"""
 
     def __init__(self, df_X, df_y, seed=42):
+        """インスタンス作成時に一度だけ実行"""
         self.X_train, self.X_test = train_test_split(df_X, test_size=0.2, shuffle=False)
         self.y_train, self.y_test = train_test_split(df_y, test_size=0.2, shuffle=False)
         self.seed = seed

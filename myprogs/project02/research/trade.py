@@ -186,13 +186,15 @@ def main():
     # security_code = "7203.T"
     security_codes = ["6758.T", "7203.T", "9984.T", "^N225"]
 
+    # グラフ描画用の辞書
+    plot = {}
 
     for security_code in security_codes:
         # データセットの読み取り
         df = mylib.get_isbuy_dataset(security_code)
 
         # 取引部分
-        trade = Trade(df)
+        trade = Trade(df, cut_loss_line=0.2)
         trade()
         pd.set_option("display.max_rows", None)
         print(trade.get_df())
@@ -202,7 +204,10 @@ def main():
             security_code + "(market value)": trade.get_df()["market value"],
 #            security_code + "(book value)": trade.get_df()["book value"]
         })
+        plot[security_code + "(market value)"] = trade.get_df()["market value"]
 
+    # グラフの描画
+    mylib.plot_chart(plot)
 
 if __name__=="__main__":
     main()

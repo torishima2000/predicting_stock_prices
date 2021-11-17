@@ -82,6 +82,15 @@ class Trade:
             self.df.at[index, "quantity(" + str(i) + ")"] = 0
 
     def settlement_amout(self, price, quantity):
+        """受渡金額の計算
+
+        Args:
+            price (double): 約定時の株価
+            quantity (int): 株式数
+
+        Returns:
+            [double]: 受渡金額
+        """
         trade_amount = self.trade_amount(price, quantity)
         if self.is_seles_commision:
             return trade_amount - self.seles_commision(trade_amount)

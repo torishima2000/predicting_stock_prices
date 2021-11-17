@@ -112,6 +112,18 @@ class Trade:
         else:
             return trade_amount * 0.0055
 
+    def taxation_on_capital_gain(self, trade_amount):
+        """譲渡益課税の計算
+
+        Args:
+            trade_amount (double): 約定金額
+
+        Returns:
+            [double]: 譲渡益課税
+        """
+        trade_amount *= (self.tax_rate + 0.00315)
+        return self.tax_rate
+
     def market_value(self, stocks, price):
         """所持株式の時価の計算
 

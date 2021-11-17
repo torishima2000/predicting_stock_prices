@@ -92,10 +92,13 @@ class Trade:
             [double]: 受渡金額
         """
         trade_amount = self.trade_amount(price, quantity)
+        # 手数料の支払い
         if self.is_seles_commision:
-            return trade_amount - self.seles_commision(trade_amount)
-        else:
-            return trade_amount
+            trade_amount -=self.seles_commision(trade_amount)
+        # 課税
+        if self.is_taxation:
+            trade_amount -= self.taxation_on_capital_gain(trade_amount)
+        return trade_amount
 
     def trade_amount(self, price, quantity):
         """約定金額の計算

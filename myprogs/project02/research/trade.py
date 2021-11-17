@@ -12,18 +12,20 @@ import mylibrary as mylib
 
 
 class Trade:
-    def __init__(self, df, cut_loss_line=1e-1, position=1e7, is_seles_commision=True):
+    def __init__(self, df, position=1e7, is_seles_commision=True,cut_loss_line=1e-1,  is_taxation=True, tax_rate=0.2):
         """変数の初期化
         インスタンス作成時に一度だけ実行
         """
         self.df = df
-        self.cut_loss_line = 1 - cut_loss_line
         self.position = position
         self.is_seles_commision = is_seles_commision
+        self.cut_loss_line = 1 - cut_loss_line
+        self.is_taxation = is_taxation
+        self.tax_rate = 1 - tax_rate
         self.trade_num = 0
         self.cutloss1_num = 0
         self.cutloss2_num = 0
-    
+
     def __call__(self):
         """取引の実施
         オブジェクトが呼び出されたときに実行

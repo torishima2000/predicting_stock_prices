@@ -21,7 +21,7 @@ class Trade:
         self.is_seles_commision = is_seles_commision
         self.cut_loss_line = 1 - cut_loss_line
         self.is_taxation = is_taxation
-        self.tax_rate = 1 - tax_rate
+        self.tax_rate = tax_rate
         self.trade_num = 0
         self.cutloss1_num = 0
         self.cutloss2_num = 0
@@ -208,10 +208,10 @@ def main():
         df = mylib.get_isbuy_dataset(security_code)
 
         # 取引部分
-        trade = Trade(df, cut_loss_line=0.2)
+        trade = Trade(df, cut_loss_line=0.1)
         trade()
-        pd.set_option("display.max_rows", None)
-        print(trade.get_df())
+        # pd.set_option("display.max_rows", None)
+        # print(trade.get_df())
         # 総資産のグラフの描画
         mylib.plot_chart({
 #            security_code + "(cash)": trade.get_df()["position"],

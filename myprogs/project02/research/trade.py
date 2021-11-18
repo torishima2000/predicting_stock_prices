@@ -46,7 +46,7 @@ class Trade:
             if isbuy:
                 today["quantity"] = 1000000 // row["Open"]
                 today["price"] = row["Open"]
-                self.position -= self.trade_amount(today["price"] * today["quantity"], bs=False)
+                self.position -= self.trade_amount(today["price"], today["quantity"], bs=False)
                 self.trade_num += 1
             # 株式の購入情報の記憶
             stocks.append(today)
@@ -107,11 +107,28 @@ class Trade:
         Args:
             price (double): 約定時の株価
             quantity (int): 株式数
-            bs (bool): 売り買い
+            bs (bool or str): 売り買い
+                True or "Sell": 売り
+                False or "Buy": 買い
 
         Returns:
             [int]: 約定金額
         """
+        # bsの内容の確認
+        if isinstance(bs, str):
+            bs = bs.capitalize()
+            if bs == "Buy":
+                bs = False
+            elif bs == "Sell":
+                bs == True
+            else:
+                raise ValueError(
+                    "bs must be 'Buy' or 'Sell' (Not case-sensitive) ."
+                )
+        elif not isinstance(bs, bool):
+            raise ValueError(
+                "objective type of 'bs' must be bool or str."
+            )
         trade_amount = price * quantity
         if bs:
             return math.ceil(trade_amount)

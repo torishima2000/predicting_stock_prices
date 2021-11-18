@@ -5,6 +5,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 import datetime
+import math
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -45,7 +46,7 @@ class Trade:
             if isbuy:
                 today["quantity"] = 1000000 // row["Open"]
                 today["price"] = row["Open"]
-                self.position -= today["price"] * today["quantity"]
+                self.position -= self.trade_amount(today["price"] * today["quantity"], bs=False)
                 self.trade_num += 1
             # 株式の購入情報の記憶
             stocks.append(today)
@@ -91,7 +92,7 @@ class Trade:
         Returns:
             [double]: 受渡金額
         """
-        trade_amount = self.trade_amount(price, quantity)
+        trade_amount = self.trade_amount(price, quantity, bs=True)
         # 手数料の支払い
         if self.is_seles_commision:
             trade_amount -=self.seles_commision(trade_amount)
@@ -100,17 +101,22 @@ class Trade:
             trade_amount -= self.taxation_on_capital_gain(trade_amount)
         return trade_amount
 
-    def trade_amount(self, price, quantity):
+    def trade_amount(self, price, quantity, bs=True):
         """約定金額の計算
 
         Args:
             price (double): 約定時の株価
             quantity (int): 株式数
+            bs (bool): 売り買い
 
         Returns:
-            [double]: 約定金額
+            [int]: 約定金額
         """
-        return price * quantity
+        trade_amount = price * quantity
+        if bs:
+            return math.ceil(trade_amount)
+        else:
+            return math.floor(trade_amount)
 
     def seles_commision(self, trade_amount):
         """取引手数料の計算

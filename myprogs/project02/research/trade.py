@@ -43,7 +43,7 @@ class Trade:
             today = {"quantity": 0, "price":0}
             # 購入部分
             if isbuy:
-                today["quantity"] = 100000 // row["Open"]
+                today["quantity"] = 1000000 // row["Open"]
                 today["price"] = row["Open"]
                 self.position -= today["price"] * today["quantity"]
                 self.trade_num += 1

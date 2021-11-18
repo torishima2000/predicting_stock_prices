@@ -88,7 +88,9 @@ def colculate_feature(df, objective=None, exclude=[]):
             "'objective' must be given."
         )
     if (objective not in (False, "regression", "binary")):
-        raise ValueError("Invalid variable: 'objective' must be either False or 'regression' or 'binary'.")
+        raise ValueError(
+            "Invalid variable: 'objective' must be either False or 'regression' or 'binary'."
+        )
 
     # 除外する特徴量の確認
     feature = [

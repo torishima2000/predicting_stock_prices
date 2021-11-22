@@ -29,7 +29,7 @@ class Objective:
         """オブジェクトが呼び出されたときに実行"""
         param = {
             "objective": trial.suggest_categorical("objective", ["binary"]),                    # 二値分類
-            "metric": trial.suggest_categorical("metric", ["binary_logloss"]),                  # Log損失
+            "metric": trial.suggest_categorical("metric", ["auc"]),                             # Log損失
             "boosting": trial.suggest_categorical("boosting", ["gbdt", "dart"]),                # 勾配ブースティング
             "lambda_l1": trial.suggest_float("lambda_l1", 1e-8, 10.0, log=True),                # 正則化項1
             "lambda_l2": trial.suggest_float("lambda_l2", 1e-8, 10.0, log=True),                # 正則化項2
@@ -57,7 +57,7 @@ class Objective:
 
         # モデルでの予測
         y_pred = model.predict(self.X_test)
-        score = metrics.accuracy_score(y_true=self.y_test, y_pred=(y_pred > 0.6))
+        score = metrics.precision_score(y_true=self.y_test, y_pred=(y_pred > 0.6))
 
         return score
 

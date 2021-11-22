@@ -252,21 +252,11 @@ def main():
         result["rmse"][security_code] = np.lib.average(rmse)
 
 
-        # テストデータに対するバックテスト
-        # 株価予測
+        # 株価の変動予測
         Xy_test.insert(len(Xy_test.columns), "variation", np.mean(y_preds, axis=0))
         Xy_test.insert(len(Xy_test.columns), "isbuy", (Xy_test["variation"].copy() >= isbuy_threshold))
         # 予測結果の保存
         mylib.isbuy_dataset_to_csv(Xy_test, security_code)
-        # 総資産の移り変わりの記憶
-        total_assets = 10000
-        for index, value in Xy_test.iterrows():
-            if value["isbuy"]:
-                total_assets -= 1000
-                total_assets += 1000 * (value["target"] / 100 + 1)
-            Xy_test.loc[index, "total assets"] = total_assets
-        # 結果の表示
-        # mylib.plot_chart({security_code: Xy_test["total assets"]})
 
 
         # 結果の集計

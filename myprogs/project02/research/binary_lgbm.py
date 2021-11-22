@@ -53,7 +53,7 @@ class Objective:
         lgb_valid = lgb.Dataset(X_valid, label=y_valid)
 
         # 学習モデル作成
-        model = lgb.train(params=param, train_set=lgb_train, valid_sets=[lgb_train, lgb_valid], verbose_eval=-1)
+        model = lgb.train(params=param, train_set=lgb_train, valid_sets=[lgb_train, lgb_valid], verbose_eval=False)
 
         # モデルでの予測
         y_pred = model.predict(self.X_test)
@@ -238,7 +238,7 @@ def main():
             lgb_valid = lgb.Dataset(X_valid, label=y_valid)
 
             # 訓練
-            model = lgb.train(params=result["params"][security_code], train_set=lgb_train, valid_sets=[lgb_train, lgb_valid], verbose_eval=-1)
+            model = lgb.train(params=result["params"][security_code], train_set=lgb_train, valid_sets=[lgb_train, lgb_valid], verbose_eval=False)
 
             # モデルの保存
             models.append(model)

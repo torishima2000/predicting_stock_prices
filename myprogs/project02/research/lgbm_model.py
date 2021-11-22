@@ -106,10 +106,10 @@ def main():
     # 元データの成形
     df = df[df.index >= begin]
     df = df[df.index <= end]
-    
+
 
     # 特徴量の計算
-    df = mylib.colculate_feature(df)
+    df = mylib.colculate_feature(df, objective="binary")
 
     # 特徴量の削除
     # dfからの修正

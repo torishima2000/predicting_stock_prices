@@ -112,7 +112,7 @@ def isbuy_dataset_to_csv(df, security_code):
         security_code (string): 銘柄コード
     """
     # データの成形
-    df = df.loc[:, ["Open", "High", "Low", "Close", "isbuy"]]
+    df = df.loc[:, ["Open", "High", "Low", "Close", "predict", "isbuy"]]
 
     # データをcsvファイルで保存する
     os.makedirs(os.path.join("myprogs", "project02", "research", "logs"), exist_ok = True)

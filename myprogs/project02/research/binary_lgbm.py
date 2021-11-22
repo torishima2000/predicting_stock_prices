@@ -169,7 +169,10 @@ def main():
     result = {
         "params": {},
         "feature importance": {},
-        "acc": {},
+        "accuracy": {},             # 正解率 = (TP + TN) / (TP + FP + FN + TP)
+        "precision": {},            # 適合率 = TP / (TP + FP)
+        "recall": {},               # 再現率 = TP / (TP + FN)
+        "f": {},                    # F値 = 2*Precision*Recall / (Precision + Recall)
         "Log loss": {},
         "AUC": {}
     }
@@ -215,9 +218,12 @@ def main():
         # K-分割交差検証法(k-fold cross-validation)の経過保存を行うためのモデル作成
         models = []
         y_preds = []
-        log_loss = []
-        accuracy_score = []
-        auc = []
+        result["accuracy"][security_code] = []
+        result["precision"][security_code] = []
+        result["recall"][security_code] = []
+        result["f"][security_code] = []
+        result["AUC"][security_code] = []
+        result["Log loss"][security_code] = []
         result["feature importance"][security_code] = pd.Series([0.0] * len(df_X.columns), index=df_X.columns, name="feature importance of binary")
 
 
@@ -247,23 +253,20 @@ def main():
 
             # テストデータの予測
             y_preds.append(model.predict(X_test))
-            
+
             # 訓練結果の評価
-            # 正解率(Accuracy score)
-            accuracy_score.append(metrics.accuracy_score(y_true=y_test, y_pred=(y_preds[-1] > isbuy_threshold)))
-            # Log損失(Logarithmic Loss)
-            log_loss.append(metrics.log_loss(y_true=y_test, y_pred=y_preds[-1]))
+            # 正解率(Accuracy)
+            result["accuracy"][security_code].append(metrics.accuracy_score(y_true=y_test, y_pred=(y_preds[-1] > isbuy_threshold)))
+            # 適合率(Precision)
+            result["precision"][security_code].append(metrics.precision_score(y_true=y_test, y_pred=(y_preds[-1] > isbuy_threshold)))
+            # 再現率(Recall)
+            result["recall"][security_code].append(metrics.recall_score(y_true=y_test, y_pred=(y_preds[-1] > isbuy_threshold)))
+            # F値
+            result["f"][security_code].append(metrics.f1_score(y_true=y_test, y_pred=(y_preds[-1] > isbuy_threshold)))
             # AUC(Area Under the Curve)
-            auc.append(metrics.roc_auc_score(y_test, y_preds[-1]))
-
-
-        # 平均スコアの保存
-        # 正解率(Accuracy score)
-        result["acc"][security_code] = np.lib.average(accuracy_score)
-        # Log損失(Logarithmic Loss)
-        result["Log loss"][security_code] = np.lib.average(log_loss)
-        # AUC(Area Under the Curve)
-        result["AUC"][security_code] = np.lib.average(auc)
+            result["AUC"][security_code].append(metrics.roc_auc_score(y_test, y_preds[-1]))
+            # Log損失(Logarithmic Loss)
+            result["Log loss"][security_code].append(metrics.log_loss(y_true=y_test, y_pred=y_preds[-1]))
 
 
         # 株価の変動予測
@@ -298,6 +301,32 @@ def main():
 
 
     print(result)
+
+
+    # 表示関数
+    def print_average_score(index):
+        for security_code in security_codes:
+            print("    {}: {}".format(security_code, np.lib.average(result[index][security_code])))
+
+    # 平均スコアの出力
+    # 正解率(Accuracy)
+    print("正解率 = (TP + TN) / (TP + FP + FN + TP)")
+    print_average_score("accuracy")
+    # 適合率(Precision)
+    print("適合率 = TP / (TP + FP)")
+    print_average_score("precision")
+    # 再現率(Recall)
+    print("再現率 = TP / (TP + FN)")
+    print_average_score("recall")
+    # F値
+    print("F値")
+    print_average_score("f")
+    # AUC(Area Under the Curve)
+    print("AUC(Area Under the Curve)")
+    print_average_score("AUC")
+    # Log損失(Logarithmic Loss)
+    print("Log損失(Logarithmic Loss)")
+    print_average_score("Log loss")
 
 
 

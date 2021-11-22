@@ -169,7 +169,6 @@ def main():
     result = {
         "params": {},
         "feature importance": {},
-        "assets": pd.DataFrame(),
         "acc": {},
         "Log loss": {},
         "AUC": {}
@@ -273,9 +272,6 @@ def main():
         # 予測結果の保存
         mylib.isbuy_dataset_to_csv(Xy_test, security_code)
 
-        # 結果の保存
-        result["assets"].insert(len(result["assets"].columns), security_code, Xy_test["total assets"].copy())
-
         """
         # Protra変換部分
         trading_days = {security_code: Xy_test[Xy_test["isbuy"] == True]}
@@ -300,18 +296,6 @@ def main():
         plt.close()
     """
 
-
-    # 合計値の計算
-    result["assets"].insert(len(result["assets"].columns), "average", result["assets"].copy().mean(axis=1))
-    result["assets"].to_csv("assets.csv", sep = ",")
-    # 異常値の削除
-    result["assets"].dropna(axis = 0, inplace=True)
-    # 描画用にデータを整形
-    plot = {}
-    for column, value in result["assets"].iteritems():
-        plot[column] = value
-    # 資産の変遷の描画
-    mylib.plot_chart(plot)
 
     print(result)
 

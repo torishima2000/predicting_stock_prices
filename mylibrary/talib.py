@@ -72,6 +72,7 @@ def colculate_feature(df, objective=None, exclude=[]):
         "RSI9", "RSI14",
         "VR", "MAER15",
         "ADX", "CCI", "ROC", "ADOSC", "ATR"
+        "DoD1", "DoD2", "DoD3"
     ]
 
     Args:
@@ -100,6 +101,7 @@ def colculate_feature(df, objective=None, exclude=[]):
         "RSI9", "RSI14",
         "VR", "MAER15",
         "ADX", "CCI", "ROC", "ADOSC", "ATR"
+        "DoD1", "DoD2", "DoD3"
     ]
     for v in exclude:
         if (v not in feature):
@@ -189,11 +191,19 @@ def colculate_feature(df, objective=None, exclude=[]):
     if ("ATR" not in exclude):
         df.insert(len(df.columns), "ATR", talib.ATR(high, low, close, timeperiod=14))
 
+    # 前日比(Day over Day)の算出
+    if ("DoD1" not in exclude):
+        df.insert(len(df.columns), "DoD1", (df["Open"] / df["Open"].shift(1)))
+    if ("DoD2" not in exclude):
+        df.insert(len(df.columns), "DoD2", (df["Open"] / df["Open"].shift(2)))
+    if ("DoD3" not in exclude):
+        df.insert(len(df.columns), "DoD3", (df["Open"] / df["Open"].shift(3)))
+
     # 目的変数の計算
     if (objective == "regression"):
-        df.insert(len(df.columns), "target", (100 * (df["Open"].pct_change(-3).shift(-1) * -1)))
+        df.insert(len(df.columns), "target", (df["Open"].pct_change(-3).shift(-1) * -1))
     if (objective == "binary"):
-        df.insert(len(df.columns), "growth rate", (df["Open"].pct_change(-3).shift(-1) * -1))
+        df.insert(len(df.columns), "growth rate", (df["Open"].pct_change(3).shift(-4)))
         df.insert(len(df.columns), "target", (df["growth rate"].copy() > 0))
 
     return df

@@ -57,7 +57,7 @@ class Objective:
 
         # モデルでの予測
         y_pred = model.predict(self.X_test)
-        score = metrics.precision_score(y_true=self.y_test, y_pred=(y_pred > 0.525))
+        score = metrics.precision_score(y_true=self.y_test, y_pred=(y_pred > 0.5))
 
         return score
 
@@ -66,7 +66,7 @@ class Objective:
 def main():
     # 変数の定義
     # K-分割交差検証法(k-fold cross-validation)の分割数
-    kfold_splits = 10
+    kfold_splits = 11
 
     # seed値
     seed = 42
@@ -88,7 +88,8 @@ def main():
         "MACD", "MACDsignal", "MACDhist",
         "RSI9", "RSI14",
         "VR", "MAER15",
-        "ADX", "CCI", "ROC", "ADOSC", "ATR"
+        "ADX", "CCI", "ROC", "ADOSC", "ATR",
+        "DoD1", "DoD2", "DoD3"
     ]
     # 削除する特徴量
     drop_feature = []
@@ -102,7 +103,7 @@ def main():
     add_feature += ["GSPC_" + column for column in feature]
 
     # 買い判断をするための閾値
-    isbuy_threshold = 0.525
+    isbuy_threshold = 0.5
 
 
     # 株価指標データフレームの作成
@@ -282,7 +283,7 @@ def main():
         """
 
 
-    """
+    
     # 特徴量の重みを描画
     # 平均の計算
     for feature_importance in result["feature importance"].values():
@@ -297,7 +298,7 @@ def main():
         #plt.grid(False)
         plt.show()
         plt.close()
-    """
+    
 
 
     print(result)

@@ -89,7 +89,8 @@ def main():
         "MACD", "MACDsignal", "MACDhist",
         "RSI9", "RSI14",
         "VR", "MAER15",
-        "ADX", "CCI", "ROC", "ADOSC", "ATR"
+        "ADX", "CCI", "ROC", "ADOSC", "ATR",
+        "DoD1", "DoD2", "DoD3"
     ]
     # 削除する特徴量
     drop_feature = []

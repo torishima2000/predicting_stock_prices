@@ -166,7 +166,12 @@ def main():
     result = {
         "params": {},
         "feature importance": {},
-        "rmse": {}
+        "mae": {},                  # 平均絶対誤差 = 1/N * Σ |yi - fi|                              | yi:i番目の実測値, fi:i番目の予測値, N:サンプル数
+        "mse": {},                  # 平均二乗誤差 = 1/N * Σ (yi - fi)^2                            | yi:i番目の実測値, fi:i番目の予測値, N:サンプル数
+        "rmse": {},                 # 平均二乗偏差 = √(1/N * Σ (yi - fi)^2)                         | yi:i番目の実測値, fi:i番目の予測値, N:サンプル数
+        "mape": {},                 # 平均絶対誤差率 = 1/N * Σ |(yi - fi) / yi|                     | yi:i番目の実測値, fi:i番目の予測値, N:サンプル数
+        "smape": {},                # 平均パーセント誤差 = 100/N * Σ | 2(yi - fi) / (|yi| + |fi|) | | yi:i番目の実測値, fi:i番目の予測値, N:サンプル数
+        "r^2": {}                   # R^2 = 1 - Σ ((yi - fi)^2 / (yi - ý))                          | yi:i番目の実測値, fi:i番目の予測値, ý:実測値の平均値
     }
 
     # 銘柄群に対して実行
@@ -210,7 +215,12 @@ def main():
         # K-分割交差検証法(k-fold cross-validation)を行うためのモデル作成
         models = []
         y_preds = []
-        rmse = []
+        result["mae"][security_code] = []
+        result["mse"][security_code] = []
+        result["rmse"][security_code] = []
+        result["mape"][security_code] = []
+        result["smape"][security_code] = []
+        result["r^2"][security_code] = []
         result["feature importance"][security_code] = pd.Series([0.0] * len(df_X.columns), index=df_X.columns, name="feature importance of binary")
 
 
@@ -242,13 +252,18 @@ def main():
             y_preds.append(model.predict(X_test))
 
             # 訓練結果の評価
+            # 平均絶対誤差(Mean Absolute Error)
+            result["mae"][security_code].append(metrics.mean_absolute_error(y_test, y_preds[-1]))
+            # 平均二乗誤差(Mean Squared Error)
+            result["mse"][security_code].append(metrics.mean_squared_error(y_test, y_preds[-1]))
             # 平均二乗偏差(Root Mean Squared Error)
-            rmse.append(np.sqrt(metrics.mean_squared_error(y_test, y_preds[-1])))
-
-
-        # 平均スコアの保存
-        # 平均二乗偏差(Root Mean Squared Error)
-        result["rmse"][security_code] = np.lib.average(rmse)
+            result["rmse"][security_code].append(np.sqrt(metrics.mean_squared_error(y_test, y_preds[-1])))
+            # 平均絶対誤差率(Mean Absolute Percentage Error)
+            result["mape"][security_code].append(metrics.mean_absolute_percentage_error(y_test, y_preds[-1]))
+            # 平均パーセント誤差(Symmetric Mean Absolute Percentage Error)
+            result["smape"][security_code].append(100*len(y_test)*np.sum(2*np.abs(y_test - y_preds[-1]) / (np.abs(y_test) + np.abs(y_preds[-1]))))
+            # R^2(決定係数:coefficient of determination)
+            result["r^2"][security_code].append(metrics.r2_score(y_test, y_preds[-1]))
 
 
         # 株価の変動予測
@@ -284,6 +299,30 @@ def main():
 
 
     print(result)
+    
+    # 評価関数
+    def print_average_score(index):
+        for security_code in security_codes:
+            print("    {}: {}".format(security_code, np.lib.average(result[index][security_code])))
+    # 平均スコアの出力
+    # 平均絶対誤差(Mean Absolute Error)
+    print("平均絶対誤差 = 1/N * Σ |yi - fi|  | yi:i番目の実測値, fi:i番目の予測値, N:サンプル数")
+    print_average_score("mae")
+    # 平均二乗誤差(Mean Squared Error)
+    print("平均二乗誤差 = 1/N * Σ (yi - fi)^2  | yi:i番目の実測値, fi:i番目の予測値, N:サンプル数")
+    print_average_score("mse")
+    # 平均二乗偏差(Root Mean Squared Error)
+    print("平均二乗偏差 = √(1/N * Σ (yi - fi)^2)  | yi:i番目の実測値, fi:i番目の予測値, N:サンプル数")
+    print_average_score("rmse")
+    # 平均絶対誤差率(Mean Absolute Percentage Error)
+    print("平均絶対誤差率 = 1/N * Σ |(yi - fi) / yi|  | yi:i番目の実測値, fi:i番目の予測値, N:サンプル数")
+    print_average_score("mape")
+    # 平均パーセント誤差(Symmetric Mean Absolute Percentage Error)
+    print("平均パーセント誤差 = 100/N * Σ | 2(yi - fi) / (|yi| + |fi|) |  | yi:i番目の実測値, fi:i番目の予測値, N:サンプル数")
+    print_average_score("smape")
+    # R^2(決定係数:coefficient of determination)
+    print("R^2 = 1 - Σ ((yi - fi)^2 / (yi - ý))  | yi:i番目の実測値, fi:i番目の予測値, ý:実測値の平均値")
+    print_average_score("r^2")
 
 
 if __name__=="__main__":

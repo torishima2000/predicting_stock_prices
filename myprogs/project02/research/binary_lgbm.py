@@ -84,12 +84,13 @@ def main():
     # 特徴量
     feature = [
         "SMA3", "SMA5", "SMA15", "SMA25", "SMA50", "SMA75", "SMA100",
+        "WMA5",
         "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
         "MACD", "MACDsignal", "MACDhist",
         "RSI9", "RSI14",
         "VR", "MAER15",
         "ADX", "CCI", "ROC", "ADOSC", "ATR",
-        "DoD1", "DoD2", "DoD3"
+        "DoD1", "DoD2", "DoD3",
     ]
     # 削除する特徴量
     drop_feature = []

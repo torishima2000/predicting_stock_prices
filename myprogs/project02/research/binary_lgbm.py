@@ -57,7 +57,7 @@ class Objective:
 
         # モデルでの予測
         y_pred = model.predict(self.X_test)
-        score = metrics.precision_score(y_true=self.y_test, y_pred=(y_pred > 0.6))
+        score = metrics.precision_score(y_true=self.y_test, y_pred=(y_pred > 0.525))
 
         return score
 
@@ -102,7 +102,7 @@ def main():
     add_feature += ["GSPC_" + column for column in feature]
 
     # 買い判断をするための閾値
-    isbuy_threshold = 0.5
+    isbuy_threshold = 0.525
 
 
     # 株価指標データフレームの作成

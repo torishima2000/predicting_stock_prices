@@ -93,8 +93,9 @@ def main():
         "DoD1", "DoD2", "DoD3",
     ]
     # 削除する特徴量
-    drop_feature = []
-    # drop_feature = ["SMA3", "SMA15", "SMA25", "upper1", "upper2", "lower1", "lower2"]
+    drop_feature = [
+        #"SMA3", "SMA15", "SMA25", "upper1", "upper2", "lower1", "lower2",
+    ]
     # 特徴量カラムの修正
     for v in drop_feature:
         feature.remove(v)

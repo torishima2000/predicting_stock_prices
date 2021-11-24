@@ -261,7 +261,7 @@ def main():
             # 平均絶対誤差率(Mean Absolute Percentage Error)
             result["mape"][security_code].append(metrics.mean_absolute_percentage_error(y_test, y_preds[-1]))
             # 平均パーセント誤差(Symmetric Mean Absolute Percentage Error)
-            result["smape"][security_code].append(100*len(y_test)*np.sum(2*np.abs(y_test - y_preds[-1]) / (np.abs(y_test) + np.abs(y_preds[-1]))))
+            result["smape"][security_code].append(100/len(y_test)*np.sum(2*np.abs(y_test - y_preds[-1]) / (np.abs(y_test) + np.abs(y_preds[-1]))))
             # R^2(決定係数:coefficient of determination)
             result["r^2"][security_code].append(metrics.r2_score(y_test, y_preds[-1]))
 

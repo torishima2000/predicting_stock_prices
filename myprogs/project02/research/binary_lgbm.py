@@ -108,50 +108,56 @@ def main():
 
     # 株価指標データフレームの作成
     # 日経平均株価
+    # 除外する特徴量
+    exclude_feature = drop_feature
     # データの取得
     # mylib.stock_prices_to_csv("^N225")
     # データをロード
     df_N225 = mylib.get_stock_prices("^N225")
     # 特徴量の計算
-    df_N225 = mylib.colculate_feature(df_N225, objective=False)
+    df_N225 = mylib.colculate_feature(df_N225, objective=False, exclude=exclude_feature)
     # 整形
     df_N225 = mylib.shaping_yfinance(df_N225, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"])
     # 欠損値がある行の削除
-    df_N225.dropna(subset=(feature), inplace=True)
+    df_N225.dropna(subset=(set(feature) - set(exclude_feature)), inplace=True)
     # カラム名の変更
     [df_N225.rename(columns={columns: "N225_" + columns}, inplace=True) for columns in df_N225.columns]
 
     # ダウ平均株価
+    # 除外する特徴量
+    exclude_feature = drop_feature
     # データの取得
     # mylib.stock_prices_to_csv("^DJI")
     # データをロード
     df_DJI = mylib.get_stock_prices("^DJI")
     # 特徴量の計算
-    df_DJI = mylib.colculate_feature(df_DJI, objective=False)
+    df_DJI = mylib.colculate_feature(df_DJI, objective=False, exclude=exclude_feature)
     # 整形
     df_DJI = mylib.shaping_yfinance(df_DJI, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"])
     # 欠損値がある行の削除
-    df_DJI.dropna(subset=(feature), inplace=True)
+    df_DJI.dropna(subset=(set(feature) - set(exclude_feature)), inplace=True)
     # カラム名の変更
     [df_DJI.rename(columns={columns: "DJI_" + columns}, inplace=True) for columns in df_DJI.columns]
 
     # S&P500
+    # 除外する特徴量
+    exclude_feature = drop_feature
     # データの取得
     # mylib.stock_prices_to_csv("^GSPC")
     # データをロード
     df_GSPC = mylib.get_stock_prices("^GSPC")
     # 特徴量の計算
-    df_GSPC = mylib.colculate_feature(df_GSPC, objective=False)
+    df_GSPC = mylib.colculate_feature(df_GSPC, objective=False, exclude=exclude_feature)
     # 整形
     df_GSPC = mylib.shaping_yfinance(df_GSPC, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"])
     # 欠損値がある行の削除
-    df_GSPC.dropna(subset=(feature), inplace=True)
+    df_GSPC.dropna(subset=(set(feature) - set(exclude_feature)), inplace=True)
     # カラム名の変更
     [df_GSPC.rename(columns={columns: "GSPC_" + columns}, inplace=True) for columns in df_GSPC.columns]
 
     # ドル円
     # 除外する特徴量
-    exclude_feature = ["VR", "ADOSC"]
+    exclude_feature = ["VR", "ADOSC"] + drop_feature
     # データの取得
     # mylib.stock_prices_to_csv("USDJPY=X")
     # データをロード

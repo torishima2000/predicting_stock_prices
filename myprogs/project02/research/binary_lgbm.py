@@ -291,7 +291,7 @@ def main():
         """
 
 
-    
+
     # 特徴量の重みを描画
     # 平均の計算
     for feature_importance in result["feature importance"].values():
@@ -306,7 +306,7 @@ def main():
         #plt.grid(False)
         plt.show()
         plt.close()
-    
+
 
 
     print(result)

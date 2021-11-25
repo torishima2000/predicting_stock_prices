@@ -308,7 +308,7 @@ def main():
 
 
     print(result)
-    
+
     # 評価関数
     def print_average_score(index):
         for security_code in security_codes:

@@ -72,8 +72,10 @@ def main():
     seed = 42
 
     # 証券コード
-    # security_code = "7203.T"
-    security_codes = ["6758.T", "7203.T", "9984.T", "^N225"]
+    # security_codes = []
+    security_codes = [
+        "4063.T", "6098.T", "6861.T", "6758.T", "7203.T", "8035.T", "8306.T", "9432.T", "9433.T", "9984.T", "^N225"
+    ]
 
     # データ期間
     begin = datetime.datetime(*[2000, 1, 1])
@@ -194,6 +196,8 @@ def main():
         # mylib.stock_prices_to_csv(security_code)
         # 取得したデータの読み取り
         df = mylib.get_stock_prices(security_code)
+        # 欠損値がある行の削除
+        df.dropna(inplace=True)
         # 特徴量の計算
         df = mylib.colculate_feature(df, objective="binary")
         # データの整形

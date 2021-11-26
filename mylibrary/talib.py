@@ -101,8 +101,8 @@ def colculate_feature(df, objective=None, exclude=[]):
         "MACD", "MACDsignal", "MACDhist",
         "RSI9", "RSI14",
         "VR", "MAER15",
-        "ADX", "CCI", "ROC", "ADOSC", "ATR"
-        "DoD1", "DoD2", "DoD3"
+        "ADX", "CCI", "ROC", "ADOSC", "ATR",
+        "DoD1", "DoD2", "DoD3",
     ]
     for v in exclude:
         if (v not in feature):

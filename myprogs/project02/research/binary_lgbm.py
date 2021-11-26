@@ -111,6 +111,7 @@ def main():
 
 
     # 株価指標データフレームの作成
+    """
     # 日経平均株価
     # 除外する特徴量
     exclude_feature = drop_feature
@@ -126,6 +127,7 @@ def main():
     df_N225.dropna(subset=(set(feature) - set(exclude_feature)), inplace=True)
     # カラム名の変更
     [df_N225.rename(columns={columns: "N225_" + columns}, inplace=True) for columns in df_N225.columns]
+    """
 
     # ダウ平均株価
     # 除外する特徴量
@@ -143,6 +145,7 @@ def main():
     # カラム名の変更
     [df_DJI.rename(columns={columns: "DJI_" + columns}, inplace=True) for columns in df_DJI.columns]
 
+    """
     # S&P500
     # 除外する特徴量
     exclude_feature = drop_feature
@@ -158,6 +161,7 @@ def main():
     df_GSPC.dropna(subset=(set(feature) - set(exclude_feature)), inplace=True)
     # カラム名の変更
     [df_GSPC.rename(columns={columns: "GSPC_" + columns}, inplace=True) for columns in df_GSPC.columns]
+    """
 
     # ドル円
     # 除外する特徴量
@@ -203,7 +207,8 @@ def main():
         # データの整形
         df = mylib.shaping_yfinance(df, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"] + drop_feature)
         # 株価指標データの結合
-        df = pd.concat([df, df_N225, df_DJI, df_GSPC, df_USDJPY], axis=1)
+        # df = pd.concat([df, df_N225, df_DJI, df_GSPC, df_USDJPY], axis=1)
+        df = pd.concat([df, df_DJI, df_USDJPY], axis=1)
         # 欠損値がある行の削除
         df.dropna(subset=(feature + ["target"]), inplace=True)
 

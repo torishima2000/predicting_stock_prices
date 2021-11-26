@@ -171,3 +171,17 @@ def topix500_to_csv():
     # データの保存
     file_name = path_name["TOPIX500"] + ".csv"
     issues.to_csv(os.path.join(path_name["TSE_listed_Issues"], file_name), sep = ",")
+
+
+def save_df(df, path=False, file_name="df.csv"):
+    """pandas.DataFrameをファイルに保存するメソッド
+
+    Args:
+        df (pandas.DataFrame): 保存したいデータフレーム
+    """
+    # データをcsvファイルで保存する
+    if path:
+        os.makedirs(path, exist_ok = True)
+        df.to_csv(os.path.join(path, file_name), sep = ",")
+    else:
+        df.to_csv(file_name, sep = ",")

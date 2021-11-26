@@ -248,11 +248,11 @@ def main():
         # pd.set_option("display.max_rows", None)
         # print(trade.get_df())
         # 総資産のグラフの描画
-        mylib.plot_chart({
+#        mylib.plot_chart({
 #            security_code + "(cash)": trade.get_df()["position"],
-            security_code + "(market value)": trade.get_df()["market value"],
+#            security_code + "(market value)": trade.get_df()["market value"],
 #            security_code + "(book value)": trade.get_df()["book value"]
-        })
+#        })
         plot[security_code + "(market value)"] = trade.get_df()["market value"]
 
     # グラフの描画

@@ -177,7 +177,7 @@ def colculate_feature(df, objective=None, exclude=[]):
         df.insert(len(df.columns), "MAER15", (100 * (close - sma15) / sma15))
 
     # ADX(平均方向性指数)の算出
-    if ("CCI" not in exclude):
+    if ("ADX" not in exclude):
         df.insert(len(df.columns), "ADX", talib.ADX(high, low, close, timeperiod=14))
 
     # CCI(商品チャンネル指数(Commodity Channel Index) )の算出

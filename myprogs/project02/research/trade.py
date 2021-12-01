@@ -5,6 +5,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 import datetime
+import random
 import math
 import numpy as np
 import pandas as pd
@@ -66,6 +67,8 @@ class Trade:
 
             # 明日の株式の購入の是非を取得
             isbuy = row["isbuy"]
+            #isbuy = True
+            #isbuy = random.randrange(2)
 
             # 資産状況を元DataFrameに貼り付け
             self.df.at[index, "position"] = self.position

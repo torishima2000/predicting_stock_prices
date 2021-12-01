@@ -132,8 +132,20 @@ def colculate_feature(df, objective=None, exclude=[]):
         df.insert(len(df.columns), "SMA100", talib.SMA(close, timeperiod=100))
     
     # 加重移動平均
+    if ("WMA3" not in exclude):
+        df.insert(len(df.columns), "WMA3", talib.WMA(close, timeperiod=3))
     if ("WMA5" not in exclude):
         df.insert(len(df.columns), "WMA5", talib.WMA(close, timeperiod=5))
+    if ("WMA15" not in exclude):
+        df.insert(len(df.columns), "WMA15", talib.WMA(close, timeperiod=15))
+    if ("WMA25" not in exclude):
+        df.insert(len(df.columns), "WMA25", talib.WMA(close, timeperiod=25))
+    if ("WMA50" not in exclude):
+        df.insert(len(df.columns), "WMA50", talib.WMA(close, timeperiod=50))
+    if ("WMA75" not in exclude):
+        df.insert(len(df.columns), "WMA75", talib.WMA(close, timeperiod=75))
+    if ("WMA100" not in exclude):
+        df.insert(len(df.columns), "WMA100", talib.WMA(close, timeperiod=100))
 
     # ボリンジャーバンドの算出
     upper1, middle, lower1 = talib.BBANDS(close, timeperiod=25, nbdevup=1, nbdevdn=1, matype=0)

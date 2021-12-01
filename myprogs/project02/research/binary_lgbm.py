@@ -86,7 +86,7 @@ def main():
     # 特徴量
     feature = [
         "SMA3", "SMA5", "SMA15", "SMA25", "SMA50", "SMA75", "SMA100",
-        "WMA5",
+        "WMA3", "WMA5", "WMA15", "WMA25", "WMA50", "WMA75", "WMA100",
         "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
         "MACD", "MACDsignal", "MACDhist",
         "RSI9", "RSI14",

@@ -115,7 +115,7 @@ def colculate_feature(df, objective=None, exclude=[]):
     close = np.array(df["Close"].copy())
     volume = np.array(df["Volume"].copy()).astype(np.float64)
 
-    # 移動平均線の算出
+    # 単純移動平均の算出
     if ("SMA3" not in exclude):
         df.insert(len(df.columns), "SMA3", talib.SMA(close, timeperiod=3))
     if ("SMA5" not in exclude):
@@ -131,7 +131,7 @@ def colculate_feature(df, objective=None, exclude=[]):
     if ("SMA100" not in exclude):
         df.insert(len(df.columns), "SMA100", talib.SMA(close, timeperiod=100))
     
-    # 加重移動平均
+    # 加重移動平均の算出
     if ("WMA3" not in exclude):
         df.insert(len(df.columns), "WMA3", talib.WMA(close, timeperiod=3))
     if ("WMA5" not in exclude):

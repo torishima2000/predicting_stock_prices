@@ -96,6 +96,7 @@ def colculate_feature(df, objective=None, exclude=[]):
     # 除外する特徴量の確認
     feature = [
         "SMA3", "SMA5", "SMA15", "SMA25", "SMA50", "SMA75", "SMA100",
+        "EMA3", "EMA5", "EMA15", "EMA25", "EMA50", "EMA75", "EMA100",
         "WMA3", "WMA5", "WMA15", "WMA25", "WMA50", "WMA75", "WMA100",
         "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
         "MACD", "MACDsignal", "MACDhist",
@@ -131,6 +132,22 @@ def colculate_feature(df, objective=None, exclude=[]):
     if ("SMA100" not in exclude):
         df.insert(len(df.columns), "SMA100", talib.SMA(close, timeperiod=100))
     
+    # 移動平均偏差の算出
+    if ("EMA3" not in exclude):
+        df.insert(len(df.columns), "EMA3", talib.EMA(close, timeperiod=3))
+    if ("EMA5" not in exclude):
+        df.insert(len(df.columns), "EMA5", talib.EMA(close, timeperiod=5))
+    if ("EMA15" not in exclude):
+        df.insert(len(df.columns), "EMA15", talib.EMA(close, timeperiod=15))
+    if ("EMA25" not in exclude):
+        df.insert(len(df.columns), "EMA25", talib.EMA(close, timeperiod=25))
+    if ("EMA50" not in exclude):
+        df.insert(len(df.columns), "EMA50", talib.EMA(close, timeperiod=50))
+    if ("EMA75" not in exclude):
+        df.insert(len(df.columns), "EMA75", talib.EMA(close, timeperiod=75))
+    if ("EMA100" not in exclude):
+        df.insert(len(df.columns), "EMA100", talib.EMA(close, timeperiod=100))
+
     # 加重移動平均の算出
     if ("WMA3" not in exclude):
         df.insert(len(df.columns), "WMA3", talib.WMA(close, timeperiod=3))

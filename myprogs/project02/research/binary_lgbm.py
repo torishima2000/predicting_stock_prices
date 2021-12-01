@@ -57,7 +57,7 @@ class Objective:
 
         # モデルでの予測
         y_pred = model.predict(self.X_test)
-        score = metrics.precision_score(y_true=self.y_test, y_pred=(y_pred > 0.5))
+        score = metrics.f1_score(y_true=self.y_test, y_pred=(y_pred > 0.5))
 
         return score
 
@@ -72,7 +72,6 @@ def main():
     seed = 42
 
     # 証券コード
-    # security_codes = []
     security_codes = [
         # 時価総額上位10株
         "4063.T", "6098.T", "6861.T", "6758.T", "7203.T",
@@ -83,7 +82,7 @@ def main():
         # 日経平均
         "^N225"
     ]
-    # security_codes = []
+    #security_codes = []
 
     # データ期間
     begin = datetime.datetime(*[2000, 1, 1])
@@ -105,7 +104,6 @@ def main():
     ]
     # 削除する特徴量
     drop_feature = [
-        #"SMA3", "SMA15", "SMA25", "upper1", "upper2", "lower1", "lower2",
     ]
     # 特徴量カラムの修正
     for v in drop_feature:

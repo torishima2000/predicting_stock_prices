@@ -235,6 +235,8 @@ def colculate_feature(df, objective=None, exclude=[]):
 
     # 目的変数の計算
     if (objective == "regression"):
+        # 1日後の始値から4日後の始値までの変化率
+        # (4 - 1) / 1
         df.insert(len(df.columns), "target", (df["Open"].pct_change(-3).shift(-1) * -1))
     if (objective == "binary"):
         df.insert(len(df.columns), "growth rate", (df["Open"].pct_change(3).shift(-4)))

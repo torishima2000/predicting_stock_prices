@@ -108,9 +108,9 @@ def main():
         "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
         "MACD", "MACDsignal", "MACDhist",
         "RSI9", "RSI14",
-        "VR",
+        "VR", "MAER15",
         "ADX", "CCI", "ROC", "ADOSC", "ATR",
-        "DoD1", "DoD2", "DoD3",
+        "DoD2", "DoD2",
     ]
     # 特徴量カラムの修正
     for v in drop_feature:
@@ -155,9 +155,6 @@ def main():
     # 整形
     df_DJI = mylib.shaping_yfinance(df_DJI, begin=begin, end=end, drop_columns=["Dividends", "Stock Splits"])
     # 欠損値がある行の削除
-    #print((set(feature) - set(exclude_feature)))
-    #print(df_DJI)
-    #return 0
     df_DJI.dropna(subset=(set(feature) - set(exclude_feature)), inplace=True)
     # カラム名の変更
     [df_DJI.rename(columns={columns: "DJI_" + columns}, inplace=True) for columns in df_DJI.columns]

@@ -107,8 +107,8 @@ def main():
         "WMA5",
         "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
         "MACD", "MACDsignal", "MACDhist",
-        "RSI9", "RSI14",
-        "MAER15",
+        "RSI9",
+        "VR", "MAER15",
         "ADX", "CCI", "ROC", "ADOSC", "ATR",
         "DoD1", "DoD2", "DoD3",
     ]

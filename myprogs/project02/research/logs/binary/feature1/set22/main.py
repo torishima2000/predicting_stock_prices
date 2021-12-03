@@ -109,7 +109,7 @@ def main():
         "MACD", "MACDsignal", "MACDhist",
         "RSI9", "RSI14",
         "VR", "MAER15",
-        "ADX", "ROC", "ADOSC", "ATR",
+        "CCI", "ROC", "ADOSC", "ATR",
         "DoD1", "DoD2", "DoD3",
     ]
     # 特徴量カラムの修正

@@ -227,7 +227,7 @@ class Trade:
         """取引件数を返すメソッド
 
         Returns:
-            [int]: 取引件数
+            [dict]: 取引件数
         """
         return self.trade_num
 

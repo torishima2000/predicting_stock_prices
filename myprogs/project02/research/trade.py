@@ -73,10 +73,12 @@ class Trade:
                     if stock["price"]*self.cut_loss_line > self.dfs[ticker].at[index, "Open"].copy():
                         self.position += self.settlement_amout(self.dfs[ticker].at[index, "Open"].copy(), stock["quantity"])
                         stocks[i]["quantity"] = 0
+                        self.cutloss1_num["sum"] += 1
                         self.cutloss1_num[stock["ticker"]] += 1
                     elif stock["price"]*self.cut_loss_line > self.dfs[ticker].at[index, "Low"].copy():
                         self.position += self.settlement_amout(stock["price"]*self.cut_loss_line, stock["quantity"])
                         stocks[i]["quantity"] = 0
+                        self.cutloss2_num["sum"] += 1
                         self.cutloss2_num[stock["ticker"]] += 1
 
             # 明日の株式の購入の是非を取得

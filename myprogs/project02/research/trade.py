@@ -42,7 +42,7 @@ class Trade:
         """
         isbuy = False
         # 保有株式の記憶先
-        stocks = [{"ticker": "^N225", "quantity": 0, "price":0}] * 3
+        stocks = [{"ticker": self.security_codes[0], "quantity": 0, "price":0}] * 3
 
         for index, row in self.df_pred.iterrows():
             # 3日前の株の売却

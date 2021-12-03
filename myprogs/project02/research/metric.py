@@ -9,7 +9,7 @@ from sklearn import metrics
 import mylibrary as mylib
 
 
-"""
+
 # 証券コード
 security_codes = [
     # 時価総額上位10株
@@ -33,9 +33,12 @@ for security_code in security_codes:
 
 y_test = np.array(df["target"].copy().astype(bool))
 y_pred = np.array(df["predict"].copy())
+print("正解率:{}".format(metrics.accuracy_score(y_true=y_test, y_pred=(y_pred > 0.5))))
+print("適合率:{}".format(metrics.precision_score(y_true=y_test, y_pred=(y_pred > 0.5))))
+print("再現率:{}".format(metrics.recall_score(y_true=y_test, y_pred=(y_pred > 0.5))))
 print("F値: {}".format(metrics.f1_score(y_true=y_test, y_pred=(y_pred > 0.5))))
 print("AUC: {}".format(metrics.roc_auc_score(y_true=y_test, y_score=y_pred)))
-"""
+
 
 f = {
     "SMA3": 0.4686937175548258,

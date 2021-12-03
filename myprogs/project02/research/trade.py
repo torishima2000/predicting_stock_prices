@@ -90,7 +90,7 @@ class Trade:
             self.df_pred.at[index, "position"] = self.position
             self.df_pred.at[index, "market value"] = self.position
             for stock in stocks:
-                self.df_pred.at[index, "market value"] += self.market_value([stock], self.dfs[ticker].at[index, "Close"].copy())
+                self.df_pred.at[index, "market value"] += self.market_value([stock], self.dfs[stock["ticker"]].at[index, "Close"].copy())
             self.df_pred.at[index, "book value"] = self.position + self.book_value(stocks)
 
             # 所持株式の情報を保存

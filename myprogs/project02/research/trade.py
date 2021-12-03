@@ -95,6 +95,7 @@ class Trade:
 
             # 所持株式の情報を保存
             for i, stock in enumerate(stocks):
+                self.df_pred.at[index, "ticker(" + str(i) + ")"] = stocks[i]["ticker"]
                 self.df_pred.at[index, "quantity(" + str(i) + ")"] = stocks[i]["quantity"]
                 self.df_pred.at[index, "price(" + str(i) + ")"] = stocks[i]["price"]
 
@@ -296,15 +297,15 @@ def main():
     trade = Trade(df_pred, dfs, security_codes, cut_loss_line=0.1)
     trade()
 
+    print(trade.get_df_pred().loc[datetime.datetime(*[2019, 10, 1]):datetime.datetime(*[2019, 10, 4])])
+    print("取引回数: {}".format(trade.get_trade_num()["sum"]))
+    print("損切(始値による)回数: {}".format(trade.get_cutloss1_num()["sum"]))
+    print("損切(価格変動による)回数: {}".format(trade.get_cutloss2_num()["sum"]))
+
     mylib.plot_chart({
         "market value": trade.get_df_pred()["market value"],
         "book value": trade.get_df_pred()["book value"],
     })
-
-    print(trade.get_df_pred())
-    print("取引回数: {}".format(trade.get_trade_num()["sum"]))
-    print("損切(始値による)回数: {}".format(trade.get_cutloss1_num()["sum"]))
-    print("損切(価格変動による)回数: {}".format(trade.get_cutloss2_num()["sum"]))
 
     return 0
 

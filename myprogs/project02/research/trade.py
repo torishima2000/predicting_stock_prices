@@ -14,19 +14,27 @@ import mylibrary as mylib
 
 
 class Trade:
-    def __init__(self, df, position=1e7, is_seles_commision=True,cut_loss_line=1e-1,  is_taxation=True, tax_rate=0.2):
+    def __init__(self, df_pred, dfs, security_codes, position=1e7, is_seles_commision=True,cut_loss_line=1e-1,  is_taxation=True, tax_rate=0.2):
         """変数の初期化
         インスタンス作成時に一度だけ実行
         """
-        self.df = df
+        self.df_pred = df_pred
+        self.dfs = dfs
+        self.security_codes = security_codes
         self.position = position
         self.is_seles_commision = is_seles_commision
         self.cut_loss_line = 1 - cut_loss_line
         self.is_taxation = is_taxation
         self.tax_rate = tax_rate
-        self.trade_num = 0
-        self.cutloss1_num = 0
-        self.cutloss2_num = 0
+        self.trade_num = {"sum": 0}
+        for security_code in self.security_codes:
+            self.trade_num[security_code] = 0
+        self.cutloss1_num = {"sum": 0}
+        for security_code in self.security_codes:
+            self.cutloss1_num[security_code] = 0
+        self.cutloss2_num = {"sum": 0}
+        for security_code in self.security_codes:
+            self.cutloss2_num[security_code] = 0
 
     def __call__(self):
         """取引の実施
@@ -34,21 +42,27 @@ class Trade:
         """
         isbuy = False
         # 保有株式の記憶先
-        stocks = [{"quantity": 0, "price":0}] * 3
+        stocks = [{"ticker": "^N225", "quantity": 0, "price":0}] * 3
 
-        for index, row in self.df.iterrows():
-            # 3日前の株価の売却
-            num = stocks.pop(0)["quantity"]
+        for index, row in self.df_pred.iterrows():
+            # 3日前の株の売却
+            stock = stocks.pop(0)
+            ticker = stock["ticker"]
+            num = stock["quantity"]
             if num:
-                self.position += self.settlement_amout(row["Open"], num)
+                self.position += self.settlement_amout(self.dfs[ticker].at[index, "Open"].copy(), num)
 
-            today = {"quantity": 0, "price":0}
+            # 本日購入する株式の情報
+            today = {"ticker": "", "quantity": 0, "price":0}
+            # 購入する銘柄を取得
+            today["ticker"] = row["whatbuy"]
             # 購入部分
             if isbuy:
-                today["quantity"] = 1000000 // row["Open"]
-                today["price"] = row["Open"]
+                today["quantity"] = 1000000 // self.dfs[ticker].at[index, "Open"].copy()
+                today["price"] = self.dfs[ticker].at[index, "Open"].copy()
                 self.position -= self.trade_amount(today["price"], today["quantity"], bs=False)
-                self.trade_num += 1
+                self.trade_num["sum"] += 1
+                self.trade_num[today["ticker"]] += 1
             # 株式の購入情報の記憶
             stocks.append(today)
 
@@ -56,34 +70,36 @@ class Trade:
             for i, stock in enumerate(stocks):
                 if stock["quantity"]:
                     # 購入価格より1割以上の減少が見られた場合に損切
-                    if stock["price"]*self.cut_loss_line > row["Open"]:
-                        self.position += self.settlement_amout(row["Open"], stock["quantity"])
+                    if stock["price"]*self.cut_loss_line > self.dfs[ticker].at[index, "Open"].copy():
+                        self.position += self.settlement_amout(self.dfs[ticker].at[index, "Open"].copy(), stock["quantity"])
                         stocks[i]["quantity"] = 0
-                        self.cutloss1_num += 1
-                    elif stock["price"]*self.cut_loss_line > row["Low"]:
+                        self.cutloss1_num[stock["ticker"]] += 1
+                    elif stock["price"]*self.cut_loss_line > self.dfs[ticker].at[index, "Low"].copy():
                         self.position += self.settlement_amout(stock["price"]*self.cut_loss_line, stock["quantity"])
                         stocks[i]["quantity"] = 0
-                        self.cutloss2_num += 1
+                        self.cutloss2_num[stock["ticker"]] += 1
 
             # 明日の株式の購入の是非を取得
-            isbuy = row["isbuy"]
+            isbuy = row["hm_buy"]
             #isbuy = True
             #isbuy = random.randrange(2)
 
             # 資産状況を元DataFrameに貼り付け
-            self.df.at[index, "position"] = self.position
-            self.df.at[index, "market value"] = self.position + self.market_value(stocks, row["Close"])
-            self.df.at[index, "book value"] = self.position + self.book_value(stocks)
+            self.df_pred.at[index, "position"] = self.position
+            self.df_pred.at[index, "market value"] = self.position
+            for stock in stocks:
+                self.df_pred.at[index, "market value"] += self.market_value([stock], self.dfs[ticker].at[index, "Close"].copy())
+            self.df_pred.at[index, "book value"] = self.position + self.book_value(stocks)
 
             # 所持株式の情報を保存
             for i, stock in enumerate(stocks):
-                self.df.at[index, "quantity(" + str(i) + ")"] = stocks[i]["quantity"]
-                self.df.at[index, "price(" + str(i) + ")"] = stocks[i]["price"]
+                self.df_pred.at[index, "quantity(" + str(i) + ")"] = stocks[i]["quantity"]
+                self.df_pred.at[index, "price(" + str(i) + ")"] = stocks[i]["price"]
 
         # 保有株式の売却
         for i, stock in enumerate(stocks):
-            self.position += self.settlement_amout(self.df.iat[len(self.df) - 1, 3]*self.cut_loss_line, stock["quantity"])
-            self.df.at[index, "quantity(" + str(i) + ")"] = 0
+            self.position += self.settlement_amout(self.dfs[stock["ticker"]].iat[len(self.dfs) - 1, 3].copy(), stock["quantity"])
+            self.df_pred.at[index, "quantity(" + str(i) + ")"] = 0
 
     def settlement_amout(self, price, quantity):
         """受渡金額の計算
@@ -197,13 +213,13 @@ class Trade:
             sum += stock["price"] * stock["quantity"]
         return sum
 
-    def get_df(self):
+    def get_df_pred(self):
         """データを返すメソッド
 
         Returns:
             [pandas.DataFrame]: データフレーム
         """
-        return self.df
+        return self.df_pred
 
     def get_trade_num(self):
         """取引件数を返すメソッド
@@ -249,26 +265,42 @@ def main():
 
     # グラフ描画用の辞書
     plot = {}
+    # 予測値と銘柄購入判断を記憶するDataFrame
+    df_pred = pd.DataFrame()
+    # 各銘柄のデータを記憶する辞書
+    # key: str, value: DataFrame
+    dfs = {}
 
     for security_code in security_codes:
         # データセットの読み取り
         df = mylib.get_isbuy_dataset(security_code)
 
-        # 取引部分
-        trade = Trade(df, cut_loss_line=0.1)
-        trade()
-        # pd.set_option("display.max_rows", None)
-        # print(trade.get_df())
-        # 総資産のグラフの描画
-#        mylib.plot_chart({
-#            security_code + "(cash)": trade.get_df()["position"],
-#            security_code + "(market value)": trade.get_df()["market value"],
-#            security_code + "(book value)": trade.get_df()["book value"]
-#        })
-        plot[security_code + "(market value)"] = trade.get_df()["market value"]
+        # 予測値の記憶
+        pred = df["predict"].copy().where(df["predict"].copy() > 0.5, 0.0).rename(security_code)
+        df_pred = pd.concat([df_pred, pred], axis=1)
 
-    # グラフの描画
-    mylib.plot_chart(plot)
+        # データの記憶
+        dfs[security_code] = df
+
+    # indexの修正
+    df_pred.index = pd.to_datetime(df_pred.index)
+    # 欠損値の削除
+    df_pred.dropna(axis=0, inplace=True)
+    # どの銘柄を購入するかを判断
+    df_pred["hm_buy"] = df_pred.copy().max(axis=1)
+    df_pred["whatbuy"] = df_pred.copy().idxmax(axis=1)
+
+
+    trade = Trade(df_pred, dfs, security_codes, cut_loss_line=0.1)
+    trade()
+
+    mylib.plot_chart({
+        "market value": trade.get_df_pred()["market value"],
+        "book value": trade.get_df_pred()["book value"],
+    })
+
+    return 0
+
 
 if __name__=="__main__":
     main()

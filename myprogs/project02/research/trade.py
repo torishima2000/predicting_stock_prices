@@ -58,8 +58,8 @@ class Trade:
             today["ticker"] = row["whatbuy"]
             # 購入部分
             if isbuy:
-                today["quantity"] = 1000000 // self.dfs[ticker].at[index, "Open"].copy()
-                today["price"] = self.dfs[ticker].at[index, "Open"].copy()
+                today["quantity"] = 1000000 // self.dfs[today["ticker"]].at[index, "Open"].copy()
+                today["price"] = self.dfs[today["ticker"]].at[index, "Open"].copy()
                 self.position -= self.trade_amount(today["price"], today["quantity"], bs=False)
                 self.trade_num["sum"] += 1
                 self.trade_num[today["ticker"]] += 1
@@ -70,12 +70,12 @@ class Trade:
             for i, stock in enumerate(stocks):
                 if stock["quantity"]:
                     # 購入価格より1割以上の減少が見られた場合に損切
-                    if stock["price"]*self.cut_loss_line > self.dfs[ticker].at[index, "Open"].copy():
-                        self.position += self.settlement_amout(self.dfs[ticker].at[index, "Open"].copy(), stock["quantity"])
+                    if stock["price"]*self.cut_loss_line > self.dfs[stock["ticker"]].at[index, "Open"].copy():
+                        self.position += self.settlement_amout(self.dfs[stock["ticker"]].at[index, "Open"].copy(), stock["quantity"])
                         stocks[i]["quantity"] = 0
                         self.cutloss1_num["sum"] += 1
                         self.cutloss1_num[stock["ticker"]] += 1
-                    elif stock["price"]*self.cut_loss_line > self.dfs[ticker].at[index, "Low"].copy():
+                    elif stock["price"]*self.cut_loss_line > self.dfs[stock["ticker"]].at[index, "Low"].copy():
                         self.position += self.settlement_amout(stock["price"]*self.cut_loss_line, stock["quantity"])
                         stocks[i]["quantity"] = 0
                         self.cutloss2_num["sum"] += 1

@@ -301,6 +301,11 @@ def main():
         "book value": trade.get_df_pred()["book value"],
     })
 
+    print(trade.get_df_pred())
+    print("取引回数: {}".format(trade.get_trade_num()["sum"]))
+    print("損切(始値による)回数: {}".format(trade.get_cutloss1_num()["sum"]))
+    print("損切(価格変動による)回数: {}".format(trade.get_cutloss2_num()["sum"]))
+
     return 0
 
 

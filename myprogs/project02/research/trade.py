@@ -298,14 +298,13 @@ def main():
     trade()
 
     print(trade.get_df_pred())
-    #print(trade.get_df_pred().loc[datetime.datetime(*[2019, 10, 1]):datetime.datetime(*[2019, 10, 4])])
     print("取引回数: {}".format(trade.get_trade_num()["sum"]))
     print("損切(始値による)回数: {}".format(trade.get_cutloss1_num()["sum"]))
     print("損切(価格変動による)回数: {}".format(trade.get_cutloss2_num()["sum"]))
 
     mylib.plot_chart({
         "market value": trade.get_df_pred()["market value"],
-        "book value": trade.get_df_pred()["book value"],
+        #"book value": trade.get_df_pred()["book value"],
     })
 
     return 0

@@ -189,6 +189,8 @@ def colculate_feature(df, objective=None, exclude=[]):
         df.insert(len(df.columns), "MACDsignal", macdsignal)
     if ("MACDhist" not in exclude):
         df.insert(len(df.columns), "MACDhist", macdhist)
+        if ("MACDGoldenCross" not in exclude):
+            df.insert(len(df.columns), "MACDGoldenCross", 1 * ((df["MACDhist"].copy() >= 0) & (df["MACDhist"].shift(1).copy() < 0)))
 
     # RSIの算出
     if ("RSI9" not in exclude):

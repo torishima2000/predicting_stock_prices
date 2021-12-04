@@ -96,7 +96,7 @@ def main():
         "EMA3", "EMA5", "EMA15", "EMA25", "EMA50", "EMA75", "EMA100",
         "WMA3", "WMA5", "WMA15", "WMA25", "WMA50", "WMA75", "WMA100",
         "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
-        "MACD", "MACDsignal", "MACDhist",
+        "MACD", "MACDsignal", "MACDhist", "MACDGoldenCross",
         "RSI9", "RSI14",
         "VR", "MAER15",
         "ADX", "CCI", "ROC", "ADOSC", "ATR",

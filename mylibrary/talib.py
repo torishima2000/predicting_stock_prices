@@ -95,11 +95,11 @@ def colculate_feature(df, objective=None, exclude=[]):
 
     # 除外する特徴量の確認
     feature = [
-        "SMA3", "SMA5", "SMA15", "SMA25", "SMA50", "SMA75", "SMA100",
-        "EMA3", "EMA5", "EMA15", "EMA25", "EMA50", "EMA75", "EMA100",
+        "SMA3", "SMA5", "SMA15", "SMA25", "SMA50", "SMA75", "SMA100", "SMAGoldenCross",
+        "EMA3", "EMA5", "EMA15", "EMA25", "EMA50", "EMA75", "EMA100", "EMAGoldenCross",
         "WMA3", "WMA5", "WMA15", "WMA25", "WMA50", "WMA75", "WMA100",
         "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
-        "MACD", "MACDsignal", "MACDhist",
+        "MACD", "MACDsignal", "MACDhist", "MACDGoldenCross",
         "RSI9", "RSI14",
         "VR", "MAER15",
         "ADX", "CCI", "ROC", "ADOSC", "ATR",
@@ -131,6 +131,9 @@ def colculate_feature(df, objective=None, exclude=[]):
         df.insert(len(df.columns), "SMA75", talib.SMA(close, timeperiod=75))
     if ("SMA100" not in exclude):
         df.insert(len(df.columns), "SMA100", talib.SMA(close, timeperiod=100))
+    if ("SMAGoldenCross" not in exclude):
+        smahist = df["SMA25"].copy() - df["SMA75"].copy()
+        df.insert(len(df.columns), "SMAGoldenCross", (1 * ((smahist.copy() >= 0) & (smahist.shift(1).copy() < 0))))
     
     # 移動平均偏差の算出
     if ("EMA3" not in exclude):
@@ -147,6 +150,9 @@ def colculate_feature(df, objective=None, exclude=[]):
         df.insert(len(df.columns), "EMA75", talib.EMA(close, timeperiod=75))
     if ("EMA100" not in exclude):
         df.insert(len(df.columns), "EMA100", talib.EMA(close, timeperiod=100))
+    if ("EMAGoldenCross" not in exclude):
+        emahist = df["EMA25"].copy() - df["EMA75"].copy()
+        df.insert(len(df.columns), "EMAGoldenCross", (1 * ((emahist.copy() >= 0) & (emahist.shift(1).copy() < 0))))
 
     # 加重移動平均の算出
     if ("WMA3" not in exclude):
@@ -190,6 +196,8 @@ def colculate_feature(df, objective=None, exclude=[]):
     if ("MACDhist" not in exclude):
         df.insert(len(df.columns), "MACDhist", macdhist)
         if ("MACDGoldenCross" not in exclude):
+        if ("MACDhist" in exclude):
+            df.insert(len(df.columns), "MACDhist", macdhist)
             df.insert(len(df.columns), "MACDGoldenCross", 1 * ((df["MACDhist"].copy() >= 0) & (df["MACDhist"].shift(1).copy() < 0)))
 
     # RSIの算出

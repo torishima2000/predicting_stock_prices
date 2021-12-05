@@ -96,10 +96,11 @@ def main():
         "SMA3", "SMA5", "SMA15", "SMA25", "SMA50", "SMA75", "SMA100", "SMAGoldenCross",
         "EMA3", "EMA5", "EMA15", "EMA25", "EMA50", "EMA75", "EMA100", "EMAGoldenCross",
         "WMA3", "WMA5", "WMA15", "WMA25", "WMA50", "WMA75", "WMA100",
+        "MAER15", "MAER25",
         "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
         "MACD", "MACDsignal", "MACDhist", "MACDGoldenCross",
         "RSI9", "RSI14",
-        "VR", "MAER15",
+        "VR",
         "ADX", "CCI", "ROC", "ADOSC", "ATR",
         "DoD1", "DoD2", "DoD3",
     ]

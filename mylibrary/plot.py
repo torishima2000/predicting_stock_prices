@@ -1,8 +1,6 @@
 # グラフ描画を行うモジュール群
 
 # モジュールのインポート
-import os
-import pandas as pd
 import matplotlib.pyplot as plt
 
 def plot_chart(data, size={"x":10.24, "y":7.68}):

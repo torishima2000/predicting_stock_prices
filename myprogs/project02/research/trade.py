@@ -61,6 +61,7 @@ class Trade:
             stock = stocks.pop(0)
             ticker = stock["ticker"]
             num = stock["quantity"]
+            price = stock["price"]
             if num:
                 self.position += self.settlement_amount(self.dfs[ticker].at[index, "Open"].copy(), num)
 
@@ -116,12 +117,10 @@ class Trade:
             self.position += self.settlement_amount(self.dfs[stock["ticker"]].iat[len(self.dfs) - 1, 3].copy(), stock["quantity"])
             self.df_pred.at[index, "quantity(" + str(i) + ")"] = 0
         # 税金の控除
-        self.position -= self.taxation_on_capital_gain((self.position - start_asset), year)
+        self.position -= self.taxation_on_capital_gain(gain_on_sale, year)
         self.df_pred.at[index, "position"] = self.position
         self.df_pred.at[index, "market value"] = self.position
-        for stock in stocks:
-            self.df_pred.at[index, "market value"] += self.market_value([stock], self.dfs[stock["ticker"]].at[index, "Close"].copy())
-        self.df_pred.at[index, "book value"] = self.position + self.book_value(stocks)
+        self.df_pred.at[index, "book value"] = self.position
 
     def settlement_amount(self, price, quantity):
         """受渡金額の計算
@@ -205,7 +204,7 @@ class Trade:
             return 0
         # 復興特別所得税(Surtaxes for Reconstruction Funding)の期間
         sfrf_begin = datetime.datetime(*[2013, 1, 1])
-        sfrf_end = datetime.datetime(*[2013, 1, 1])
+        sfrf_end = datetime.datetime(*[2037, 12, 31])
         # 税金の計算
         if ((sfrf_begin <= date) & (date <= sfrf_end)):
             return (profit * (self.tax_rate + 0.00315))

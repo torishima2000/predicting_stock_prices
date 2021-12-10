@@ -55,6 +55,7 @@ class Trade:
                 print(self.taxation_on_capital_gain((self.position - start_asset), year))
                 year = index
                 self.position -= self.taxation_on_capital_gain((self.position - start_asset), year)
+                start_asset = self.position
 
             # 3日前の株の売却
             stock = stocks.pop(0)
@@ -114,6 +115,13 @@ class Trade:
         for i, stock in enumerate(stocks):
             self.position += self.settlement_amout(self.dfs[stock["ticker"]].iat[len(self.dfs) - 1, 3].copy(), stock["quantity"])
             self.df_pred.at[index, "quantity(" + str(i) + ")"] = 0
+        # 税金の控除
+        self.position -= self.taxation_on_capital_gain((self.position - start_asset), year)
+        self.df_pred.at[index, "position"] = self.position
+        self.df_pred.at[index, "market value"] = self.position
+        for stock in stocks:
+            self.df_pred.at[index, "market value"] += self.market_value([stock], self.dfs[stock["ticker"]].at[index, "Close"].copy())
+        self.df_pred.at[index, "book value"] = self.position + self.book_value(stocks)
 
     def settlement_amout(self, price, quantity):
         """受渡金額の計算

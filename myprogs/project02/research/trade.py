@@ -335,6 +335,8 @@ def main():
         #"book value": trade.get_df_pred()["book value"],
     })
 
+    mylib.save_df(trade.get_df_pred(), path=logfile, file_name="temp.csv")
+
     return 0
 
 

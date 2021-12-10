@@ -171,17 +171,22 @@ class Trade:
         else:
             return trade_amount * 0.0055
 
-    def taxation_on_capital_gain(self, trade_amount):
+    def taxation_on_capital_gain(self, profit, date):
         """譲渡益課税の計算
 
         Args:
-            trade_amount (double): 約定金額
+            Profit (double): 課税対象となる利益
+            date (datetime): 対象日
 
         Returns:
             [double]: 譲渡益課税
         """
-        trade_amount *= (self.tax_rate + 0.00315)
-        return self.tax_rate
+        # 復興特別所得税(Surtaxes for Reconstruction Funding)の期間
+        sfrf_begin = datetime.datetime(*[2013, 1, 1])
+        sfrf_end = datetime.datetime(*[2013, 1, 1])
+        if (sfrf_begin <= date & date <= sfrf_end):
+            return (profit * (self.tax_rate + 0.00315))
+        return (profit * self.tax_rate)
 
     def market_value(self, stocks, price):
         """所持株式の時価の計算

@@ -324,7 +324,7 @@ def main():
     trade = Trade(df_pred, dfs, security_codes, cut_loss_line=0.1)
     trade()
 
-    print(trade.get_df_pred())
+    print(trade.get_df_pred()["market value"])
     print("取引回数: {}".format(trade.get_trade_num()["sum"]))
     print("損切(始値による)回数: {}".format(trade.get_cutloss1_num()["sum"]))
     print("損切(価格変動による)回数: {}".format(trade.get_cutloss2_num()["sum"]))

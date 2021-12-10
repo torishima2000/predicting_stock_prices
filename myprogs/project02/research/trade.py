@@ -14,7 +14,7 @@ import mylibrary as mylib
 
 
 class Trade:
-    def __init__(self, df_pred, dfs, security_codes, position=1e7, is_seles_commision=True,cut_loss_line=1e-1,  is_taxation=True, tax_rate=0.2):
+    def __init__(self, df_pred, dfs, security_codes, position=1e7, is_seles_commision=True, cut_loss_line=1e-1,  is_taxation=True, tax_rate=0.2):
         """変数の初期化
         インスタンス作成時に一度だけ実行
         """
@@ -45,17 +45,16 @@ class Trade:
         # 取引年度フラグ
         year = datetime.datetime(*[1, 1, 1])
         # 年始の資産
-        start_asset = self.position
+        gain_on_sale = 0
         # 保有株式の記憶先
         stocks = [{"ticker": self.security_codes[0], "quantity": 0, "price":0}] * 3
 
         for index, row in self.df_pred.iterrows():
             # 取引年度の更新
             if year.year != index.year:
-                print(self.taxation_on_capital_gain((self.position - start_asset), year))
                 year = index
-                self.position -= self.taxation_on_capital_gain((self.position - start_asset), year)
-                start_asset = self.position
+                self.position -= self.taxation_on_capital_gain(gain_on_sale, year)
+                gain_on_sale = 0
 
             # 3日前の株の売却
             stock = stocks.pop(0)
@@ -63,8 +62,9 @@ class Trade:
             num = stock["quantity"]
             price = stock["price"]
             if num:
-                self.position += self.settlement_amount(self.dfs[ticker].at[index, "Open"].copy(), num)
-
+                settlement_amount = self.settlement_amount(self.dfs[ticker].at[index, "Open"].copy(), num)
+                self.position += settlement_amount
+                gain_on_sale += settlement_amount - (price * num)
             # 本日購入する株式の情報
             today = {"ticker": "", "quantity": 0, "price":0}
             # 購入する銘柄を取得
@@ -111,10 +111,9 @@ class Trade:
                 self.df_pred.at[index, "ticker(" + str(i) + ")"] = stocks[i]["ticker"]
                 self.df_pred.at[index, "quantity(" + str(i) + ")"] = stocks[i]["quantity"]
                 self.df_pred.at[index, "price(" + str(i) + ")"] = stocks[i]["price"]
-
         # 保有株式の売却
         for i, stock in enumerate(stocks):
-            self.position += self.settlement_amount(self.dfs[stock["ticker"]].iat[len(self.dfs) - 1, 3].copy(), stock["quantity"])
+            self.position += self.settlement_amount(self.dfs[stock["ticker"]].at[index, "Close"].copy(), stock["quantity"])
             self.df_pred.at[index, "quantity(" + str(i) + ")"] = 0
         # 税金の控除
         self.position -= self.taxation_on_capital_gain(gain_on_sale, year)
@@ -136,9 +135,6 @@ class Trade:
         # 手数料の支払い
         if self.is_seles_commision:
             trade_amount -=self.seles_commision(trade_amount)
-        # 課税
-        if self.is_taxation:
-            trade_amount -= self.taxation_on_capital_gain(trade_amount)
         return trade_amount
 
     def trade_amount(self, price, quantity, bs=True):
@@ -300,7 +296,6 @@ def main():
     # 各銘柄のデータを記憶する辞書
     # key: str, value: DataFrame
     dfs = {}
-
     for security_code in security_codes:
         # データセットの読み取り
         df = mylib.get_isbuy_dataset(security_code)
@@ -324,7 +319,6 @@ def main():
     trade = Trade(df_pred, dfs, security_codes, cut_loss_line=0.1)
     trade()
 
-    print(trade.get_df_pred()["market value"])
     print("取引回数: {}".format(trade.get_trade_num()["sum"]))
     print("損切(始値による)回数: {}".format(trade.get_cutloss1_num()["sum"]))
     print("損切(価格変動による)回数: {}".format(trade.get_cutloss2_num()["sum"]))
@@ -333,7 +327,6 @@ def main():
         "market value": trade.get_df_pred()["market value"],
         #"book value": trade.get_df_pred()["book value"],
     })
-
     mylib.save_df(trade.get_df_pred(), path=logfile, file_name="temp.csv")
 
     return 0

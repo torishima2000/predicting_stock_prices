@@ -40,11 +40,22 @@ class Trade:
         """取引の実施
         オブジェクトが呼び出されたときに実行
         """
+        # 購入フラグ
         isbuy = False
+        # 取引年度フラグ
+        year = datetime.datetime(*[1, 1, 1])
+        # 年始の資産
+        start_asset = self.position
         # 保有株式の記憶先
         stocks = [{"ticker": self.security_codes[0], "quantity": 0, "price":0}] * 3
 
         for index, row in self.df_pred.iterrows():
+            # 取引年度の更新
+            if year.year != index.year:
+                print(self.taxation_on_capital_gain((self.position - start_asset), year))
+                year = index
+                self.position -= self.taxation_on_capital_gain((self.position - start_asset), year)
+
             # 3日前の株の売却
             stock = stocks.pop(0)
             ticker = stock["ticker"]
@@ -181,10 +192,14 @@ class Trade:
         Returns:
             [double]: 譲渡益課税
         """
+        # 収益がマイナスだった場合の処理
+        if profit <= 0:
+            return 0
         # 復興特別所得税(Surtaxes for Reconstruction Funding)の期間
         sfrf_begin = datetime.datetime(*[2013, 1, 1])
         sfrf_end = datetime.datetime(*[2013, 1, 1])
-        if (sfrf_begin <= date & date <= sfrf_end):
+        # 税金の計算
+        if ((sfrf_begin <= date) & (date <= sfrf_end)):
             return (profit * (self.tax_rate + 0.00315))
         return (profit * self.tax_rate)
 

@@ -62,7 +62,7 @@ class Trade:
             ticker = stock["ticker"]
             num = stock["quantity"]
             if num:
-                self.position += self.settlement_amout(self.dfs[ticker].at[index, "Open"].copy(), num)
+                self.position += self.settlement_amount(self.dfs[ticker].at[index, "Open"].copy(), num)
 
             # 本日購入する株式の情報
             today = {"ticker": "", "quantity": 0, "price":0}
@@ -83,12 +83,12 @@ class Trade:
                 if stock["quantity"]:
                     # 購入価格より1割以上の減少が見られた場合に損切
                     if stock["price"]*self.cut_loss_line > self.dfs[stock["ticker"]].at[index, "Open"].copy():
-                        self.position += self.settlement_amout(self.dfs[stock["ticker"]].at[index, "Open"].copy(), stock["quantity"])
+                        self.position += self.settlement_amount(self.dfs[stock["ticker"]].at[index, "Open"].copy(), stock["quantity"])
                         stocks[i]["quantity"] = 0
                         self.cutloss1_num["sum"] += 1
                         self.cutloss1_num[stock["ticker"]] += 1
                     elif stock["price"]*self.cut_loss_line > self.dfs[stock["ticker"]].at[index, "Low"].copy():
-                        self.position += self.settlement_amout(stock["price"]*self.cut_loss_line, stock["quantity"])
+                        self.position += self.settlement_amount(stock["price"]*self.cut_loss_line, stock["quantity"])
                         stocks[i]["quantity"] = 0
                         self.cutloss2_num["sum"] += 1
                         self.cutloss2_num[stock["ticker"]] += 1
@@ -113,7 +113,7 @@ class Trade:
 
         # 保有株式の売却
         for i, stock in enumerate(stocks):
-            self.position += self.settlement_amout(self.dfs[stock["ticker"]].iat[len(self.dfs) - 1, 3].copy(), stock["quantity"])
+            self.position += self.settlement_amount(self.dfs[stock["ticker"]].iat[len(self.dfs) - 1, 3].copy(), stock["quantity"])
             self.df_pred.at[index, "quantity(" + str(i) + ")"] = 0
         # 税金の控除
         self.position -= self.taxation_on_capital_gain((self.position - start_asset), year)
@@ -123,7 +123,7 @@ class Trade:
             self.df_pred.at[index, "market value"] += self.market_value([stock], self.dfs[stock["ticker"]].at[index, "Close"].copy())
         self.df_pred.at[index, "book value"] = self.position + self.book_value(stocks)
 
-    def settlement_amout(self, price, quantity):
+    def settlement_amount(self, price, quantity):
         """受渡金額の計算
 
         Args:

@@ -67,7 +67,7 @@ def colculate_feature(df, objective=None, exclude=[],
     feature=[
         "SMA3", "SMA5", "SMA15", "SMA25", "SMA50", "SMA75", "SMA100", "SMAGoldenCross",
         "EMA3", "EMA5", "EMA15", "EMA25", "EMA50", "EMA75", "EMA100", "EMAGoldenCross",
-        "WMA3", "WMA5", "WMA15", "WMA25", "WMA50", "WMA75", "WMA100",
+        "WMA3", "WMA5", "WMA15", "WMA25", "WMA50", "WMA75", "WMA100", "WMAGoldenCross",
         "upper1", "lower1", "upper2", "lower2", "upper3", "lower3",
         "MACD", "MACDsignal", "MACDhist", "MACDGoldenCross",
         "RSI9", "RSI14",
@@ -185,6 +185,17 @@ def colculate_feature(df, objective=None, exclude=[],
         df.insert(len(df.columns), "WMA75", talib.WMA(close, timeperiod=75))
     if ("WMA100" not in exclude):
         df.insert(len(df.columns), "WMA100", talib.WMA(close, timeperiod=100))
+    if ("WMAGoldenCross" not in exclude):
+        if ("WMA25" in exclude):
+            df.insert(len(df.columns), "WMA25", talib.WMA(close, timeperiod=25))
+        if ("WMA75" in exclude):
+            df.insert(len(df.columns), "WMA75", talib.WMA(close, timeperiod=75))
+        wmahist = df["WMA25"].copy() - df["WMA75"].copy()
+        df.insert(len(df.columns), "WMAGoldenCross", (1 * ((wmahist.copy() >= 0) & (wmahist.shift(1).copy() < 0))))
+        if ("WMA25" in exclude):
+            df.drop(["WMA25"], axis=1, inplace=True)
+        if ("WMA75" in exclude):
+            df.drop(["WMA75"], axis=1, inplace=True)
 
     # ボリンジャーバンドの算出
     upper1, middle, lower1 = talib.BBANDS(close, timeperiod=25, nbdevup=1, nbdevdn=1, matype=0)
@@ -268,7 +279,7 @@ def colculate_feature(df, objective=None, exclude=[],
     if (objective == "regression"):
         # 1日後の始値から4日後の始値までの変化率
         # (4 - 1) / 1
-        df.insert(len(df.columns), "target", (df["Open"].pct_change(-3).shift(-1) * -1))
+        df.insert(len(df.columns), "target", (df["Open"].pct_change(3).shift(-4) * 100))
     if (objective == "binary"):
         df.insert(len(df.columns), "growth rate", (df["Open"].pct_change(3).shift(-4)))
         df.insert(len(df.columns), "target", (df["growth rate"].copy() > 0))

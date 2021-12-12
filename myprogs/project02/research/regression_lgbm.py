@@ -70,7 +70,7 @@ def main():
     kfold_splits = 10
 
     # seed値
-    seed = 41
+    seed = 42
 
     # 証券コード
     security_codes = [

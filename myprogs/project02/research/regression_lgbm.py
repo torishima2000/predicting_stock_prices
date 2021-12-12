@@ -31,7 +31,7 @@ class Objective:
         param = {
             "objective": trial.suggest_categorical("objective", ["regression"]),                # 回帰
             "metric": trial.suggest_categorical("metric", ["rmse"]),                            # 二乗平均平方根誤差
-            "boosting": trial.suggest_categorical("boosting", ["gbdt", "dart"]),                # 勾配ブースティング
+            "boosting": trial.suggest_categorical("boosting", ["gbdt"]),                        # 勾配ブースティング
             "lambda_l1": trial.suggest_float("lambda_l1", 1e-8, 10.0, log=True),                # 正則化項1
             "lambda_l2": trial.suggest_float("lambda_l2", 1e-8, 10.0, log=True),                # 正則化項2
             "feature_fraction": trial.suggest_float("feature_fraction", 0.4, 1.0),              # 特徴量の使用割合

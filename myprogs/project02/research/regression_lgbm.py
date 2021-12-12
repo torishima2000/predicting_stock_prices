@@ -67,7 +67,7 @@ class Objective:
 def main():
     # 変数の定義
     # K-分割交差検証法(k-fold cross-validation)の分割数
-    kfold_splits = 10
+    kfold_splits = 11
 
     # seed値
     seed = 42
